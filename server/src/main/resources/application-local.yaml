@@ -1,0 +1,13 @@
+spring:
+  application.name: microconfig-server
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    io.microconfig: TRACE

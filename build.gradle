@@ -1,0 +1,35 @@
+plugins {
+    id 'org.springframework.boot' version '2.2.2.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'java'
+    id 'idea'
+}
+
+bootJar.enabled = false
+sourceCompatibility = '13'
+
+repositories {
+    mavenCentral()
+}
+
+subprojects {
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'java'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+    }
+}
+
+ext.libs = [
+        test: [
+                'org.springframework.boot:spring-boot-starter-test',
+                'org.assertj:assertj-core:3.11.1'
+        ]
+]
