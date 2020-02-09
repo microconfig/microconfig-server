@@ -1,12 +1,13 @@
 package io.microconfig.server;
 
+import com.bettercloud.vault.VaultConfig;
+import com.bettercloud.vault.VaultException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import java.net.http.HttpClient;
 
 @SpringBootApplication
 @Slf4j
@@ -17,8 +18,10 @@ public class ServerMain {
     }
 
     @Bean
-    public HttpClient httpClient() {
-        return HttpClient.newHttpClient();
+    public VaultConfig vault(@Value("${vault.address}") String address) throws VaultException {
+        return new VaultConfig()
+            .address(address)
+            .engineVersion(2)
+            .build();
     }
-
 }

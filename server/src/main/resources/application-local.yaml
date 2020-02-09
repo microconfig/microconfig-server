@@ -4,6 +4,9 @@ spring:
     banner-mode: off
     allow-bean-definition-overriding: true
 
+vault:
+  address: http://127.0.0.1:8200
+
 server:
   port: 8080
 
