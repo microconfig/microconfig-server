@@ -13,8 +13,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Slf4j
 @EnableScheduling
 public class ServerMain {
+
     public static void main(String[] args) {
-        SpringApplication.run(ServerMain.class, args);
+        var context = SpringApplication.run(ServerMain.class, args);
     }
 
     @Bean
@@ -24,4 +25,5 @@ public class ServerMain {
             .engineVersion(2)
             .build();
     }
+
 }

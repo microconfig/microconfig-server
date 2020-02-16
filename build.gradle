@@ -18,6 +18,7 @@ subprojects {
     apply plugin: 'java'
 
     repositories {
+        mavenLocal()
         mavenCentral()
     }
 
@@ -33,3 +34,8 @@ ext.libs = [
                 'org.assertj:assertj-core:3.11.1'
         ]
 ]
+
+test {
+    useJUnitPlatform()
+    exclude '**/*IT.class'
+}

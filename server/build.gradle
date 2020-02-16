@@ -3,6 +3,7 @@ bootJar {
 }
 
 dependencies {
+    implementation 'io.microconfig:microconfig-core:3.9.11:all'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.security:spring-security-core'
     implementation 'org.apache.commons:commons-lang3:3.9'
@@ -10,6 +11,8 @@ dependencies {
     implementation 'org.apache.commons:commons-collections4:4.4'
     implementation 'com.google.guava:guava:28.1-jre'
     implementation 'com.bettercloud:vault-java-driver:5.1.0'
+    compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.6.0.201912101111-r'
+
 
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 

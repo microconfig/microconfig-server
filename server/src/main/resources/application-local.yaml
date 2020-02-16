@@ -7,6 +7,9 @@ spring:
 vault:
   address: http://127.0.0.1:8200
 
+config:
+  local: /Users/kapodes/microconfig/example
+
 server:
   port: 8080
 
