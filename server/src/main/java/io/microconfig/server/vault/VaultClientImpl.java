@@ -14,7 +14,7 @@ public class VaultClientImpl implements VaultClient {
     private final VaultConfig config;
 
     @Override
-    public String fetch(VaultCredentials credentials, String placeholder) {
+    public String fetchSecret(VaultCredentials credentials, String placeholder) {
         var dot = placeholder.lastIndexOf('.');
         var path = placeholder.substring(0, dot);
         var key = placeholder.substring(dot + 1);

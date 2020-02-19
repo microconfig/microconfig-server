@@ -14,7 +14,7 @@ public class VaultResolver implements PropertyPlaceholderHelper.PlaceholderResol
     public String resolvePlaceholder(String placeholder) {
         if (!placeholder.startsWith("VAULT")) return null;
 
-        return client.fetch(credentials, placeholder);
+        return client.fetchSecret(credentials, placeholder);
     }
 
     public class VaultPropertySource implements PropertySource {

@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GitServiceImpl implements GitService {
     private final Git git;
-    private String currentBranch;
+    private volatile String currentBranch;
 
     public static GitService init(File localDir, String remoteUrl) {
         try {
@@ -40,7 +40,7 @@ public class GitServiceImpl implements GitService {
     }
 
     @Override
-    public void checkout(String branch) {
+    public synchronized void checkout(String branch) {
         try {
             git.checkout().setName(branch).call();
             this.currentBranch = branch;
