@@ -24,6 +24,8 @@ public class VaultPlaceholderResolveStrategy implements PlaceholderResolveStrate
         if (!"VAULT".equals(component.getName())) return empty();
 
         String secret = vaultClient.fetchSecret(credentials, propertyKey);
+        if (secret == null) return empty();
+
         return of(property(propertyKey, secret, environment, new SpecialSource(component, "HashiCorp Vault")));
     }
 }
