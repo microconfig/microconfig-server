@@ -13,6 +13,7 @@ import java.util.Map;
 
 import static io.microconfig.core.properties.Property.asStringMap;
 import static io.microconfig.factory.configtypes.StandardConfigTypes.APPLICATION;
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Service
@@ -32,7 +33,7 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
         return microConfigFactoryAdapter.init(
                 gitRootDir,
                 APPLICATION.getType(),
-                new VaultPlaceholderResolveStrategy(vaultClient, vaultCredentials)
+                new VaultPlaceholderResolveStrategy(vaultClient, requireNonNull(vaultCredentials))
         );
     }
 }
