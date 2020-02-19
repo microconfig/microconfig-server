@@ -17,7 +17,7 @@ public class VaultResolver implements PropertyPlaceholderHelper.PlaceholderResol
         return client.fetchSecret(credentials, placeholder);
     }
 
-    public class VaultPropertySource implements PropertySource {
+    public static class VaultPropertySource implements PropertySource {
         private final Component VAULT_COMPONENT = new Component("VAULT", "PLUGIN");
 
         @Override

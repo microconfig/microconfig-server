@@ -15,14 +15,17 @@ public class VaultClientImpl implements VaultClient {
 
     @Override
     public String fetchSecret(VaultCredentials credentials, String placeholder) {
-        var dot = placeholder.lastIndexOf('.');
-        var path = placeholder.substring(0, dot);
-        var key = placeholder.substring(dot + 1);
+        int dotIndex = placeholder.lastIndexOf('.');
+        String path = placeholder.substring(0, dotIndex);
+        String key = placeholder.substring(dotIndex + 1);
         log.debug("Fetching {} {}", path, key);
 
         try {
-            var vault = credentials.insert(config);
-            return vault.logical().read(path).getData().get(key);
+            return credentials.insert(config)
+                    .logical()
+                    .read(path)
+                    .getData()
+                    .get(key);
         } catch (VaultException e) {
             throw new RuntimeException(e);
         }

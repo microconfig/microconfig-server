@@ -9,6 +9,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import static java.util.Objects.requireNonNull;
+
 @Component
 public class VaultCredentialsResolver implements HandlerMethodArgumentResolver {
     @Override
@@ -17,12 +19,12 @@ public class VaultCredentialsResolver implements HandlerMethodArgumentResolver {
     }
 
     @Override
-    public VaultCredentials resolveArgument(MethodParameter parameter,
-                                            ModelAndViewContainer mavContainer,
+    public VaultCredentials resolveArgument(MethodParameter ignored,
+                                            ModelAndViewContainer ignored2,
                                             NativeWebRequest webRequest,
-                                            WebDataBinderFactory binderFactory) {
-        var type = webRequest.getHeader("X-AUTH-TYPE");
-        if (type == null) throw new RuntimeException("No credentials type");
+                                            WebDataBinderFactory ignored3) {
+        var type = requireNonNull(webRequest.getHeader("X-AUTH-TYPE"), "No credentials type");
+
         //todo add approle
         if (type.equals("VAULT_TOKEN")) {
             var token = webRequest.getHeader("X-VAULT-TOKEN");
