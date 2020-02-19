@@ -10,12 +10,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GitServiceIT {
     private String remote = "https://github.com/microconfig/configs-layout-example.git";
     private File local = new File(System.getProperty("user.home") + "/microconfig/example");
-    private GitService git;
+    private GitServiceImpl git;
 
     @Before
     public void setUp() {
-        git = new GitService(remote, local);
-        git.checkOutCurrentBranch();
+        git = (GitServiceImpl) GitServiceImpl.init(local, remote);
+        git.checkout("master");
     }
 
     @Test
@@ -26,6 +26,6 @@ public class GitServiceIT {
 
     @Test
     public void should_checkout_branch() {
-        git.checkoutBranch("master");
+        git.checkout("master");
     }
 }

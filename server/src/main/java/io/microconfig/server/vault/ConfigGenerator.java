@@ -21,11 +21,11 @@ import static java.util.Collections.emptyMap;
 public class ConfigGenerator {
     private final GitService gitService;
     private final VaultClient vaultClient;
-    private final MicroconfigFactoryUpdate factory;
+    private final MicroConfigFactoryUpdate factory;
 
     public List<GeneratedConfig> generateConfig(String component, String env, PluginContext pluginContext) {
         var resolvers = resolvers(pluginContext);
-        var api = factory.init(gitService.getLocal(), resolvers, APPLICATION.getType());
+        var api = factory.init(gitService.getLocalDir(), resolvers, APPLICATION.getType());
 
         return api.generate(component, env);
     }
@@ -46,15 +46,15 @@ public class ConfigGenerator {
         private final String content;
     }
 
-    public interface MicroconfigApi {
+    public interface MicroConfigApi {
         List<GeneratedConfig> generate(String component, String env);
     }
 
-    private interface MicroconfigFactoryUpdate {
+    private interface MicroConfigFactoryUpdate {
         //configures api to return all possible config types for component yaml/props/xml/deploy/etc
-        MicroconfigApi init(File rootDir, Map<String, PlaceholderResolver> resolvers);
+        MicroConfigApi init(File rootDir, Map<String, PlaceholderResolver> resolvers);
 
         //configures api to return only selected config type
-        MicroconfigApi init(File rootDir, Map<String, PlaceholderResolver> resolvers, ConfigType type);
+        MicroConfigApi init(File rootDir, Map<String, PlaceholderResolver> resolvers, ConfigType type);
     }
 }
