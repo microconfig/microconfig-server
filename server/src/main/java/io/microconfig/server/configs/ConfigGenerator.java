@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 import static io.microconfig.factory.configtypes.StandardConfigTypes.APPLICATION;
@@ -25,7 +24,7 @@ public class ConfigGenerator {
     private final VaultClient vaultClient;
     private final MicroConfigFactoryUpdate factory;
 
-    public List<GeneratedConfig> generateConfig(String component, String env, PluginContext pluginContext) {
+    public Map<String, String> generateConfigs(String component, String env, PluginContext pluginContext) {
         var resolvers = resolvers(pluginContext);
         var api = factory.init(gitService.getLocalDir(), resolvers, APPLICATION.getType());
 
@@ -43,7 +42,7 @@ public class ConfigGenerator {
     }
 
     public interface MicroConfigApi {
-        List<GeneratedConfig> generate(String component, String env);
+        Map<String, String> generate(String component, String env);
     }
 
     private interface MicroConfigFactoryUpdate {
