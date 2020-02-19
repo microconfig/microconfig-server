@@ -1,4 +1,4 @@
-package io.microconfig.server;
+package io.microconfig.server.vault;
 
 import com.bettercloud.vault.VaultConfig;
 import com.bettercloud.vault.VaultException;

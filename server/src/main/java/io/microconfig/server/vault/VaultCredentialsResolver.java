@@ -1,4 +1,4 @@
-package io.microconfig.server;
+package io.microconfig.server.vault;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;

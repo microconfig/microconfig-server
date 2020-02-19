@@ -1,4 +1,4 @@
-package io.microconfig.server;
+package io.microconfig.server.git;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +15,7 @@ public class GitServiceIT {
     @Before
     public void setUp() {
         git = new GitService(remote, local);
-        git.postConstruct();
+        git.checkOutCurrentBranch();
     }
 
     @Test

@@ -1,5 +1,8 @@
-package io.microconfig.server;
+package io.microconfig.server.rest;
 
+import io.microconfig.server.vault.ConfigGenerator;
+import io.microconfig.server.vault.VaultClient;
+import io.microconfig.server.vault.VaultCredentials;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;

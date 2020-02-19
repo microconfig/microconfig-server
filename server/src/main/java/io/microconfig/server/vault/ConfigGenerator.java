@@ -1,6 +1,7 @@
-package io.microconfig.server;
+package io.microconfig.server.vault;
 
 import io.microconfig.factory.ConfigType;
+import io.microconfig.server.git.GitService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
