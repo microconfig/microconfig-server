@@ -1,6 +1,5 @@
 package io.microconfig.server.configs;
 
-import io.microconfig.factory.ConfigType;
 import io.microconfig.server.git.GitService;
 import io.microconfig.server.vault.PluginContext;
 import io.microconfig.server.vault.VaultClient;
@@ -9,9 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.PropertyPlaceholderHelper;
-import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
 
-import java.io.File;
 import java.util.Map;
 
 import static io.microconfig.factory.configtypes.StandardConfigTypes.APPLICATION;
@@ -23,14 +20,14 @@ import static java.util.Collections.emptyMap;
 public class ConfigGeneratorImpl implements ConfigGenerator {
     private final GitService gitService;
     private final VaultClient vaultClient;
-    private final MicroConfigFactoryUpdate factory;
+    private final MicroConfigFactory microConfigFactory;
 
     @Override
     public Map<String, String> generateConfigs(String component, String env, PluginContext pluginContext) {
         var resolvers = resolvers(pluginContext);
-        var api = factory.init(gitService.getLocalDir(), resolvers, APPLICATION.getType());
 
-        return api.generate(component, env);
+        MicroConfig mc = microConfigFactory.init(gitService.getLocalDir(), resolvers, APPLICATION.getType());
+        return mc.generateConfigs(component, env);
     }
 
     private Map<String, PropertyPlaceholderHelper.PlaceholderResolver> resolvers(PluginContext pluginContext) {
@@ -41,17 +38,5 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
         }
 
         return emptyMap();
-    }
-
-    public interface MicroConfigApi {
-        Map<String, String> generate(String component, String env);
-    }
-
-    private interface MicroConfigFactoryUpdate {
-        //configures api to return all possible config types for component yaml/props/xml/deploy/etc
-        MicroConfigApi init(File rootDir, Map<String, PlaceholderResolver> resolvers);
-
-        //configures api to return only selected config type
-        MicroConfigApi init(File rootDir, Map<String, PlaceholderResolver> resolvers, ConfigType type);
     }
 }
