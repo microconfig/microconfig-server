@@ -31,7 +31,7 @@ subprojects {
 ext.libs = [
         test: [
                 'org.springframework.boot:spring-boot-starter-test',
-                'org.assertj:assertj-core:3.11.1'
+                'org.assertj:assertj-core'
         ]
 ]
 

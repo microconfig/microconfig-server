@@ -8,9 +8,9 @@ import java.io.File;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GitServiceIT {
-    String remote = "https://github.com/microconfig/configs-layout-example.git";
-    File local = new File(System.getProperty("user.home") + "/microconfig/example");
-    GitService git;
+    private String remote = "https://github.com/microconfig/configs-layout-example.git";
+    private File local = new File(System.getProperty("user.home") + "/microconfig/example");
+    private GitService git;
 
     @Before
     public void setUp() {

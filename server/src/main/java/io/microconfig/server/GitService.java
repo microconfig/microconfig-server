@@ -14,9 +14,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-@RequiredArgsConstructor
-@Service
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class GitService {
     private final String remote;
     @Getter
@@ -26,11 +26,7 @@ public class GitService {
 
     @PostConstruct
     public void postConstruct() {
-        if (local.exists()) {
-            git = useLocal();
-        } else {
-            git = cloneRemote();
-        }
+        git = local.exists() ? useLocal() : cloneRemote();
         checkoutBranch(currentBranch);
     }
 
@@ -46,9 +42,9 @@ public class GitService {
     private Git cloneRemote() {
         try {
             var git = Git.cloneRepository()
-                .setURI(remote)
-                .setDirectory(local)
-                .call();
+                    .setURI(remote)
+                    .setDirectory(local)
+                    .call();
             log.info("Cloned repository: " + git.getRepository().getDirectory());
             return git;
         } catch (Exception e) {

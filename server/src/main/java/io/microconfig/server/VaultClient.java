@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
 
-@Service
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class VaultClient {
     private final VaultConfig config;
@@ -18,6 +18,7 @@ public class VaultClient {
         var path = placeholder.substring(0, dot);
         var key = placeholder.substring(dot + 1);
         log.debug("Fetching {} {}", path, key);
+
         try {
             var vault = credentials.insert(config);
             return vault.logical().read(path).getData().get(key);
