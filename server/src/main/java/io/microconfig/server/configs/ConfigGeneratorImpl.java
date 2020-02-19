@@ -27,7 +27,7 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
         var resolvers = resolvers(pluginContext);
 
         MicroConfig mc = microConfigFactory.init(gitService.getLocalDir(), resolvers, APPLICATION.getType());
-        return mc.generateConfigs(component, env);
+        return mc.getProperties(component, env);
     }
 
     private Map<String, PropertyPlaceholderHelper.PlaceholderResolver> resolvers(PluginContext pluginContext) {
