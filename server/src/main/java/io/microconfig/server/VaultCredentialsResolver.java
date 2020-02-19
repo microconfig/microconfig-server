@@ -15,7 +15,10 @@ public class VaultCredentialsResolver implements HandlerMethodArgumentResolver {
     }
 
     @Override
-    public VaultCredentials resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+    public VaultCredentials resolveArgument(MethodParameter parameter,
+                                            ModelAndViewContainer mavContainer,
+                                            NativeWebRequest webRequest,
+                                            WebDataBinderFactory binderFactory) {
         var type = webRequest.getHeader("X-AUTH-TYPE");
         if (type == null) throw new RuntimeException("No credentials type");
         //todo add approle

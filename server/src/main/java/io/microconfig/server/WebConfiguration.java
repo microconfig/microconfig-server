@@ -1,7 +1,6 @@
 package io.microconfig.server;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +16,6 @@ import static org.springframework.http.HttpMethod.*;
 
 @Configuration
 @RequiredArgsConstructor
-@Slf4j
 public class WebConfiguration implements WebMvcConfigurer {
     private final VaultCredentialsResolver vaultCredentialsResolver;
 
@@ -36,9 +34,8 @@ public class WebConfiguration implements WebMvcConfigurer {
         config.addAllowedMethod(PATCH);
         config.addAllowedMethod(DELETE);
         source.registerCorsConfiguration("/api/**", config);
-        FilterRegistrationBean bean = new FilterRegistrationBean<>(new CorsFilter(source));
+        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
         bean.setOrder(0);
         return bean;
     }
-
 }

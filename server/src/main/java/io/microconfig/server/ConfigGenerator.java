@@ -14,9 +14,9 @@ import java.util.Map;
 import static io.microconfig.factory.configtypes.StandardConfigTypes.APPLICATION;
 import static java.util.Collections.emptyMap;
 
-@RequiredArgsConstructor
-@Service
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class ConfigGenerator {
     private final GitService gitService;
     private final VaultClient vaultClient;
@@ -50,7 +50,6 @@ public class ConfigGenerator {
     }
 
     private interface MicroconfigFactoryUpdate {
-
         //configures api to return all possible config types for component yaml/props/xml/deploy/etc
         MicroconfigApi init(File rootDir, Map<String, PlaceholderResolver> resolvers);
 
