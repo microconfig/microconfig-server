@@ -13,12 +13,8 @@ import java.util.List;
 public class MicroConfigFactoryAdapterImpl implements MicroConfigFactoryAdapter {
     @Override
     public ConfigProvider init(File rootDir, ConfigType type, PlaceholderResolveStrategy... additionalResolvers) {
-        return getFactory(rootDir, additionalResolvers)
-                .newConfigProvider(type);
-    }
-
-    private MicroconfigFactory getFactory(File rootDir, PlaceholderResolveStrategy... additionalResolvers) {
         return MicroconfigFactory.init(rootDir, new File(rootDir, "build"))
-                .withAdditionalResolvers(List.of(additionalResolvers));
+                .withAdditionalResolvers(List.of(additionalResolvers))
+                .newConfigProvider(type);
     }
 }
