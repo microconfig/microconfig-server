@@ -1,16 +1,16 @@
 package io.microconfig.server.configs;
 
-import io.microconfig.configs.Property;
-import io.microconfig.configs.resolver.placeholder.PlaceholderResolveStrategy;
-import io.microconfig.configs.sources.SpecialSource;
-import io.microconfig.environments.Component;
+import io.microconfig.core.environments.Component;
+import io.microconfig.core.properties.Property;
+import io.microconfig.core.properties.resolver.placeholder.PlaceholderResolveStrategy;
+import io.microconfig.core.properties.sources.SpecialSource;
 import io.microconfig.server.vault.VaultClient;
 import io.microconfig.server.vault.VaultCredentials;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 
-import static io.microconfig.configs.Property.property;
+import static io.microconfig.core.properties.Property.property;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
