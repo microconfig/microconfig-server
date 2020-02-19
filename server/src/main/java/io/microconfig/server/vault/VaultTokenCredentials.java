@@ -11,7 +11,7 @@ public class VaultTokenCredentials implements VaultCredentials {
     private final String token;
 
     @Override
-    public Vault insert(VaultConfig config) {
+    public Vault toVault(VaultConfig config) {
         return new Vault(config.token(token));
     }
 }

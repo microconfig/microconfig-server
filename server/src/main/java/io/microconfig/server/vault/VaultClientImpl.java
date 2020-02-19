@@ -13,14 +13,14 @@ public class VaultClientImpl implements VaultClient {
     private final VaultConfig config;
 
     @Override
-    public String fetchSecret(VaultCredentials credentials, String placeholder) {
-        int dotIndex = placeholder.lastIndexOf('.');
-        String path = placeholder.substring(0, dotIndex);
-        String key = placeholder.substring(dotIndex + 1);
+    public String fetchSecret(VaultCredentials credentials, String property) {
+        int dotIndex = property.lastIndexOf('.');
+        String path = property.substring(0, dotIndex);
+        String key = property.substring(dotIndex + 1);
         log.debug("Fetching {} {}", path, key);
 
         try {
-            return credentials.insert(config)
+            return credentials.toVault(config)
                     .logical()
                     .read(path)
                     .getData()
