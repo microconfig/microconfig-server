@@ -6,14 +6,12 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Ref;
-import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class GitServiceImpl implements GitService {
     private final Git git;
