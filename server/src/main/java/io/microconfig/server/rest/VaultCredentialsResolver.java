@@ -1,5 +1,7 @@
-package io.microconfig.server.vault;
+package io.microconfig.server.rest;
 
+import io.microconfig.server.vault.VaultCredentials;
+import io.microconfig.server.vault.VaultTokenCredentials;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;

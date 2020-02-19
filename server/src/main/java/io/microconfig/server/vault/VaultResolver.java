@@ -2,8 +2,6 @@ package io.microconfig.server.vault;
 
 import io.microconfig.configs.PropertySource;
 import io.microconfig.environments.Component;
-import io.microconfig.server.vault.VaultClient;
-import io.microconfig.server.vault.VaultCredentials;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.PropertyPlaceholderHelper;
 

@@ -1,8 +1,10 @@
-package io.microconfig.server.vault;
+package io.microconfig.server.configs;
 
 import io.microconfig.factory.ConfigType;
 import io.microconfig.server.git.GitService;
-import lombok.Data;
+import io.microconfig.server.vault.PluginContext;
+import io.microconfig.server.vault.VaultClient;
+import io.microconfig.server.vault.VaultCredentials;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,17 +35,11 @@ public class ConfigGenerator {
     private Map<String, PlaceholderResolver> resolvers(PluginContext pluginContext) {
         if (pluginContext instanceof VaultCredentials) {
             var credentials = (VaultCredentials) pluginContext;
-            var vaultResolver = vaultClient.resolver(credentials);
+            var vaultResolver = vaultClient.asResolver(credentials);
             return Map.of("VAULT", vaultResolver);
         }
 
         return emptyMap();
-    }
-
-    @Data
-    public static class GeneratedConfig {
-        private final String name;
-        private final String content;
     }
 
     public interface MicroConfigApi {

@@ -1,6 +1,5 @@
 package io.microconfig.server.rest;
 
-import io.microconfig.server.vault.VaultCredentialsResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

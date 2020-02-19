@@ -15,12 +15,4 @@ public class MicroConfigServerStarter {
     public static void main(String[] args) {
         run(MicroConfigServerStarter.class, args);
     }
-
-    @Bean
-    public VaultConfig vault(@Value("${vault.address}") String address) throws VaultException {
-        return new VaultConfig()
-                .address(address)
-                .engineVersion(2)
-                .build();
-    }
 }
