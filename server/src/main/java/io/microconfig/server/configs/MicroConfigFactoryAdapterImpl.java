@@ -7,17 +7,18 @@ import io.microconfig.factory.MicroconfigFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.List;
 
 @Service
 public class MicroConfigFactoryAdapterImpl implements MicroConfigFactoryAdapter {
     @Override
-    public ConfigProvider init(File rootDir, PlaceholderResolveStrategy... additionalResolvers) {
-        return null;
+    public ConfigProvider init(File rootDir, ConfigType type, PlaceholderResolveStrategy... additionalResolvers) {
+        return getFactory(rootDir, additionalResolvers)
+                .newConfigProvider(type);
     }
 
-    @Override
-    public ConfigProvider init(File rootDir, ConfigType type, PlaceholderResolveStrategy... additionalResolvers) {
-        MicroconfigFactory factory = MicroconfigFactory.init(rootDir, new File(rootDir, "build"));
-        return factory.newConfigProvider(type);
+    private MicroconfigFactory getFactory(File rootDir, PlaceholderResolveStrategy... additionalResolvers) {
+        return MicroconfigFactory.init(rootDir, new File(rootDir, "build"))
+                .withAdditionalResolvers(List.of(additionalResolvers));
     }
 }

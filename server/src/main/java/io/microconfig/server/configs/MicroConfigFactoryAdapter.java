@@ -8,7 +8,7 @@ import java.io.File;
 
 interface MicroConfigFactoryAdapter {
     //configures api to return all possible config types for component yaml/props/xml/deploy/etc
-    ConfigProvider init(File rootDir, PlaceholderResolveStrategy... additionalResolvers);
+//    ConfigProvider init(File rootDir, PlaceholderResolveStrategy... additionalResolvers); //todo
 
     //configures api to return only selected config type
     ConfigProvider init(File rootDir, ConfigType type, PlaceholderResolveStrategy... additionalResolvers);
