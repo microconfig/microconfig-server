@@ -5,7 +5,6 @@ import com.bettercloud.vault.VaultException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
 
 @Slf4j
 @Service
@@ -29,10 +28,5 @@ public class VaultClientImpl implements VaultClient {
         } catch (VaultException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public PlaceholderResolver asResolver(VaultCredentials credentials) {
-        return new VaultResolver(this, credentials);
     }
 }
