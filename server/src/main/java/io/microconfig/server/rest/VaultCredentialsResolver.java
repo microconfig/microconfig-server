@@ -28,6 +28,7 @@ public class VaultCredentialsResolver implements HandlerMethodArgumentResolver {
             var token = webRequest.getHeader("X-VAULT-TOKEN");
             return new VaultTokenCredentials(token);
         }
-        return null;
+
+        throw new IllegalStateException("Can't resolve vault credentials");
     }
 }

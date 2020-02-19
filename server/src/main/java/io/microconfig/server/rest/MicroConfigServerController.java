@@ -18,7 +18,7 @@ public class MicroConfigServerController {
     private final VaultClient vaultClient;
     private final ConfigGenerator configGenerator;
 
-    @GetMapping("/vault-secret") // todo secrets via get ?
+    @GetMapping("/vault-secret")
     public String fetchSecret(VaultCredentials credentials, @RequestParam("secret") String secret) {
         log.debug("Fetching {}", secret);
         return vaultClient.fetchSecret(credentials, secret);
