@@ -31,6 +31,6 @@ public class MicroConfigServerApi {
     public Map<String, String> fetchConfigs(@PathVariable("component") String component,
                                             @PathVariable("env") String env,
                                             VaultCredentials credentials) {
-        return configGenerator.generateConfigs(env, component, credentials);
+        return configGenerator.generateConfigs(component, env, credentials);
     }
 }
