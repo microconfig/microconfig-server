@@ -1,23 +1,45 @@
 package io.microconfig.server.git;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
-public class GitServiceIT {
-    private String remote = "https://github.com/microconfig/configs-layout-example.git";
-    private File local = new File(System.getProperty("user.home") + "/microconfig/config");
-    private GitService git;
+import static org.assertj.core.api.Assertions.assertThat;
 
-    @Before
-    public void setUp() {
-        git = GitServiceImpl.init(local, remote);
-        git.checkout("master");
+public class GitServiceIT {
+    private File local = new File(System.getProperty("user.home") + "/microconfig");
+
+    @Test
+    public void should_checkout_open() {
+        var remote = "https://github.com/microconfig/configs-layout-example.git";
+        var config = new GitConfig();
+        config.setRemoteUrl(remote);
+        config.setWorkingDir(local);
+
+        //when
+        var git = new GitServiceImpl(config);
+
+        //then
+        var expected = new File(local, "configs-layout-example");
+        assertThat(expected).exists();
+        assertThat(expected).isDirectory();
     }
 
     @Test
-    public void should_checkout_branch() {
-        git.checkout("master");
+    public void should_checkout_private() {
+        var remote = "private url";
+        var config = new GitConfig();
+        config.setRemoteUrl(remote);
+        config.setWorkingDir(local);
+        config.setUsername("user");
+        config.setPassword("passs");
+
+        //when
+        var git = new GitServiceImpl(config);
+
+        //then
+        var expected = new File(local, "name");
+        assertThat(expected).exists();
+        assertThat(expected).isDirectory();
     }
 }

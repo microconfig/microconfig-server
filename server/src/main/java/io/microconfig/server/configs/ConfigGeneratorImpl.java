@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static io.microconfig.factory.configtypes.StandardConfigTypes.APPLICATION;
+import static io.microconfig.factory.configtypes.StandardConfigTypes.DEPLOY;
 import static io.microconfig.factory.configtypes.StandardConfigTypes.PROCESS;
 
 @Slf4j
@@ -30,11 +31,12 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
 
         var app = generate(factory, APPLICATION.getType(), component, env);
         var process = generate(factory, PROCESS.getType(), component, env);
-        return List.of(app, process);
+        var deploy = generate(factory, DEPLOY.getType(), component, env);
+        return List.of(app, process, deploy);
     }
 
     private MicroconfigFactory init(String branch, PlaceholderResolveStrategy... resolvers) {
-        var configDir = gitService.checkout(branch);
+        var configDir = branch == null ? gitService.checkoutDefault() : gitService.checkout(branch);
         return MicroconfigFactory.init(configDir, new File(configDir, "build"))
             .withAdditionalResolvers(List.of(resolvers));
     }

@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 @Slf4j
 @RestController
 @RequestMapping("/api")
@@ -32,9 +34,13 @@ public class MicroConfigServerApi {
     @GetMapping("/config/{component}/{env}")
     public List<ConfigResult> fetchConfigs(@PathVariable("component") String component,
                                            @PathVariable("env") String env,
-                                           @RequestParam(value = "branch", defaultValue = "master") String branch,
+                                           @RequestParam(value = "branch", required = false) String branch,
                                            VaultCredentials credentials) {
         var vaultResolver = new VaultPlaceholderResolveStrategy(vaultClient, credentials);
-        return configGenerator.generateConfigs(component, env, branch, vaultResolver);
+        return configGenerator
+            .generateConfigs(component, env, branch, vaultResolver)
+            .stream()
+            .filter(r -> !r.getContent().isEmpty())
+            .collect(toList());
     }
 }

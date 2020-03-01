@@ -1,11 +1,11 @@
 package io.microconfig.server.git;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,16 +14,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@RequiredArgsConstructor
+@Service
 public class GitServiceImpl implements GitService {
     private final Git git;
+    private final GitConfig config;
     private final File configDir;
     private final Map<String, Instant> pulls = new HashMap<>();
 
-    public static GitService init(File localDir, String remoteUrl) {
+    public GitServiceImpl(GitConfig config) {
+        this.config = config;
+        this.git = build(config);
+        this.configDir = git.getRepository().getDirectory().getParentFile();
+    }
+
+    public Git build(GitConfig config) {
         try {
-            var git = localDir.exists() ? useLocal(localDir) : cloneRemote(remoteUrl, localDir);
-            return new GitServiceImpl(git, git.getRepository().getDirectory().getParentFile());
+            var localDir = new File(config.getWorkingDir(), config.repoFolderName());
+            return localDir.exists() ? useLocal(localDir) : cloneRemote(config, localDir);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -33,11 +40,18 @@ public class GitServiceImpl implements GitService {
         return new Git(new FileRepository(new File(localDir, "/.git")));
     }
 
-    private static Git cloneRemote(String remoteUrl, File localDir) throws GitAPIException {
+    private static Git cloneRemote(GitConfig config, File localDir) throws GitAPIException {
         return Git.cloneRepository()
-            .setURI(remoteUrl)
+            .setCredentialsProvider(config.credentialsProvider())
+            .setURI(config.getRemoteUrl())
             .setDirectory(localDir)
+            .setBranch(config.getDefaultBranch())
             .call();
+    }
+
+    @Override
+    public synchronized File checkoutDefault() {
+        return checkout(config.getDefaultBranch());
     }
 
     @Override
@@ -64,7 +78,7 @@ public class GitServiceImpl implements GitService {
         var now = Instant.now();
         if (pulls.computeIfAbsent(branch, __ -> now.minusSeconds(10)).isBefore(now)) {
             log.debug("Pulling branch {}", branch);
-            git.pull().call();
+            git.pull().setCredentialsProvider(config.credentialsProvider()).call();
             pulls.put(branch, now.plusSeconds(10));
         }
     }
@@ -76,5 +90,4 @@ public class GitServiceImpl implements GitService {
             .setStartPoint("origin/" + name)
             .call();
     }
-
 }

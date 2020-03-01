@@ -26,6 +26,11 @@ subprojects {
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
     }
+
+    test {
+        useJUnitPlatform()
+        exclude '**/*IT.class'
+    }
 }
 
 ext.libs = [
@@ -34,8 +39,3 @@ ext.libs = [
                 'org.assertj:assertj-core'
         ]
 ]
-
-test {
-    useJUnitPlatform()
-    exclude '**/*IT.class'
-}
