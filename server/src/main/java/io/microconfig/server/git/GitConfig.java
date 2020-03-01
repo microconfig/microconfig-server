@@ -16,9 +16,9 @@ import java.io.File;
 public class GitConfig {
     private File workingDir;
     private String remoteUrl;
-    private String username = "open";
-    private String password = "source";
-    private String defaultBranch = "master";
+    private String username;
+    private String password;
+    private String defaultBranch;
 
     public CredentialsProvider credentialsProvider() {
         return new UsernamePasswordCredentialsProvider(username, password);

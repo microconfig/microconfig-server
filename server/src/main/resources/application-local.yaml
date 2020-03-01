@@ -10,8 +10,11 @@ vault:
 server.port: 8080
 
 git:
-  workingDir: /Users/kapodes/microconfig/
-  remoteUrl: https://github.com/microconfig/configs-layout-example.git
+  workingDir: ${WORK_DIR}
+  remoteUrl: ${REMOTE_URL}
+  default-branch: ${DEFAULT_BRANCH:master}
+  username: ${USERNAME:open}
+  password: ${PASSWORD:source}
 
 logging:
   level:

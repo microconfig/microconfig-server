@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static io.microconfig.factory.configtypes.StandardConfigTypes.DEPLOY;
 import static java.util.stream.Collectors.toList;
 
 @Slf4j
@@ -42,5 +43,16 @@ public class MicroConfigServerApi {
             .stream()
             .filter(r -> !r.getContent().isEmpty())
             .collect(toList());
+    }
+
+    @GetMapping("/config/{component}/{env}/deploy")
+    public String fetchDeploy(@PathVariable("component") String component,
+                              @PathVariable("env") String env,
+                              @RequestParam(value = "branch", required = false) String branch,
+                              VaultCredentials credentials) {
+        var vaultResolver = new VaultPlaceholderResolveStrategy(vaultClient, credentials);
+        return configGenerator
+            .generateConfig(component, env, branch, DEPLOY.getType(), vaultResolver)
+            .getContent();
     }
 }

@@ -26,6 +26,12 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
     private final GitService gitService;
 
     @Override
+    public ConfigResult generateConfig(String component, String env, String branch, ConfigType type, PlaceholderResolveStrategy... resolvers) {
+        var factory = init(branch, resolvers);
+        return generate(factory, type, component, env);
+    }
+
+    @Override
     public List<ConfigResult> generateConfigs(String component, String env, String branch, PlaceholderResolveStrategy... resolvers) {
         var factory = init(branch, resolvers);
 
