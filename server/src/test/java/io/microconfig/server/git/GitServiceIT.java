@@ -5,23 +5,15 @@ import org.junit.Test;
 
 import java.io.File;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class GitServiceIT {
     private String remote = "https://github.com/microconfig/configs-layout-example.git";
-    private File local = new File(System.getProperty("user.home") + "/microconfig/example");
-    private GitServiceImpl git;
+    private File local = new File(System.getProperty("user.home") + "/microconfig/config");
+    private GitService git;
 
     @Before
     public void setUp() {
-        git = (GitServiceImpl) GitServiceImpl.init(local, remote);
+        git = GitServiceImpl.init(local, remote);
         git.checkout("master");
-    }
-
-    @Test
-    public void should_return_refs() {
-        var refs = git.refs();
-        assertThat(refs.size()).isNotEqualTo(0);
     }
 
     @Test

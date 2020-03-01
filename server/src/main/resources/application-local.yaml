@@ -10,7 +10,7 @@ vault:
 server.port: 8080
 
 git:
-  localDir: /Users/kapodes/microconfig/example
+  workingDir: /Users/kapodes/microconfig/
   remoteUrl: https://github.com/microconfig/configs-layout-example.git
 
 logging:

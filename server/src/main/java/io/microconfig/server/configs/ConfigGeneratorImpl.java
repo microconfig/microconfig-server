@@ -6,8 +6,9 @@ import io.microconfig.core.properties.Property;
 import io.microconfig.core.properties.resolver.placeholder.PlaceholderResolveStrategy;
 import io.microconfig.factory.ConfigType;
 import io.microconfig.factory.MicroconfigFactory;
+import io.microconfig.server.git.GitService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -19,24 +20,22 @@ import static io.microconfig.factory.configtypes.StandardConfigTypes.PROCESS;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ConfigGeneratorImpl implements ConfigGenerator {
-    private final File gitRootDir;
-
-    public ConfigGeneratorImpl(@Value("${git.localDir:}") File gitRootDir) {
-        this.gitRootDir = gitRootDir;
-    }
+    private final GitService gitService;
 
     @Override
-    public List<ConfigResult> generateConfigs(String component, String env, PlaceholderResolveStrategy... resolvers) {
-        var factory = init(resolvers);
+    public List<ConfigResult> generateConfigs(String component, String env, String branch, PlaceholderResolveStrategy... resolvers) {
+        var factory = init(branch, resolvers);
 
         var app = generate(factory, APPLICATION.getType(), component, env);
         var process = generate(factory, PROCESS.getType(), component, env);
         return List.of(app, process);
     }
 
-    private MicroconfigFactory init(PlaceholderResolveStrategy... resolvers) {
-        return MicroconfigFactory.init(gitRootDir, new File(gitRootDir, "build"))
+    private MicroconfigFactory init(String branch, PlaceholderResolveStrategy... resolvers) {
+        var configDir = gitService.checkout(branch);
+        return MicroconfigFactory.init(configDir, new File(configDir, "build"))
             .withAdditionalResolvers(List.of(resolvers));
     }
 

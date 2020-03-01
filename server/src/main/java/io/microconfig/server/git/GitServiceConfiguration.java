@@ -9,9 +9,10 @@ import java.io.File;
 @Configuration
 class GitServiceConfiguration {
     @Bean
-    public GitService gitService(@Value("${git.localDir:}") File localDir, @Value("${git.remoteUrl:}") String remoteUrl) {
+    public GitService gitService(@Value("${git.workingDir:}") File workingDir, @Value("${git.remoteUrl:}") String remoteUrl) {
+        var localDir = new File(workingDir, "/config");
         GitService service = GitServiceImpl.init(localDir, remoteUrl);
-        service.checkout("vault");
+        service.checkout("master");
         return service;
     }
 }

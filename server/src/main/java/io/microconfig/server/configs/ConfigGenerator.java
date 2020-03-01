@@ -5,5 +5,5 @@ import io.microconfig.core.properties.resolver.placeholder.PlaceholderResolveStr
 import java.util.List;
 
 public interface ConfigGenerator {
-    List<ConfigResult> generateConfigs(String component, String env, PlaceholderResolveStrategy... resolvers);
+    List<ConfigResult> generateConfigs(String component, String env, String branch, PlaceholderResolveStrategy... resolvers);
 }

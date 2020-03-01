@@ -32,8 +32,9 @@ public class MicroConfigServerApi {
     @GetMapping("/config/{component}/{env}")
     public List<ConfigResult> fetchConfigs(@PathVariable("component") String component,
                                            @PathVariable("env") String env,
+                                           @RequestParam(value = "branch", defaultValue = "master") String branch,
                                            VaultCredentials credentials) {
         var vaultResolver = new VaultPlaceholderResolveStrategy(vaultClient, credentials);
-        return configGenerator.generateConfigs(component, env, vaultResolver);
+        return configGenerator.generateConfigs(component, env, branch, vaultResolver);
     }
 }

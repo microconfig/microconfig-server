@@ -4,22 +4,26 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.lib.Ref;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
 public class GitServiceImpl implements GitService {
     private final Git git;
+    private final File configDir;
+    private final Map<String, Instant> pulls = new HashMap<>();
 
     public static GitService init(File localDir, String remoteUrl) {
         try {
             var git = localDir.exists() ? useLocal(localDir) : cloneRemote(remoteUrl, localDir);
-            return new GitServiceImpl(git);
+            return new GitServiceImpl(git, git.getRepository().getDirectory().getParentFile());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -31,30 +35,46 @@ public class GitServiceImpl implements GitService {
 
     private static Git cloneRemote(String remoteUrl, File localDir) throws GitAPIException {
         return Git.cloneRepository()
-                .setURI(remoteUrl)
-                .setDirectory(localDir)
-                .call();
+            .setURI(remoteUrl)
+            .setDirectory(localDir)
+            .call();
     }
 
     @Override
-    public void checkout(String branch) {
+    public synchronized File checkout(String branchName) {
         try {
-            git.checkout().setName(branch).call();
-        } catch (GitAPIException e) {
+            checkoutBranch(branchName);
+            pullBranch(branchName);
+            return configDir;
+        } catch (RefNotFoundException e) {
+            throw new BranchNotFoundException(branchName);
+        } catch (GitAPIException | IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    @Override
-    public File getLocalDir() {
-        return git.getRepository().getDirectory();
+    private void checkoutBranch(String branchName) throws GitAPIException, IOException {
+        if (git.getRepository().findRef(branchName) == null) {
+            createBranch(branchName);
+        }
+        git.checkout().setName(branchName).call();
     }
 
-    public List<Ref> refs() {
-        try {
-            return git.branchList().call();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    private void pullBranch(String branch) throws GitAPIException {
+        var now = Instant.now();
+        if (pulls.computeIfAbsent(branch, __ -> now.minusSeconds(10)).isBefore(now)) {
+            log.debug("Pulling branch {}", branch);
+            git.pull().call();
+            pulls.put(branch, now.plusSeconds(10));
         }
     }
+
+    private void createBranch(String name) throws GitAPIException {
+        log.debug("Creating and pulling branch {}", name);
+        git.branchCreate()
+            .setName(name)
+            .setStartPoint("origin/" + name)
+            .call();
+    }
+
 }
