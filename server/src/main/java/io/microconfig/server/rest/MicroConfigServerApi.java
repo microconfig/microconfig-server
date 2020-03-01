@@ -1,5 +1,6 @@
 package io.microconfig.server.rest;
 
+import io.microconfig.core.properties.resolver.placeholder.PlaceholderResolveStrategy;
 import io.microconfig.server.configs.ConfigGenerator;
 import io.microconfig.server.configs.ConfigResult;
 import io.microconfig.server.configs.VaultPlaceholderResolveStrategy;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import static io.microconfig.factory.configtypes.StandardConfigTypes.DEPLOY;
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
 @Slf4j
@@ -29,6 +31,7 @@ public class MicroConfigServerApi {
     @GetMapping("/vault-secret/")
     public String fetchSecret(VaultCredentials credentials, @RequestParam("secretName") String secretName) {
         log.debug("Fetching {}", secretName);
+        requireNonNull(credentials, "No credentials provided");
         return vaultClient.fetchSecret(credentials, secretName);
     }
 
@@ -37,22 +40,28 @@ public class MicroConfigServerApi {
                                            @PathVariable("env") String env,
                                            @RequestParam(value = "branch", required = false) String branch,
                                            VaultCredentials credentials) {
-        var vaultResolver = new VaultPlaceholderResolveStrategy(vaultClient, credentials);
+        var resolvers = resolvers(credentials);
         return configGenerator
-            .generateConfigs(component, env, branch, vaultResolver)
+            .generateConfigs(component, env, branch, resolvers)
             .stream()
             .filter(r -> !r.getContent().isEmpty())
             .collect(toList());
     }
 
-    @GetMapping("/config/{component}/{env}/deploy")
+    @GetMapping("/config/deploy/{component}/{env}")
     public String fetchDeploy(@PathVariable("component") String component,
                               @PathVariable("env") String env,
                               @RequestParam(value = "branch", required = false) String branch,
                               VaultCredentials credentials) {
-        var vaultResolver = new VaultPlaceholderResolveStrategy(vaultClient, credentials);
+        var resolvers = resolvers(credentials);
         return configGenerator
-            .generateConfig(component, env, branch, DEPLOY.getType(), vaultResolver)
+            .generateConfig(component, env, branch, DEPLOY.getType(), resolvers)
             .getContent();
+    }
+
+    private PlaceholderResolveStrategy[] resolvers(VaultCredentials vaultCredentials) {
+        return vaultCredentials != null
+            ? new PlaceholderResolveStrategy[]{new VaultPlaceholderResolveStrategy(vaultClient, vaultCredentials)}
+            : new PlaceholderResolveStrategy[0];
     }
 }

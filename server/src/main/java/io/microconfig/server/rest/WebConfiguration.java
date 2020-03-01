@@ -18,7 +18,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
-import static java.util.Objects.requireNonNull;
 import static org.springframework.http.HttpMethod.*;
 
 @Configuration
@@ -55,7 +54,8 @@ public class WebConfiguration implements WebMvcConfigurer {
                                                 ModelAndViewContainer ignored2,
                                                 NativeWebRequest webRequest,
                                                 WebDataBinderFactory ignored3) {
-            var type = requireNonNull(webRequest.getHeader("X-AUTH-TYPE"), "No credentials type");
+            var type = webRequest.getHeader("X-AUTH-TYPE");
+            if (type == null) return null;
 
             //todo add approle
             if (type.equals("VAULT_TOKEN")) {
