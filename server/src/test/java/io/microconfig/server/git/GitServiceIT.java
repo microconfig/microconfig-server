@@ -21,7 +21,7 @@ public class GitServiceIT {
     @Test
     public void should_return_refs() {
         var refs = git.refs();
-        assertThat(refs.size()).isEqualTo(1);
+        assertThat(refs.size()).isNotEqualTo(0);
     }
 
     @Test

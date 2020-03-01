@@ -1,9 +1,9 @@
 package io.microconfig.server.configs;
 
-import io.microconfig.server.vault.VaultCredentials;
+import io.microconfig.core.properties.resolver.placeholder.PlaceholderResolveStrategy;
 
-import java.util.Map;
+import java.util.List;
 
 public interface ConfigGenerator {
-    Map<String, String> generateConfigs(String component, String env, VaultCredentials vaultCredentials);
+    List<ConfigResult> generateConfigs(String component, String env, PlaceholderResolveStrategy... resolvers);
 }
