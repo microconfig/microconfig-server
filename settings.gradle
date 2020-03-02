@@ -1,3 +1,4 @@
 rootProject.name = 'microconfig-server'
 
 include 'server'
+include 'cli'

@@ -20,3 +20,6 @@ out/
 *.zip
 *.tar.gz
 *.rar
+
+# Native cli executable #
+microconfig-cli
