@@ -1,2 +1,4 @@
 ./gradlew shadowJar -p cli
-native-image -jar cli/build/libs/microconfig-cli.jar
+native-image \
+    --enable-all-security-services \
+    -jar cli/build/libs/microconfig-cli.jar

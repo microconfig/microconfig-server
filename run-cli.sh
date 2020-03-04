@@ -1,0 +1,1 @@
+java -jar cli/build/libs/microconfig-cli.jar "$@"

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static io.microconfig.factory.configtypes.StandardConfigTypes.DEPLOY;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -28,14 +27,14 @@ public class MicroConfigServerApi {
     private final VaultClient vaultClient;
     private final ConfigGenerator configGenerator;
 
-    @GetMapping("/vault-secret/")
+    @GetMapping("/vault-kv")
     public String fetchSecret(VaultCredentials credentials, @RequestParam("secretName") String secretName) {
         log.debug("Fetching {}", secretName);
         requireNonNull(credentials, "No credentials provided");
         return vaultClient.fetchSecret(credentials, secretName);
     }
 
-    @GetMapping("/config/{component}/{env}")
+    @GetMapping("/configs/{component}/{env}")
     public List<ConfigResult> fetchConfigs(@PathVariable("component") String component,
                                            @PathVariable("env") String env,
                                            @RequestParam(value = "branch", required = false) String branch,
@@ -48,14 +47,15 @@ public class MicroConfigServerApi {
             .collect(toList());
     }
 
-    @GetMapping("/config/deploy/{component}/{env}")
-    public String fetchDeploy(@PathVariable("component") String component,
+    @GetMapping("/config/{type}/{component}/{env}")
+    public String fetchDeploy(@PathVariable("type") String type,
+                              @PathVariable("component") String component,
                               @PathVariable("env") String env,
                               @RequestParam(value = "branch", required = false) String branch,
                               VaultCredentials credentials) {
         var resolvers = resolvers(credentials);
         return configGenerator
-            .generateConfig(component, env, branch, DEPLOY.getType(), resolvers)
+            .generateConfig(component, env, branch, type, resolvers)
             .getContent();
     }
 
