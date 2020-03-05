@@ -23,3 +23,4 @@ out/
 
 # Native cli executable #
 microconfig-cli
+graalvm/
