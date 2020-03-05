@@ -19,9 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static io.microconfig.factory.configtypes.StandardConfigTypes.APPLICATION;
-import static io.microconfig.factory.configtypes.StandardConfigTypes.DEPLOY;
-import static io.microconfig.factory.configtypes.StandardConfigTypes.PROCESS;
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Service
@@ -38,12 +36,16 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
     }
 
     private ConfigType configType(File configDir, String type) {
-        Stream<ConfigType> customTypes = new ConfigTypeFileProvider().getConfigTypes(configDir).stream();
-        Stream<ConfigType> standardTypes = Arrays.stream(StandardConfigTypes.values()).map(StandardConfigTypes::getType);
-        return Stream.concat(customTypes, standardTypes)
+        return types(configDir).stream()
             .filter(t -> t.getType().equals(type))
             .findFirst()
             .orElseThrow(() -> new UnsupportedConfigTypeException(type));
+    }
+
+    private List<ConfigType> types(File configDir) {
+        Stream<ConfigType> customTypes = new ConfigTypeFileProvider().getConfigTypes(configDir).stream();
+        Stream<ConfigType> standardTypes = Arrays.stream(StandardConfigTypes.values()).map(StandardConfigTypes::getType);
+        return Stream.concat(customTypes, standardTypes).collect(toList());
     }
 
     @Override
@@ -51,10 +53,9 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
         var configDir = configDir(branch);
         var factory = init(configDir, resolvers);
 
-        var app = generate(factory, APPLICATION.getType(), component, env);
-        var process = generate(factory, PROCESS.getType(), component, env);
-        var deploy = generate(factory, DEPLOY.getType(), component, env);
-        return List.of(app, process, deploy);
+        return types(configDir).stream().map(type -> generate(factory, type, component, env))
+            .filter(ConfigResult::hasContent)
+            .collect(toList());
     }
 
     private File configDir(String branch) {
@@ -71,7 +72,7 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
         var properties = configProvider.getProperties(Component.byType(component), env).values();
         var file = resultFile(factory, type, component, env, properties);
         var fileContent = fileContent(factory, file, properties);
-        return new ConfigResult(file.getName(), fileContent);
+        return new ConfigResult(file.getName(), type.getType(), fileContent);
     }
 
     private File resultFile(MicroconfigFactory factory, ConfigType type, String component, String env, Collection<Property> properties) {

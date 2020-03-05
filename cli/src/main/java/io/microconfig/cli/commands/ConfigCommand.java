@@ -1,19 +1,17 @@
-package io.microconfig.cli;
+package io.microconfig.cli.commands;
 
+import io.microconfig.cli.CliException;
 import lombok.RequiredArgsConstructor;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.net.http.HttpClient.newHttpClient;
+import static io.microconfig.cli.HttpUtil.getQuery;
+import static io.microconfig.cli.HttpUtil.httpGET;
+import static io.microconfig.cli.HttpUtil.httpSend;
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.empty;
-import static java.util.stream.Collectors.joining;
 
 @RequiredArgsConstructor
 public class ConfigCommand implements Command {
@@ -33,42 +31,14 @@ public class ConfigCommand implements Command {
             getQuery(branch.map(b -> Map.of("branch", b)).orElse(emptyMap()))
         );
 
-        var request = httpRequest(uri);
-        try {
-            var response = newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                System.out.println(response.body());
-                return 0;
-            } else {
-                throw new CliException("Bad response code: " + response.statusCode(), 200);
-            }
-        } catch (IOException e) {
-            throw new CliException("Failed during network call: " + e.getMessage(), 100);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return 666;
-        }
-    }
-
-    private HttpRequest httpRequest(URI uri) {
-        return HttpRequest.newBuilder(uri)
-            .GET()
-            .timeout(Duration.ofSeconds(2))
-            .build();
+        var request = httpGET(uri);
+        var body = httpSend(request);
+        System.out.println(body);
+        return 0;
     }
 
     private URI uri(String type, String name, String env, String query) {
         return URI.create(String.format("%s/api/config/%s/%s/%s%s", server(), type, name, env, query));
-    }
-
-    private String getQuery(Map<String, String> query) {
-        var q = query.entrySet().stream()
-            .map(e -> e.getKey() + "=" + e.getValue())
-            .collect(joining("&"));
-
-        return q.isEmpty()
-            ? q
-            : "?" + q;
     }
 
     private String server() {
