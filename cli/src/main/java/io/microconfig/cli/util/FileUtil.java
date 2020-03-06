@@ -1,4 +1,6 @@
-package io.microconfig.cli;
+package io.microconfig.cli.util;
+
+import io.microconfig.cli.CliException;
 
 import java.io.File;
 import java.io.IOException;

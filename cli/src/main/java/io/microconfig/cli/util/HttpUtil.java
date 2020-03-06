@@ -1,4 +1,6 @@
-package io.microconfig.cli;
+package io.microconfig.cli.util;
+
+import io.microconfig.cli.CliException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -21,11 +23,10 @@ public class HttpUtil {
             : "?" + q;
     }
 
-    public static HttpRequest httpGET(URI uri) {
+    public static HttpRequest.Builder httpGET(URI uri) {
         return HttpRequest.newBuilder(uri)
             .GET()
-            .timeout(Duration.ofSeconds(4))
-            .build();
+            .timeout(Duration.ofSeconds(4));
     }
 
     public static String httpSend(HttpRequest request) {
