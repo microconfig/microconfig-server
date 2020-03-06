@@ -15,16 +15,16 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
 @RequiredArgsConstructor
-public class VaultPlaceholderResolveStrategy implements PlaceholderResolveStrategy {
+public class VaultKVSecretResolverStrategy implements PlaceholderResolveStrategy {
     private final VaultClient vaultClient;
     private final VaultCredentials credentials;
 
     @Override
     public Optional<Property> resolve(Component component, String propertyKey, String environment) {
-        if (!"VAULT".equals(component.getName())) return empty();
+        if (!"VAULT-KV".equals(component.getName())) return empty();
 
         String secret = vaultClient.fetchSecret(credentials, propertyKey);
-        if (secret == null) return empty();
+        if (secret == null) throw new IllegalArgumentException("Can't resolve secret path: " + propertyKey);
 
         return of(property(propertyKey, secret, environment, new SpecialSource(component, "HashiCorp Vault")));
     }

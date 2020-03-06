@@ -3,7 +3,7 @@ package io.microconfig.server.rest;
 import io.microconfig.core.properties.resolver.placeholder.PlaceholderResolveStrategy;
 import io.microconfig.server.configs.ConfigGenerator;
 import io.microconfig.server.configs.ConfigResult;
-import io.microconfig.server.configs.VaultPlaceholderResolveStrategy;
+import io.microconfig.server.configs.VaultKVSecretResolverStrategy;
 import io.microconfig.server.vault.VaultClient;
 import io.microconfig.server.vault.VaultCredentials;
 import lombok.RequiredArgsConstructor;
@@ -61,7 +61,7 @@ public class MicroConfigServerApi {
 
     private PlaceholderResolveStrategy[] resolvers(VaultCredentials vaultCredentials) {
         return vaultCredentials != null
-            ? new PlaceholderResolveStrategy[]{new VaultPlaceholderResolveStrategy(vaultClient, vaultCredentials)}
+            ? new PlaceholderResolveStrategy[]{new VaultKVSecretResolverStrategy(vaultClient, vaultCredentials)}
             : new PlaceholderResolveStrategy[0];
     }
 }

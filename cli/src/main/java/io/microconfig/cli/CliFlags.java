@@ -39,6 +39,10 @@ public class CliFlags {
         return findFlag("--vault-token");
     }
 
+    public Optional<String> vaultSecretId() {
+        return findFlag("--vault-secret-id");
+    }
+
     public Optional<String> findFlag(String... flag) {
         var flags = Arrays.asList(flag);
         for (int i = 1; i < args.length; i++) {

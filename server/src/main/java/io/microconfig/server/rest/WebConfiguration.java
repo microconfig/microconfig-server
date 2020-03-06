@@ -1,5 +1,6 @@
 package io.microconfig.server.rest;
 
+import io.microconfig.server.vault.VaultAppRoleCredentials;
 import io.microconfig.server.vault.VaultCredentials;
 import io.microconfig.server.vault.VaultTokenCredentials;
 import lombok.RequiredArgsConstructor;
@@ -57,13 +58,14 @@ public class WebConfiguration implements WebMvcConfigurer {
             var type = webRequest.getHeader("X-AUTH-TYPE");
             if (type == null) return null;
 
-            //todo add approle
-            if (type.equals("VAULT_TOKEN")) {
-                var token = webRequest.getHeader("X-VAULT-TOKEN");
-                return new VaultTokenCredentials(token);
+            switch (type) {
+                case "VAULT_TOKEN":
+                    return new VaultTokenCredentials(webRequest.getHeader("X-VAULT-TOKEN"));
+                case "VAULT_APP_ROLE":
+                    return new VaultAppRoleCredentials(webRequest.getHeader("X-VAULT-SECRET-ID"));
+                default:
+                    throw new IllegalStateException("Can't resolve vault credentials");
             }
-
-            throw new IllegalStateException("Can't resolve vault credentials");
         }
     }
 }
