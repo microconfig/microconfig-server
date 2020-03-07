@@ -5,7 +5,7 @@ import io.microconfig.core.properties.Property;
 import io.microconfig.core.properties.resolver.placeholder.PlaceholderResolveStrategy;
 import io.microconfig.core.properties.sources.SpecialSource;
 import io.microconfig.server.vault.VaultClient;
-import io.microconfig.server.vault.VaultCredentials;
+import io.microconfig.server.vault.credentials.VaultCredentials;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
@@ -24,8 +24,6 @@ public class VaultKVSecretResolverStrategy implements PlaceholderResolveStrategy
         if (!"VAULT-KV".equals(component.getName())) return empty();
 
         String secret = vaultClient.fetchSecret(credentials, propertyKey);
-        if (secret == null) throw new IllegalArgumentException("Can't resolve secret path: " + propertyKey);
-
         return of(property(propertyKey, secret, environment, new SpecialSource(component, "HashiCorp Vault")));
     }
 }

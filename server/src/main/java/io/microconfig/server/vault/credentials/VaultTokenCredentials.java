@@ -1,7 +1,6 @@
-package io.microconfig.server.vault;
+package io.microconfig.server.vault.credentials;
 
-import com.bettercloud.vault.Vault;
-import com.bettercloud.vault.VaultConfig;
+import io.microconfig.server.vault.VaultConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,7 +10,7 @@ public class VaultTokenCredentials implements VaultCredentials {
     private final String token;
 
     @Override
-    public Vault toVault(VaultConfig config) {
-        return new Vault(config.token(token));
+    public String getToken(VaultConfig config) {
+        return token;
     }
 }

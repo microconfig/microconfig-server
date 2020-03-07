@@ -5,7 +5,7 @@ import io.microconfig.server.configs.ConfigGenerator;
 import io.microconfig.server.configs.ConfigResult;
 import io.microconfig.server.configs.VaultKVSecretResolverStrategy;
 import io.microconfig.server.vault.VaultClient;
-import io.microconfig.server.vault.VaultCredentials;
+import io.microconfig.server.vault.credentials.VaultCredentials;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +29,6 @@ public class MicroConfigServerApi {
 
     @GetMapping("/vault-kv")
     public String fetchSecret(VaultCredentials credentials, @RequestParam("secretName") String secretName) {
-        log.debug("Fetching {}", secretName);
         requireNonNull(credentials, "No credentials provided");
         return vaultClient.fetchSecret(credentials, secretName);
     }

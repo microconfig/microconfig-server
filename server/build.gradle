@@ -10,7 +10,6 @@ dependencies {
             'org.springframework.boot:spring-boot-starter-web',
             'org.springframework.boot:spring-boot-starter-actuator',
             'org.springframework.security:spring-security-core',
-            'com.bettercloud:vault-java-driver:5.1.0',
             'org.eclipse.jgit:org.eclipse.jgit:5.6.0.201912101111-r'
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
