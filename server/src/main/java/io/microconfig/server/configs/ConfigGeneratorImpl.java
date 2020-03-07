@@ -63,8 +63,10 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
     }
 
     private MicroconfigFactory init(File configDir, PlaceholderResolveStrategy... resolvers) {
-        return MicroconfigFactory.init(configDir, new File(configDir, "build"))
-            .withAdditionalResolvers(List.of(resolvers));
+        var factory = MicroconfigFactory.init(configDir, new File(configDir, "build"));
+        var vault = (VaultKVSecretResolverStrategy) resolvers[0];
+        vault.setFactory(factory);
+        return factory.withAdditionalResolvers(List.of(resolvers));
     }
 
     private ConfigResult generate(MicroconfigFactory factory, ConfigType type, String component, String env) {
