@@ -24,3 +24,8 @@ out/
 # Native cli executable #
 microconfig-cli
 graalvm/
+
+# Local config files
+docs/vault/account.jwt
+docs/vault/ca.crt
+docs/vault/roles.txt

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: microconfig-cli
+  name: microconfig-cli-dev
+  namespace: default
+spec:
+  containers:
+    - name: microconfig-cli
+      image: "microconfig/server-cli:latest_alpha"
+      imagePullPolicy: Always
+      command: ["sleep"]
+      args: ["100000000"]
+      env:
+        - name: MCS_ADDRESS
+          value: http://docker.for.mac.localhost:8080
+  restartPolicy: Always
+  serviceAccountName: team-dev
+  terminationGracePeriodSeconds: 1
