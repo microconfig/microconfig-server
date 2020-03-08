@@ -18,6 +18,9 @@ public class VaultConfig {
     private final String path = "team-approle";
     private final String roleId = "526cae12-6958-b99e-bfaa-3dde5d0ee5b1";
 
+    private final String kubePath = "team-cluster";
+    private final String kubeRole = "team-test";
+
     @Data
     static class AppRoleConfig {
         private String path;

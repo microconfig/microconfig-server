@@ -1,5 +1,9 @@
-FROM azul/zulu-openjdk-centos:13
+FROM oracle/graalvm-ce:20.0.0-java11 AS builder
+RUN gu install native-image
 
-ADD build/libs/microconfig-cli.jar /microconfig-cli.jar
+ADD cli/build/libs/microconfig-cli.jar /microconfig-cli.jar
+RUN native-image -jar /microconfig-cli.jar
 
-CMD java -jar /microconfig-cli.jar
+FROM centos:latest
+COPY --from=builder /microconfig-cli .
+CMD ["microconfig-cli"]

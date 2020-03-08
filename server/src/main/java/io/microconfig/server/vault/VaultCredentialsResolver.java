@@ -1,5 +1,6 @@
 package io.microconfig.server.vault;
 
+import io.microconfig.server.vault.credentials.KubernetesTokenCredentials;
 import io.microconfig.server.vault.credentials.VaultAppRoleCredentials;
 import io.microconfig.server.vault.credentials.VaultCredentials;
 import io.microconfig.server.vault.credentials.VaultTokenCredentials;
@@ -27,6 +28,8 @@ public class VaultCredentialsResolver implements HandlerMethodArgumentResolver {
         if (type == null) return null;
 
         switch (type) {
+            case "KUBERNETES":
+                return new KubernetesTokenCredentials(webRequest.getHeader("X-KUBERNETES-TOKEN"));
             case "VAULT_TOKEN":
                 return new VaultTokenCredentials(webRequest.getHeader("X-VAULT-TOKEN"));
             case "VAULT_APP_ROLE":

@@ -56,7 +56,7 @@ public class ConfigsCommand implements Command {
             var filename = node.get("fileName").asText();
             var content = node.get("content").asText();
             var file = new File(outDir, filename);
-            FileUtil.write(file, content);
+            FileUtil.writeFile(file, content);
         }
     }
 

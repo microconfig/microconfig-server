@@ -12,7 +12,8 @@ public class CliFlags {
     private final String[] args;
 
     public String server() {
-        return "http://localhost:8080";
+        var server = System.getenv("MCS_ADDRESS");
+        return server != null ? server : "http://localhost:8080";
     }
 
     public Optional<String> type() {

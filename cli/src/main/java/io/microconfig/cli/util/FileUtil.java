@@ -12,7 +12,7 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 
 public class FileUtil {
-    public static void write(File file, String content) {
+    public static void writeFile(File file, String content) {
         try {
             Files.writeString(file.toPath(), content, TRUNCATE_EXISTING, WRITE, CREATE_NEW);
         } catch (IOException e) {
@@ -30,5 +30,13 @@ public class FileUtil {
             }
         }
         return outDir;
+    }
+
+    public static String readFile(File file) {
+        try {
+            return Files.readString(file.toPath());
+        } catch (IOException e) {
+            throw new CliException("Failed to read a file " + file.getAbsolutePath() + " " + e.getMessage(), 52);
+        }
     }
 }
