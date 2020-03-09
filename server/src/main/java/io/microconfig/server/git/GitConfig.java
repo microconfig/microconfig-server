@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 
 @Data
-@Component
 @Slf4j
+@Component
 @ConfigurationProperties(prefix = "git")
 public class GitConfig {
     private File workingDir;

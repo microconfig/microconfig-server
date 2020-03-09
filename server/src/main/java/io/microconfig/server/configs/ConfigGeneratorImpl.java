@@ -15,9 +15,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
-import static io.microconfig.factory.configtypes.StandardConfigTypes.APPLICATION;
-import static io.microconfig.factory.configtypes.StandardConfigTypes.DEPLOY;
-import static io.microconfig.factory.configtypes.StandardConfigTypes.PROCESS;
+import static io.microconfig.factory.configtypes.StandardConfigTypes.*;
 
 @Slf4j
 @Service
@@ -44,7 +42,7 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
     private MicroconfigFactory init(String branch, PlaceholderResolveStrategy... resolvers) {
         var configDir = branch == null ? gitService.checkoutDefault() : gitService.checkout(branch);
         return MicroconfigFactory.init(configDir, new File(configDir, "build"))
-            .withAdditionalResolvers(List.of(resolvers));
+                .withAdditionalResolvers(List.of(resolvers));
     }
 
     private ConfigResult generate(MicroconfigFactory factory, ConfigType type, String component, String env) {
@@ -57,12 +55,12 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
 
     private File resultFile(MicroconfigFactory factory, ConfigType type, String component, String env, Collection<Property> properties) {
         return factory.getFilenameGenerator(type)
-            .fileFor(component, env, properties);
+                .fileFor(component, env, properties);
     }
 
     private String fileContent(MicroconfigFactory factory, File file, Collection<Property> properties) {
         return factory.getConfigIoService()
-            .writeTo(file)
-            .serialize(properties);
+                .writeTo(file)
+                .serialize(properties);
     }
 }

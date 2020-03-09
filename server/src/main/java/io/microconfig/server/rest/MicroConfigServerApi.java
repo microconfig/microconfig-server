@@ -8,17 +8,13 @@ import io.microconfig.server.vault.VaultClient;
 import io.microconfig.server.vault.VaultCredentials;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 import static io.microconfig.factory.configtypes.StandardConfigTypes.DEPLOY;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 @Slf4j
 @RestController
@@ -42,10 +38,10 @@ public class MicroConfigServerApi {
                                            VaultCredentials credentials) {
         var resolvers = resolvers(credentials);
         return configGenerator
-            .generateConfigs(component, env, branch, resolvers)
-            .stream()
-            .filter(r -> !r.getContent().isEmpty())
-            .collect(toList());
+                .generateConfigs(component, env, branch, resolvers)
+                .stream()
+                .filter(r -> !r.getContent().isEmpty())
+                .collect(toUnmodifiableList());
     }
 
     @GetMapping("/config/deploy/{component}/{env}")
@@ -55,13 +51,13 @@ public class MicroConfigServerApi {
                               VaultCredentials credentials) {
         var resolvers = resolvers(credentials);
         return configGenerator
-            .generateConfig(component, env, branch, DEPLOY.getType(), resolvers)
-            .getContent();
+                .generateConfig(component, env, branch, DEPLOY.getType(), resolvers)
+                .getContent();
     }
 
     private PlaceholderResolveStrategy[] resolvers(VaultCredentials vaultCredentials) {
         return vaultCredentials != null
-            ? new PlaceholderResolveStrategy[]{new VaultPlaceholderResolveStrategy(vaultClient, vaultCredentials)}
-            : new PlaceholderResolveStrategy[0];
+                ? new PlaceholderResolveStrategy[]{new VaultPlaceholderResolveStrategy(vaultClient, vaultCredentials)}
+                : new PlaceholderResolveStrategy[0];
     }
 }
