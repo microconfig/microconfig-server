@@ -40,7 +40,7 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
     }
 
     private MicroconfigFactory init(String branch, PlaceholderResolveStrategy... resolvers) {
-        var configDir = branch == null ? gitService.checkoutDefault() : gitService.checkout(branch);
+        var configDir = getConfigDir(branch);
         return MicroconfigFactory.init(configDir, new File(configDir, "build"))
                 .withAdditionalResolvers(List.of(resolvers));
     }
@@ -62,5 +62,9 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
         return factory.getConfigIoService()
                 .writeTo(file)
                 .serialize(properties);
+    }
+
+    private File getConfigDir(String branch) {
+        return branch == null ? gitService.checkoutDefault() : gitService.checkout(branch);
     }
 }
