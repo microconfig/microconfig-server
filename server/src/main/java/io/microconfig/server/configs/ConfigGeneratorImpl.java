@@ -14,11 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
 @Slf4j
@@ -36,16 +36,17 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
     }
 
     private ConfigType configType(File configDir, String type) {
-        return types(configDir).stream()
+        return types(configDir)
             .filter(t -> t.getType().equals(type))
             .findFirst()
             .orElseThrow(() -> new UnsupportedConfigTypeException(type));
     }
 
-    private List<ConfigType> types(File configDir) {
-        Stream<ConfigType> customTypes = new ConfigTypeFileProvider().getConfigTypes(configDir).stream();
-        Stream<ConfigType> standardTypes = Arrays.stream(StandardConfigTypes.values()).map(StandardConfigTypes::getType);
-        return Stream.concat(customTypes, standardTypes).collect(toList());
+    private Stream<ConfigType> types(File configDir) {
+        var customTypes = new ConfigTypeFileProvider().getConfigTypes(configDir);
+        return customTypes.isEmpty()
+            ? stream(StandardConfigTypes.values()).map(StandardConfigTypes::getType)
+            : customTypes.stream();
     }
 
     @Override
@@ -53,7 +54,7 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
         var configDir = configDir(branch);
         var factory = init(configDir, resolvers);
 
-        return types(configDir).stream().map(type -> generate(factory, type, component, env))
+        return types(configDir).map(type -> generate(factory, type, component, env))
             .filter(ConfigResult::hasContent)
             .collect(toList());
     }
