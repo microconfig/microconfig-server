@@ -1,4 +1,4 @@
-package io.microconfig.server.vault;
+package io.microconfig.server.rest;
 
 import io.microconfig.server.vault.credentials.KubernetesTokenCredentials;
 import io.microconfig.server.vault.credentials.VaultAppRoleCredentials;
@@ -24,6 +24,10 @@ public class VaultCredentialsResolver implements HandlerMethodArgumentResolver {
                                             ModelAndViewContainer ignored2,
                                             NativeWebRequest webRequest,
                                             WebDataBinderFactory ignored3) {
+        return resolve(webRequest);
+    }
+
+    public VaultCredentials resolve(NativeWebRequest webRequest) {
         var type = webRequest.getHeader("X-AUTH-TYPE");
         if (type == null) return null;
 

@@ -1,6 +1,5 @@
 package io.microconfig.server.rest;
 
-import io.microconfig.server.vault.VaultCredentialsResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +18,7 @@ import static org.springframework.http.HttpMethod.*;
 @RequiredArgsConstructor
 public class WebConfiguration implements WebMvcConfigurer {
     private final VaultCredentialsResolver vaultResolver;
+    private final ConfigOptionsResolver configOptionsResolver;
 
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilter() {
@@ -38,5 +38,6 @@ public class WebConfiguration implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         argumentResolvers.add(vaultResolver);
+        argumentResolvers.add(configOptionsResolver);
     }
 }

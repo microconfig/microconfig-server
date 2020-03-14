@@ -9,6 +9,7 @@ import io.microconfig.factory.MicroconfigFactory;
 import io.microconfig.factory.configtypes.ConfigTypeFileProvider;
 import io.microconfig.factory.configtypes.StandardConfigTypes;
 import io.microconfig.server.git.GitService;
+import io.microconfig.server.vault.VaultClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,12 +27,13 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class ConfigGeneratorImpl implements ConfigGenerator {
     private final GitService gitService;
+    private final VaultClient vaultClient;
 
     @Override
-    public ConfigResult generateConfig(String component, String env, String branch, String type, PlaceholderResolveStrategy... resolvers) {
-        var configDir = configDir(branch);
+    public ConfigResult generateConfig(String component, String env, String type, ConfigOptions options) {
+        var configDir = configDir(options);
         var configType = configType(configDir, type);
-        var factory = init(configDir, resolvers);
+        var factory = init(configDir, resolvers(options));
         return generate(factory, configType, component, env);
     }
 
@@ -50,17 +52,20 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
     }
 
     @Override
-    public List<ConfigResult> generateConfigs(String component, String env, String branch, PlaceholderResolveStrategy... resolvers) {
-        var configDir = configDir(branch);
-        var factory = init(configDir, resolvers);
+    public List<ConfigResult> generateConfigs(String component, String env, ConfigOptions options) {
+        var configDir = configDir(options);
+        var factory = init(configDir, resolvers(options));
 
         return types(configDir).map(type -> generate(factory, type, component, env))
             .filter(ConfigResult::hasContent)
             .collect(toList());
     }
 
-    private File configDir(String branch) {
-        return branch == null ? gitService.checkoutDefault() : gitService.checkoutBranch(branch);
+    private File configDir(ConfigOptions options) {
+        if (options.tag != null) return gitService.checkoutTag(options.tag);
+        return options.branch != null
+            ? gitService.checkoutBranch(options.branch)
+            : gitService.checkoutDefault();
     }
 
     private MicroconfigFactory init(File configDir, PlaceholderResolveStrategy... resolvers) {
@@ -87,5 +92,11 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
         return factory.getConfigIoService()
             .writeTo(file)
             .serialize(properties);
+    }
+
+    private PlaceholderResolveStrategy[] resolvers(ConfigOptions options) {
+        return options.vaultCredentials != null
+            ? new PlaceholderResolveStrategy[]{new VaultKVSecretResolverStrategy(vaultClient, options.vaultCredentials)}
+            : new PlaceholderResolveStrategy[0];
     }
 }
