@@ -2,6 +2,7 @@ package io.microconfig.server.vault;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.microconfig.server.vault.credentials.VaultCredentials;
+import io.microconfig.server.vault.exceptions.VaultAuthException;
 import io.microconfig.server.vault.exceptions.VaultSecretNotFound;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +29,7 @@ public class VaultClientImpl implements VaultClient {
         log.debug("Fetching {} {}", path, key);
 
         var node = readPath(path, credentials.getToken(config));
-        var value = node.get(key);
+        var value = node.path("data").path("data").get(key);
         if (value == null) throw new VaultSecretNotFound(property);
         return value.asText();
     }
@@ -40,7 +41,12 @@ public class VaultClientImpl implements VaultClient {
             .timeout(Duration.ofSeconds(2))
             .build();
         var response = httpSend(request);
-        return parseJson(response.body()).path("data").path("data");
+        log.debug("Vault response {}", response.body());
+        var node = parseJson(response.body());
+        if (node.get("errors") != null) {
+            throw new VaultAuthException();
+        }
+        return node;
     }
 
     private String[] splitPath(String path) {
