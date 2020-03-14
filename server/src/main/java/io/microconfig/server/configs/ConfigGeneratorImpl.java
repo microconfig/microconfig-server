@@ -60,7 +60,7 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
     }
 
     private File configDir(String branch) {
-        return branch == null ? gitService.checkoutDefault() : gitService.checkout(branch);
+        return branch == null ? gitService.checkoutDefault() : gitService.checkoutBranch(branch);
     }
 
     private MicroconfigFactory init(File configDir, PlaceholderResolveStrategy... resolvers) {

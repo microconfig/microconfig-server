@@ -42,36 +42,44 @@ public class GitServiceImpl implements GitService {
 
     private static Git cloneRemote(GitConfig config, File localDir) throws GitAPIException {
         return Git.cloneRepository()
-                .setCredentialsProvider(config.credentialsProvider())
-                .setURI(config.getRemoteUrl())
-                .setDirectory(localDir)
-                .setBranch(config.getDefaultBranch())
-                .call();
+            .setCredentialsProvider(config.credentialsProvider())
+            .setURI(config.getRemoteUrl())
+            .setDirectory(localDir)
+            .setBranch(config.getDefaultBranch())
+            .call();
     }
 
     @Override
     public synchronized File checkoutDefault() {
-        return checkout(config.getDefaultBranch());
+        return this.checkoutBranch(config.getDefaultBranch());
     }
 
     @Override
-    public synchronized File checkout(String branchName) {
+    public synchronized File checkoutBranch(String branch) {
         try {
-            checkoutBranch(branchName);
-            pullBranch(branchName);
+            checkout(branch);
+            pullBranch(branch);
             return configDir;
         } catch (RefNotFoundException e) {
-            throw new BranchNotFoundException(branchName);
+            throw new BranchNotFoundException(branch);
         } catch (GitAPIException | IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void checkoutBranch(String branchName) throws GitAPIException, IOException {
-        if (git.getRepository().findRef(branchName) == null) {
-            createBranch(branchName);
+    private void checkout(String branch) throws GitAPIException, IOException {
+        if (git.getRepository().findRef(branch) == null) {
+            createBranch(branch);
         }
-        git.checkout().setName(branchName).call();
+        git.checkout().setName(branch).call();
+    }
+
+    private void createBranch(String branch) throws GitAPIException {
+        log.debug("Creating and pulling branch {}", branch);
+        git.branchCreate()
+            .setName(branch)
+            .setStartPoint("origin/" + branch)
+            .call();
     }
 
     private void pullBranch(String branch) throws GitAPIException {
@@ -83,11 +91,19 @@ public class GitServiceImpl implements GitService {
         }
     }
 
-    private void createBranch(String name) throws GitAPIException {
-        log.debug("Creating and pulling branch {}", name);
-        git.branchCreate()
-                .setName(name)
-                .setStartPoint("origin/" + name)
-                .call();
+    public File checkoutTag(String tag) {
+        try {
+            var expected = "refs/tags/"+tag;
+            git.fetch().call();
+            var foundTag = git.tagList().call().stream()
+                .peek(t -> System.out.println(t.getName()))
+                .filter(t -> t.getName().equals(expected))
+                .findFirst()
+                .orElseThrow(() -> new TagNotFoundException(tag));
+            git.checkout().setName(foundTag.getName()).call();
+            return configDir;
+        } catch (GitAPIException e) {
+            throw new TagNotFoundException(tag);
+        }
     }
 }

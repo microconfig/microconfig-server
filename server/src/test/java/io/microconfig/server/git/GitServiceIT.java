@@ -10,35 +10,64 @@ public class GitServiceIT {
     private File local = new File(System.getProperty("user.home") + "/microconfig");
 
     @Test
-    public void should_checkout_open() {
-        var remote = "https://github.com/microconfig/configs-layout-example.git";
-        var config = new GitConfig();
-        config.setRemoteUrl(remote);
-        config.setWorkingDir(local);
+    public void should_checkout_default() {
+        var config = gitConfig("https://github.com/microconfig/configs-layout-example.git");
 
         //when
         var git = new GitServiceImpl(config);
+        git.checkoutDefault();
 
         //then
-        var expected = new File(local, "configs-layout-example");
-        assertThat(expected).exists();
-        assertThat(expected).isDirectory();
+        testDir("configs-layout-example");
+    }
+
+    @Test
+    public void should_checkout_open() {
+        var config = gitConfig("https://github.com/microconfig/configs-layout-example.git");
+
+        //when
+        var git = new GitServiceImpl(config);
+        git.checkoutBranch("vault");
+
+        //then
+        testDir("configs-layout-example");
+    }
+
+    @Test
+    public void should_checkout_tag() {
+        var config = gitConfig("https://github.com/microconfig/configs-layout-example.git");
+
+        //when
+        var git = new GitServiceImpl(config);
+        git.checkoutTag("vault-tag");
+
+        //then
+        testDir("configs-layout-example");
     }
 
     @Test
     public void should_checkout_private() {
-        var remote = "private url";
-        var config = new GitConfig();
-        config.setRemoteUrl(remote);
-        config.setWorkingDir(local);
+        var config = gitConfig("private url");
         config.setUsername("user");
-        config.setPassword("passs");
+        config.setPassword("pass");
 
         //when
         var git = new GitServiceImpl(config);
+        git.checkoutDefault();
 
         //then
-        var expected = new File(local, "name");
+        testDir("name");
+    }
+
+    private GitConfig gitConfig(String remote) {
+        var config = new GitConfig();
+        config.setRemoteUrl(remote);
+        config.setWorkingDir(local);
+        return config;
+    }
+
+    private void testDir(String dirName) {
+        var expected = new File(local, dirName);
         assertThat(expected).exists();
         assertThat(expected).isDirectory();
     }
