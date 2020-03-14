@@ -41,7 +41,6 @@ public class VaultClientImpl implements VaultClient {
             .timeout(Duration.ofSeconds(2))
             .build();
         var response = httpSend(request);
-        log.debug("Vault response {}", response.body());
         var node = parseJson(response.body());
         if (node.get("errors") != null) {
             throw new VaultAuthException();

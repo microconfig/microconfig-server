@@ -7,7 +7,7 @@ spring:
 logging:
   level:
     root: INFO
-    io.microconfig: DEBUG
+    io.microconfig: TRACE
 
 server.port: 8080
 

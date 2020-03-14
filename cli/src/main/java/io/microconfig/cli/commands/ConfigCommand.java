@@ -5,12 +5,9 @@ import io.microconfig.cli.CliFlags;
 import io.microconfig.cli.credentials.CredentialsProvider;
 
 import java.net.URI;
-import java.util.Map;
 
-import static io.microconfig.cli.util.HttpUtil.getQuery;
 import static io.microconfig.cli.util.HttpUtil.httpGET;
 import static io.microconfig.cli.util.HttpUtil.httpSend;
-import static java.util.Collections.emptyMap;
 
 public class ConfigCommand implements Command {
     private static final CredentialsProvider credentials = new CredentialsProvider();
@@ -28,22 +25,22 @@ public class ConfigCommand implements Command {
         var component = args[args.length - 1];
         var type = flags.type();
         var env = flags.env();
-        var branch = flags.branch();
         var uri = uri(
             type.orElse("app"),
             component,
-            env.orElse("default"),
-            getQuery(branch.map(b -> Map.of("branch", b)).orElse(emptyMap()))
+            env.orElse("default")
         );
 
         var request = httpGET(uri);
         flags.auth().ifPresent(t -> credentials.addCredentials(t, request, args));
+        flags.branch().ifPresent(b -> request.setHeader("X-BRANCH", b));
+        flags.tag().ifPresent(t -> request.setHeader("X-TAG", t));
         var body = httpSend(request.build());
         System.out.println(body);
         return 0;
     }
 
-    private URI uri(String type, String name, String env, String query) {
-        return URI.create(String.format("%s/api/config/%s/%s/%s%s", flags.server(), type, name, env, query));
+    private URI uri(String type, String name, String env) {
+        return URI.create(String.format("%s/api/config/%s/%s/%s", flags.server(), type, name, env));
     }
 }

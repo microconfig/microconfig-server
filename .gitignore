@@ -21,6 +21,7 @@ out/
 *.tar.gz
 *.rar
 
+
 # Native cli executable #
 microconfig-cli
 graalvm/

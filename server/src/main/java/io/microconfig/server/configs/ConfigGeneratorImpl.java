@@ -34,7 +34,9 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
         var configDir = configDir(options);
         var configType = configType(configDir, type);
         var factory = init(configDir, resolvers(options));
-        return generate(factory, configType, component, env);
+        var result = generate(factory, configType, component, env);
+        if (!result.hasContent()) throw new ComponentNotFoundException(component);
+        return result;
     }
 
     private ConfigType configType(File configDir, String type) {
@@ -56,9 +58,11 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
         var configDir = configDir(options);
         var factory = init(configDir, resolvers(options));
 
-        return types(configDir).map(type -> generate(factory, type, component, env))
+        var results = types(configDir).map(type -> generate(factory, type, component, env))
             .filter(ConfigResult::hasContent)
             .collect(toList());
+        if (results.isEmpty()) throw new ComponentNotFoundException(component);
+        return results;
     }
 
     private File configDir(ConfigOptions options) {

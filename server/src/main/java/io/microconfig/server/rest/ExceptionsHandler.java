@@ -1,5 +1,6 @@
 package io.microconfig.server.rest;
 
+import io.microconfig.server.configs.ComponentNotFoundException;
 import io.microconfig.server.vault.exceptions.VaultAuthException;
 import io.microconfig.server.vault.exceptions.VaultSecretNotFound;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ public class ExceptionsHandler {
     private static final ResponseEntity<String> BAD_REQUEST = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     private static final ResponseEntity<String> NOT_FOUND = new ResponseEntity<>(HttpStatus.NOT_FOUND);
     private static final ResponseEntity<String> FORBIDDEN = new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    private static final ResponseEntity<String> TEAPOT = new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handle(Exception ex) {
@@ -30,6 +32,10 @@ public class ExceptionsHandler {
 
         if (ex instanceof VaultAuthException) {
             return FORBIDDEN;
+        }
+
+        if (ex instanceof ComponentNotFoundException) {
+            return TEAPOT;
         }
 
         return BAD_REQUEST;

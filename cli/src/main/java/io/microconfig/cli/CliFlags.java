@@ -25,15 +25,19 @@ public class CliFlags {
     }
 
     public Optional<String> branch() {
-        return findFlag("-b", "--branch");
+        return findFlag("--branch");
     }
 
-    public Optional<String> auth() {
-        return findFlag("-a", "--auth");
+    public Optional<String> tag() {
+        return findFlag("--tag");
     }
 
     public Optional<String> dir() {
         return findFlag("-d", "--dir");
+    }
+
+    public Optional<String> auth() {
+        return findFlag("-a", "--auth");
     }
 
     public Optional<String> vaultToken() {
