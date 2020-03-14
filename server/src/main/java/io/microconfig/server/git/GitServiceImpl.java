@@ -42,11 +42,11 @@ public class GitServiceImpl implements GitService {
 
     private static Git cloneRemote(GitConfig config, File localDir) throws GitAPIException {
         return Git.cloneRepository()
-            .setCredentialsProvider(config.credentialsProvider())
-            .setURI(config.getRemoteUrl())
-            .setDirectory(localDir)
-            .setBranch(config.getDefaultBranch())
-            .call();
+                .setCredentialsProvider(config.credentialsProvider())
+                .setURI(config.getRemoteUrl())
+                .setDirectory(localDir)
+                .setBranch(config.getDefaultBranch())
+                .call();
     }
 
     @Override
@@ -86,8 +86,8 @@ public class GitServiceImpl implements GitService {
     private void createBranch(String name) throws GitAPIException {
         log.debug("Creating and pulling branch {}", name);
         git.branchCreate()
-            .setName(name)
-            .setStartPoint("origin/" + name)
-            .call();
+                .setName(name)
+                .setStartPoint("origin/" + name)
+                .call();
     }
 }
