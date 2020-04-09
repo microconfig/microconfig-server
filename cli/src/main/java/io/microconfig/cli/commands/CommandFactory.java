@@ -11,6 +11,8 @@ public class CommandFactory {
                 return new ConfigCommand(args);
             case "configs":
                 return new ConfigsCommand(args);
+            case "version":
+                return new VersionCommand(args);
             default:
                 throw new CliException("Unsupported argument " + args[0], 2);
         }

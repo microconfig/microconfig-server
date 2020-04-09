@@ -36,16 +36,12 @@ public class CliFlags {
         return findFlag("-d", "--dir");
     }
 
-    public Optional<String> auth() {
-        return findFlag("-a", "--auth");
+    public Optional<String> kubernetesToken() {
+        return findFlag("--kubernetes-token");
     }
 
     public Optional<String> vaultToken() {
         return findFlag("--vault-token");
-    }
-
-    public Optional<String> vaultSecretId() {
-        return findFlag("--vault-secret-id");
     }
 
     public Optional<String> findFlag(String... flag) {

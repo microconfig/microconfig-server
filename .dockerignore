@@ -1,3 +1,4 @@
-graalvm
 docs
 .idea
+.graal
+.gradle

@@ -10,6 +10,7 @@ import io.microconfig.factory.configtypes.ConfigTypeFileProvider;
 import io.microconfig.factory.configtypes.StandardConfigTypes;
 import io.microconfig.server.git.GitService;
 import io.microconfig.server.vault.VaultClient;
+import io.microconfig.server.vault.VaultKVSecretResolverStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -74,8 +75,6 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
 
     private MicroconfigFactory init(File configDir, PlaceholderResolveStrategy... resolvers) {
         var factory = MicroconfigFactory.init(configDir, new File(configDir, "build"));
-        var vault = (VaultKVSecretResolverStrategy) resolvers[0];
-        vault.setFactory(factory);
         return factory.withAdditionalResolvers(List.of(resolvers));
     }
 

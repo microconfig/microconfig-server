@@ -1,22 +1,16 @@
 package io.microconfig.cli.commands;
 
 import io.microconfig.cli.CliException;
-import io.microconfig.cli.CliFlags;
-import io.microconfig.cli.credentials.CredentialsProvider;
 
 import java.net.URI;
 
 import static io.microconfig.cli.util.HttpUtil.httpGET;
 import static io.microconfig.cli.util.HttpUtil.httpSend;
 
-public class ConfigCommand implements Command {
-    private static final CredentialsProvider credentials = new CredentialsProvider();
-    private final CliFlags flags;
-    private final String[] args;
+public class ConfigCommand extends Command {
 
     public ConfigCommand(String[] args) {
-        this.args = args;
-        this.flags = new CliFlags(args);
+        super(args);
     }
 
     @Override
@@ -32,9 +26,7 @@ public class ConfigCommand implements Command {
         );
 
         var request = httpGET(uri);
-        flags.auth().ifPresent(t -> credentials.addCredentials(t, request, args));
-        flags.branch().ifPresent(b -> request.setHeader("X-BRANCH", b));
-        flags.tag().ifPresent(t -> request.setHeader("X-TAG", t));
+        addFlags(request);
         var body = httpSend(request.build());
         System.out.println(body);
         return 0;

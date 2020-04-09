@@ -9,6 +9,7 @@ target/
 build/
 out/
 .gradle/
+.graal
 
 # Log file
 *.log
