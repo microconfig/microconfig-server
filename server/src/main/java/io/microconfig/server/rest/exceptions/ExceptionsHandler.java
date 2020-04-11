@@ -1,8 +1,6 @@
-package io.microconfig.server.rest;
+package io.microconfig.server.rest.exceptions;
 
 import io.microconfig.server.configs.ComponentNotFoundException;
-import io.microconfig.server.vault.exceptions.VaultAuthException;
-import io.microconfig.server.vault.exceptions.VaultSecretNotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,11 +24,11 @@ public class ExceptionsHandler {
     }
 
     private ResponseEntity<String> response(Exception ex) {
-        if (ex instanceof VaultSecretNotFound) {
+        if (ex instanceof NotFoundException) {
             return NOT_FOUND;
         }
 
-        if (ex instanceof VaultAuthException) {
+        if (ex instanceof ForbiddenException) {
             return FORBIDDEN;
         }
 

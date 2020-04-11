@@ -9,8 +9,6 @@ import io.microconfig.factory.MicroconfigFactory;
 import io.microconfig.factory.configtypes.ConfigTypeFileProvider;
 import io.microconfig.factory.configtypes.StandardConfigTypes;
 import io.microconfig.server.git.GitService;
-import io.microconfig.server.vault.VaultClient;
-import io.microconfig.server.vault.VaultKVSecretResolverStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +18,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static io.microconfig.server.vault.VaultPlugin.vaultKVSecretResolverStrategy;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
@@ -28,7 +27,6 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class ConfigGeneratorImpl implements ConfigGenerator {
     private final GitService gitService;
-    private final VaultClient vaultClient;
 
     @Override
     public ConfigResult generateConfig(String component, String env, String type, ConfigOptions options) {
@@ -97,9 +95,12 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
             .serialize(properties);
     }
 
+    //todo make dynamic vars a separate strategy and use it through main api
     private PlaceholderResolveStrategy[] resolvers(ConfigOptions options) {
-        return options.vaultCredentials != null
-            ? new PlaceholderResolveStrategy[]{new VaultKVSecretResolverStrategy(vaultClient, options.vaultCredentials)}
-            : new PlaceholderResolveStrategy[0];
+        var dynamicVars = new DynamicVarsResolverStrategy(options.vars);
+        var vault = vaultKVSecretResolverStrategy(dynamicVars);
+        return vault
+            .map(v -> new PlaceholderResolveStrategy[]{v})
+            .orElse(new PlaceholderResolveStrategy[0]);
     }
 }

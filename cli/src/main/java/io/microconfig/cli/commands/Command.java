@@ -2,12 +2,10 @@ package io.microconfig.cli.commands;
 
 import io.microconfig.cli.CliException;
 import io.microconfig.cli.CliFlags;
-import io.microconfig.cli.credentials.CredentialsProvider;
 
 import java.net.http.HttpRequest;
 
 public abstract class Command {
-    static final CredentialsProvider credentials = new CredentialsProvider();
     final CliFlags flags;
     final String[] args;
 
@@ -17,7 +15,6 @@ public abstract class Command {
     }
 
     void addFlags(HttpRequest.Builder request) {
-        flags.auth().ifPresent(auth -> credentials.addCredentials(request, auth));
         flags.branch().ifPresent(b -> request.setHeader("X-BRANCH", b));
         flags.tag().ifPresent(t -> request.setHeader("X-TAG", t));
         flags.vars().forEach((key, value) -> request.setHeader("X-VAR", key + "=" + value));

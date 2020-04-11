@@ -17,6 +17,10 @@ import static java.util.Optional.of;
 public class DynamicVarsResolverStrategy implements PlaceholderResolveStrategy {
     private final Map<String, String> vars;
 
+    public Optional<String> findValue(String key) {
+        return Optional.ofNullable(vars.get(key));
+    }
+
     public String getValue(String key) {
         var value = vars.get(key);
         if (value == null) throw new IllegalArgumentException("Can't resolve value for key: " + key);

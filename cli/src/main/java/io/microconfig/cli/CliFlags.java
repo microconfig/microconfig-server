@@ -34,10 +34,6 @@ public class CliFlags {
         return findFlag("-d", "--dir");
     }
 
-    public Optional<String> auth() {
-        return findFlag("-a", "--auth");
-    }
-
     public Map<String, String> vars() {
         return findVars("-s", "--set");
     }
@@ -59,13 +55,19 @@ public class CliFlags {
             .filter(i -> flags.contains(args[i]))
             .peek(this::validate)
             .mapToObj(i -> args[i + 1])
-            .map(a -> a.split("="))
+            .map(a -> splitFirst(a, '='))
             .collect(toMap(a -> a[0], a -> a[1]));
     }
 
     private void validate(int i) {
         if (i == args.length - 1) throw new CliException("--set doesn't have a value", 4);
         if (args[i + 1].startsWith("-")) throw new CliException("--set doesn't have a value", 4);
-        if (args[i + 1].contains("=")) throw new CliException("--set value should contain '=' " + args[i + 1], 4);
+        if (!args[i + 1].contains("=")) throw new CliException("--set value should contain '=' " + args[i + 1], 4);
+    }
+
+    private String[] splitFirst(String str, char c) {
+        int idx = str.indexOf(c);
+        if (idx == str.length() - 1) throw new CliException("No value after '=' in " + str, 4);
+        return new String[]{str.substring(0, idx), str.substring(idx + 1)};
     }
 }

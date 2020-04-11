@@ -9,11 +9,15 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import java.util.Arrays;
+import java.util.Map;
+
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toMap;
+
 @Service
 @RequiredArgsConstructor
 public class ConfigOptionsResolver implements HandlerMethodArgumentResolver {
-
-    private final VaultCredentialsResolver vaultCredentialsResolver;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -25,9 +29,22 @@ public class ConfigOptionsResolver implements HandlerMethodArgumentResolver {
                                          ModelAndViewContainer ignored2,
                                          NativeWebRequest webRequest,
                                          WebDataBinderFactory ignored3) {
-        var vaultCredentials = vaultCredentialsResolver.resolve(webRequest);
         var branch = webRequest.getHeader("X-BRANCH");
         var tag = webRequest.getHeader("X-TAG");
-        return new ConfigOptions(branch, tag, vaultCredentials);
+        var vars = vars(webRequest);
+        return new ConfigOptions(branch, tag, vars);
+    }
+
+    private Map<String, String> vars(NativeWebRequest webRequest) {
+        var headerValues = webRequest.getHeaderValues("X-VAR");
+        if (headerValues == null) return emptyMap();
+        return Arrays.stream(headerValues)
+            .map(ConfigOptionsResolver::splitVar)
+            .collect(toMap(s -> s[0], s -> s[1]));
+    }
+
+    private static String[] splitVar(String str) {
+        int idx = str.indexOf('=');
+        return new String[]{str.substring(0, idx), str.substring(idx + 1)};
     }
 }

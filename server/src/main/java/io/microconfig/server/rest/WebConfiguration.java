@@ -17,7 +17,6 @@ import static org.springframework.http.HttpMethod.*;
 @Configuration
 @RequiredArgsConstructor
 public class WebConfiguration implements WebMvcConfigurer {
-    private final VaultCredentialsResolver vaultResolver;
     private final ConfigOptionsResolver configOptionsResolver;
 
     @Bean
@@ -37,7 +36,6 @@ public class WebConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-        argumentResolvers.add(vaultResolver);
         argumentResolvers.add(configOptionsResolver);
     }
 }
