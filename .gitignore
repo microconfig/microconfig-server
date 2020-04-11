@@ -28,6 +28,6 @@ microconfig-cli
 graalvm/
 
 # Local config files
-docs/vault/account.jwt
+*.jwt
 docs/vault/ca.crt
 docs/vault/roles.txt

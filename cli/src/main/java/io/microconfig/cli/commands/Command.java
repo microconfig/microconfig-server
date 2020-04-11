@@ -17,7 +17,7 @@ public abstract class Command {
     void addFlags(HttpRequest.Builder request) {
         flags.branch().ifPresent(b -> request.setHeader("X-BRANCH", b));
         flags.tag().ifPresent(t -> request.setHeader("X-TAG", t));
-        flags.vars().forEach((key, value) -> request.setHeader("X-VAR", key + "=" + value));
+        flags.vars().forEach((key, value) -> request.header("X-VAR", key + "=" + value));
     }
 
     String server() {

@@ -5,7 +5,6 @@ import io.microconfig.server.vault.exceptions.VaultAuthException;
 import io.microconfig.server.vault.exceptions.VaultSecretNotFound;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -16,7 +15,6 @@ import static io.microconfig.server.util.JsonUtil.parseJson;
 
 @Slf4j
 @RequiredArgsConstructor
-@Service
 public class VaultClientImpl implements VaultClient {
     private final VaultConfig config;
 
@@ -42,7 +40,7 @@ public class VaultClientImpl implements VaultClient {
         var response = httpSend(request);
         var node = parseJson(response.body());
         if (node.get("errors") != null) {
-            throw new VaultAuthException();
+            throw new VaultAuthException(node.get("errors").asText());
         }
         return node;
     }

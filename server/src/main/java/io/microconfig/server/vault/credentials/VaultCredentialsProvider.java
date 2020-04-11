@@ -3,9 +3,7 @@ package io.microconfig.server.vault.credentials;
 import io.microconfig.server.configs.DynamicVarsResolverStrategy;
 import io.microconfig.server.vault.VaultConfig;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class VaultCredentialsProvider {
     private final VaultConfig config;
