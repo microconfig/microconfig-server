@@ -1,9 +1,11 @@
 package io.microconfig.server.rest;
 
+import io.microconfig.server.vault.VaultConfig;
 import io.microconfig.server.vault.credentials.KubernetesTokenCredentials;
 import io.microconfig.server.vault.credentials.VaultAppRoleCredentials;
 import io.microconfig.server.vault.credentials.VaultCredentials;
 import io.microconfig.server.vault.credentials.VaultTokenCredentials;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -12,7 +14,9 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 @Service
+@RequiredArgsConstructor
 public class VaultCredentialsResolver implements HandlerMethodArgumentResolver {
+    private final VaultConfig vaultConfig;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -33,11 +37,11 @@ public class VaultCredentialsResolver implements HandlerMethodArgumentResolver {
 
         switch (type) {
             case "KUBERNETES":
-                return new KubernetesTokenCredentials(webRequest.getHeader("X-KUBERNETES-TOKEN"));
+                return new KubernetesTokenCredentials(vaultConfig);
             case "VAULT_TOKEN":
-                return new VaultTokenCredentials(webRequest.getHeader("X-VAULT-TOKEN"));
+                return new VaultTokenCredentials();
             case "VAULT_APP_ROLE":
-                return new VaultAppRoleCredentials(webRequest.getHeader("X-VAULT-SECRET-ID"));
+                return new VaultAppRoleCredentials(vaultConfig);
             default:
                 throw new IllegalStateException("Unsupported auth type");
         }

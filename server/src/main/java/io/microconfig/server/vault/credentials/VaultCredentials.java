@@ -1,7 +1,8 @@
 package io.microconfig.server.vault.credentials;
 
-import io.microconfig.server.vault.VaultConfig;
+import io.microconfig.server.configs.DynamicVarsResolverStrategy;
 
 public interface VaultCredentials {
-    String getToken(VaultConfig config);
+    //todo temporary until microconfig ddd is finished
+    String getToken(DynamicVarsResolverStrategy dynamicVarsResolverStrategy);
 }

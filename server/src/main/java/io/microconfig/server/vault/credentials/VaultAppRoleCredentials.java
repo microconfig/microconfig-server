@@ -1,5 +1,6 @@
 package io.microconfig.server.vault.credentials;
 
+import io.microconfig.server.configs.DynamicVarsResolverStrategy;
 import io.microconfig.server.vault.VaultConfig;
 import io.microconfig.server.vault.exceptions.VaultAuthException;
 import lombok.RequiredArgsConstructor;
@@ -16,14 +17,14 @@ import static io.microconfig.server.util.JsonUtil.parseJson;
 @RequiredArgsConstructor
 @Slf4j
 public class VaultAppRoleCredentials implements VaultCredentials {
-    private final String secretId;
+    private final VaultConfig config;
     private String token;
 
     @Override
-    public String getToken(VaultConfig config) {
+    public String getToken(DynamicVarsResolverStrategy dynamicVarsResolverStrategy) {
         if (token != null) return token;
 
-        var request = request(config);
+        var request = request(dynamicVarsResolverStrategy);
         var response = httpSend(request);
         if (response.statusCode() != 200) throw new VaultAuthException();
 
@@ -32,9 +33,13 @@ public class VaultAppRoleCredentials implements VaultCredentials {
         return token;
     }
 
-    private HttpRequest request(VaultConfig config) {
-        var body = objectNode().put("role_id", config.getRoleId()).put("secret_id", secretId).toString();
-        return HttpRequest.newBuilder(URI.create(String.format("%s/v1/auth/%s/login", config.getAddress(), config.getPath())))
+    private HttpRequest request(DynamicVarsResolverStrategy dynamicVarsResolverStrategy) {
+        var role = dynamicVarsResolverStrategy.getValue("microconfig.vault.approle.role");
+        var secret = dynamicVarsResolverStrategy.getValue("microconfig.vault.approle.secret");
+        var path = dynamicVarsResolverStrategy.getValue("microconfig.vault.approle.path");
+
+        var body = objectNode().put("role_id", role).put("secret_id", secret).toString();
+        return HttpRequest.newBuilder(URI.create(String.format("%s/v1/auth/%s/login", config.getAddress(), path)))
             .POST(HttpRequest.BodyPublishers.ofString(body))
             .timeout(Duration.ofSeconds(2))
             .build();

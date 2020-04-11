@@ -11,6 +11,8 @@ public class CredentialsProvider {
                 return request.setHeader("X-AUTH-TYPE", "VAULT_KUBERNETES");
             case "vault-token":
                 return request.setHeader("X-AUTH-TYPE", "VAULT_TOKEN");
+            case "vault-approle":
+                return request.setHeader("X-AUTH-TYPE", "VAULT_APP_ROLE");
             default:
                 throw new CliException("Unsupported auth value: " + auth, 123);
         }

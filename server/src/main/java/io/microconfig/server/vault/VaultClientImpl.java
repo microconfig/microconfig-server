@@ -1,7 +1,6 @@
 package io.microconfig.server.vault;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.microconfig.server.vault.credentials.VaultCredentials;
 import io.microconfig.server.vault.exceptions.VaultAuthException;
 import io.microconfig.server.vault.exceptions.VaultSecretNotFound;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +21,13 @@ public class VaultClientImpl implements VaultClient {
     private final VaultConfig config;
 
     @Override
-    public String fetchSecret(VaultCredentials credentials, String property) {
+    public String fetchKV(String token, String property) {
         int dotIndex = property.lastIndexOf('.');
         String path = property.substring(0, dotIndex);
         String key = property.substring(dotIndex + 1);
         log.debug("Fetching {} {}", path, key);
 
-        var node = readPath(path, credentials.getToken(config));
+        var node = readPath(path, token);
         var value = node.path("data").path("data").get(key);
         if (value == null) throw new VaultSecretNotFound(property);
         return value.asText();
