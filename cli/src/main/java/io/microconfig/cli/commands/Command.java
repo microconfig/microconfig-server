@@ -1,5 +1,6 @@
 package io.microconfig.cli.commands;
 
+import io.microconfig.cli.CliException;
 import io.microconfig.cli.CliFlags;
 import io.microconfig.cli.credentials.CredentialsProvider;
 
@@ -16,10 +17,20 @@ public abstract class Command {
     }
 
     void addFlags(HttpRequest.Builder request) {
-        flags.kubernetesToken().ifPresent(token -> credentials.addKubernetesToken(request, token));
-        flags.vaultToken().ifPresent(token -> credentials.addVaultToken(request, token));
+        flags.auth().ifPresent(auth -> credentials.addCredentials(request, auth));
         flags.branch().ifPresent(b -> request.setHeader("X-BRANCH", b));
         flags.tag().ifPresent(t -> request.setHeader("X-TAG", t));
+        flags.vars().forEach((key, value) -> request.setHeader("X-VAR", key + "=" + value));
+    }
+
+    String server() {
+        var server = System.getenv("MCS_ADDRESS");
+        return server != null ? server : "http://localhost:8080";
+    }
+
+    String component() {
+        if (args.length < 2) throw new CliException("Component not provided", 3);
+        return args[1];
     }
 
     public abstract int execute();

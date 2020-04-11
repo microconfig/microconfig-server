@@ -1,7 +1,5 @@
 package io.microconfig.cli.commands;
 
-import io.microconfig.cli.CliException;
-
 import java.net.URI;
 
 import static io.microconfig.cli.util.HttpUtil.httpGET;
@@ -15,8 +13,8 @@ public class ConfigCommand extends Command {
 
     @Override
     public int execute() {
-        if (args.length < 2) throw new CliException("Components not provided", 3);
-        var component = args[args.length - 1];
+        var component = component();
+
         var type = flags.type();
         var env = flags.env();
         var uri = uri(
@@ -33,6 +31,6 @@ public class ConfigCommand extends Command {
     }
 
     private URI uri(String type, String name, String env) {
-        return URI.create(String.format("%s/api/config/%s/%s/%s", flags.server(), type, name, env));
+        return URI.create(String.format("%s/api/config/%s/%s/%s", server(), type, name, env));
     }
 }

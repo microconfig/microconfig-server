@@ -1,16 +1,18 @@
 package io.microconfig.cli.credentials;
 
+import io.microconfig.cli.CliException;
+
 import java.net.http.HttpRequest;
 
 public class CredentialsProvider {
-    private static final VaultToken vaultToken = new VaultToken();
-    private static final KubernetesToken kubernetesToken = new KubernetesToken();
-
-    public HttpRequest.Builder addKubernetesToken(HttpRequest.Builder request, String token) {
-        return kubernetesToken.addCredentials(request, token);
-    }
-
-    public HttpRequest.Builder addVaultToken(HttpRequest.Builder request, String token) {
-        return vaultToken.addCredentials(request, token);
+    public HttpRequest.Builder addCredentials(HttpRequest.Builder request, String auth) {
+        switch (auth) {
+            case "vault-kubernetes":
+                return request.setHeader("X-AUTH-TYPE", "VAULT_KUBERNETES");
+            case "vault-token":
+                return request.setHeader("X-AUTH-TYPE", "VAULT_TOKEN");
+            default:
+                throw new CliException("Unsupported auth value: " + auth, 123);
+        }
     }
 }

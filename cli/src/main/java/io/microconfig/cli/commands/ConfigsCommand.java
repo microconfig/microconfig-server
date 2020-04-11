@@ -2,7 +2,6 @@ package io.microconfig.cli.commands;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import io.microconfig.cli.CliException;
 import io.microconfig.cli.util.FileUtil;
 
 import java.io.File;
@@ -21,11 +20,11 @@ public class ConfigsCommand extends Command {
 
     @Override
     public int execute() {
-        if (args.length < 2) throw new CliException("Components not provided", 3);
-        var name = args[args.length - 1];
+        var component = component();
+
         var env = flags.env();
         var uri = uri(
-            name,
+            component,
             env.orElse("default")
         );
 
@@ -48,6 +47,6 @@ public class ConfigsCommand extends Command {
     }
 
     private URI uri(String name, String env) {
-        return URI.create(String.format("%s/api/configs/%s/%s", flags.server(), name, env));
+        return URI.create(String.format("%s/api/configs/%s/%s", server(), name, env));
     }
 }
