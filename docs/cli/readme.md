@@ -9,6 +9,12 @@
  --set microconfig.vault.kubernetes.jwt=$(cat docs/kubernetes/jwt_test.jwt)
 ```
 
+```shell script
+./microconfig-cli config payment-db-patcher --branch vault -e test \
+ --set microconfig.vault.kubernetes.jwt=$(cat docs/kubernetes/jwt_test.jwt)
+```
+
+
 ### token auth
 ```shell script
 ./microconfig-cli config payment-db-patcher --branch vault -e test \

@@ -6,7 +6,7 @@ bootJar {
 }
 
 dependencies {
-    implementation 'io.microconfig:microconfig-core:4.0.1',
+    implementation 'io.microconfig:microconfig-core:4.0.2',
             'org.springframework.boot:spring-boot-starter-web',
             'org.springframework.boot:spring-boot-starter-actuator',
             'org.springframework.security:spring-security-core',
