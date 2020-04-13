@@ -1,8 +1,8 @@
 package io.microconfig.server.rest;
 
+import io.microconfig.core.properties.serializers.ConfigResult;
 import io.microconfig.server.configs.ConfigGenerator;
 import io.microconfig.server.configs.ConfigOptions;
-import io.microconfig.server.configs.ConfigResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;

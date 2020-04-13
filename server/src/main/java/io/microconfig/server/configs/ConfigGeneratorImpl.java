@@ -1,26 +1,22 @@
 package io.microconfig.server.configs;
 
-import io.microconfig.core.environments.Component;
-import io.microconfig.core.properties.ConfigProvider;
-import io.microconfig.core.properties.Property;
-import io.microconfig.core.properties.resolver.placeholder.PlaceholderResolveStrategy;
-import io.microconfig.factory.ConfigType;
-import io.microconfig.factory.MicroconfigFactory;
-import io.microconfig.factory.configtypes.ConfigTypeFileProvider;
-import io.microconfig.factory.configtypes.StandardConfigTypes;
+import io.microconfig.core.Microconfig;
+import io.microconfig.core.configtypes.ConfigTypeFilter;
+import io.microconfig.core.properties.serializers.ConfigResult;
 import io.microconfig.server.git.GitService;
+import io.microconfig.server.vault.VaultKVSecretResolverStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Stream;
 
-import static io.microconfig.server.vault.VaultPlugin.vaultKVSecretResolverStrategy;
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
+import static io.microconfig.core.Microconfig.searchConfigsIn;
+import static io.microconfig.core.configtypes.ConfigTypeFilters.configTypeWithName;
+import static io.microconfig.core.configtypes.ConfigTypeFilters.eachConfigType;
+import static io.microconfig.core.properties.serializers.PropertySerializers.asConfigResult;
+import static java.util.Arrays.asList;
 
 @Slf4j
 @Service
@@ -29,78 +25,38 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
     private final GitService gitService;
 
     @Override
-    public ConfigResult generateConfig(String component, String env, String type, ConfigOptions options) {
-        var configDir = configDir(options);
-        var configType = configType(configDir, type);
-        var factory = init(configDir, resolvers(options));
-        var result = generate(factory, configType, component, env);
-        if (!result.hasContent()) throw new ComponentNotFoundException(component);
-        return result;
-    }
-
-    private ConfigType configType(File configDir, String type) {
-        return types(configDir)
-            .filter(t -> t.getType().equals(type))
-            .findFirst()
-            .orElseThrow(() -> new UnsupportedConfigTypeException(type));
-    }
-
-    private Stream<ConfigType> types(File configDir) {
-        var customTypes = new ConfigTypeFileProvider().getConfigTypes(configDir);
-        return customTypes.isEmpty()
-            ? stream(StandardConfigTypes.values()).map(StandardConfigTypes::getType)
-            : customTypes.stream();
+    public ConfigResult generateConfig(String component, String env, String configType, ConfigOptions options) {
+        return generateConfigsFor(configTypeWithName(configType), component, env, options).get(0);
     }
 
     @Override
     public List<ConfigResult> generateConfigs(String component, String env, ConfigOptions options) {
-        var configDir = configDir(options);
-        var factory = init(configDir, resolvers(options));
-
-        var results = types(configDir).map(type -> generate(factory, type, component, env))
-            .filter(ConfigResult::hasContent)
-            .collect(toList());
-        if (results.isEmpty()) throw new ComponentNotFoundException(component);
-        return results;
+        return generateConfigsFor(eachConfigType(), component, env, options);
     }
 
-    private File configDir(ConfigOptions options) {
+    private List<ConfigResult> generateConfigsFor(ConfigTypeFilter configType, String component, String env, ConfigOptions options) {
+        var microconfig = initMicroconfig(gitService, options);
+        return microconfig.inEnvironment(env)
+            .getComponentWithName(component)
+            .getPropertiesFor(configType)
+            .resolveBy(microconfig.resolver())
+            .save(asConfigResult());
+    }
+
+    private Microconfig initMicroconfig(GitService gitService, ConfigOptions options) {
+        var microconfig = searchConfigsIn(configDir(gitService, options));
+        return withAdditionalPlaceholderResolvers(microconfig, options);
+    }
+
+    private File configDir(GitService gitService, ConfigOptions options) {
         if (options.tag != null) return gitService.checkoutTag(options.tag);
-        return options.branch != null
-            ? gitService.checkoutBranch(options.branch)
-            : gitService.checkoutDefault();
+        if (options.branch != null) return gitService.checkoutBranch(options.branch);
+        return gitService.checkoutDefault();
     }
 
-    private MicroconfigFactory init(File configDir, PlaceholderResolveStrategy... resolvers) {
-        var factory = MicroconfigFactory.init(configDir, new File(configDir, "build"));
-        return factory.withAdditionalResolvers(List.of(resolvers));
-    }
-
-    private ConfigResult generate(MicroconfigFactory factory, ConfigType type, String component, String env) {
-        ConfigProvider configProvider = factory.newConfigProvider(type);
-        var properties = configProvider.getProperties(Component.byType(component), env).values();
-        var file = resultFile(factory, type, component, env, properties);
-        var fileContent = fileContent(factory, file, properties);
-        return new ConfigResult(file.getName(), type.getType(), fileContent);
-    }
-
-    private File resultFile(MicroconfigFactory factory, ConfigType type, String component, String env, Collection<Property> properties) {
-        return factory.getFilenameGenerator(type)
-            .fileFor(component, env, properties);
-    }
-
-    private String fileContent(MicroconfigFactory factory, File file, Collection<Property> properties) {
-        return factory.getConfigIoService()
-            .writeTo(file)
-            .serialize(properties);
-    }
-
-    //todo make dynamic vars a separate strategy and use it through main api
-    private PlaceholderResolveStrategy[] resolvers(ConfigOptions options) {
+    private Microconfig withAdditionalPlaceholderResolvers(Microconfig microconfig, ConfigOptions options) {
         var dynamicVars = new DynamicVarsResolverStrategy(options.vars);
-        var vault = vaultKVSecretResolverStrategy(dynamicVars);
-        return vault
-            .map(v -> new PlaceholderResolveStrategy[]{v})
-            .orElse(new PlaceholderResolveStrategy[0]);
+        var vault = new VaultKVSecretResolverStrategy(microconfig, dynamicVars);
+        return microconfig.withAdditionalPlaceholderResolvers(asList(dynamicVars, vault));
     }
 }

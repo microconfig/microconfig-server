@@ -1,15 +1,16 @@
 package io.microconfig.server.configs;
 
-import io.microconfig.core.environments.Component;
+import io.microconfig.core.properties.DeclaringComponentImpl;
+import io.microconfig.core.properties.PlaceholderResolveStrategy;
 import io.microconfig.core.properties.Property;
-import io.microconfig.core.properties.resolver.placeholder.PlaceholderResolveStrategy;
-import io.microconfig.core.properties.sources.SpecialSource;
 import lombok.RequiredArgsConstructor;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.microconfig.core.properties.Property.property;
+import static io.microconfig.core.properties.ConfigFormat.PROPERTIES;
+import static io.microconfig.core.properties.PropertyImpl.property;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
@@ -17,23 +18,15 @@ import static java.util.Optional.of;
 public class DynamicVarsResolverStrategy implements PlaceholderResolveStrategy {
     private final Map<String, String> vars;
 
-    public Optional<String> findValue(String key) {
-        return Optional.ofNullable(vars.get(key));
-    }
-
-    public String getValue(String key) {
-        var value = vars.get(key);
-        if (value == null) throw new IllegalArgumentException("Can't resolve value for key: " + key);
-        return value;
+    public Map<String, String> dynamicVars() {
+        return new HashMap<>(vars);
     }
 
     @Override
-    public Optional<Property> resolve(Component component, String propertyKey, String environment) {
-        if (!"this".equals(component.getName())) return empty();
-
-        var value = vars.get(propertyKey);
+    public Optional<Property> resolve(String component, String key, String environment, String configType) {
+        var value = vars.get(key);
         if (value == null) return empty();
 
-        return of(property(propertyKey, value, environment, new SpecialSource(component, "Dynamic Vars")));
+        return of(property(key, value, PROPERTIES, new DeclaringComponentImpl(configType, "Dynamic Vars", environment)));
     }
 }

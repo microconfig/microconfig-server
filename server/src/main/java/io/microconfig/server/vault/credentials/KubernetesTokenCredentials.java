@@ -1,7 +1,5 @@
 package io.microconfig.server.vault.credentials;
 
-import io.microconfig.server.configs.DynamicVarsResolverStrategy;
-import io.microconfig.server.vault.VaultConfig;
 import io.microconfig.server.vault.exceptions.VaultAuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,13 +15,16 @@ import static io.microconfig.server.util.JsonUtil.parseJson;
 @RequiredArgsConstructor
 @Slf4j
 public class KubernetesTokenCredentials implements VaultCredentials {
-    private final VaultConfig config;
+    private final String address;
+    private final String path;
+    private final String role;
+    private final String jwt;
     private String token;
 
     @Override
-    public String getToken(DynamicVarsResolverStrategy dynamicVarsResolverStrategy) {
+    public String getToken() {
         if (token != null) return token;
-        var request = request(dynamicVarsResolverStrategy);
+        var request = request();
         var response = httpSend(request);
         if (response.statusCode() != 200) throw new VaultAuthException();
 
@@ -32,13 +33,9 @@ public class KubernetesTokenCredentials implements VaultCredentials {
         return token;
     }
 
-    private HttpRequest request(DynamicVarsResolverStrategy dynamicVarsResolverStrategy) {
-        var role = dynamicVarsResolverStrategy.getValue("microconfig.vault.kubernetes.role");
-        var jwt = dynamicVarsResolverStrategy.getValue("microconfig.vault.kubernetes.jwt");
-        var path = dynamicVarsResolverStrategy.getValue("microconfig.vault.kubernetes.path");
-
+    private HttpRequest request() {
         var body = objectNode().put("role", role).put("jwt", jwt).toString();
-        return HttpRequest.newBuilder(URI.create(String.format("%s/v1/auth/%s/login", config.getAddress(), path)))
+        return HttpRequest.newBuilder(URI.create(String.format("%s/v1/auth/%s/login", address, path)))
             .POST(HttpRequest.BodyPublishers.ofString(body))
             .timeout(Duration.ofSeconds(2))
             .build();

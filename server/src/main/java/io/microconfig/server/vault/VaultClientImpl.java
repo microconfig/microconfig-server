@@ -19,13 +19,13 @@ public class VaultClientImpl implements VaultClient {
     private final VaultConfig config;
 
     @Override
-    public String fetchKV(String token, String property) {
+    public String fetchKV(String property) {
         int dotIndex = property.lastIndexOf('.');
         String path = property.substring(0, dotIndex);
         String key = property.substring(dotIndex + 1);
         log.debug("Fetching {} {}", path, key);
 
-        var node = readPath(path, token);
+        var node = readPath(path, config.getCredentials().getToken());
         var value = node.path("data").path("data").get(key);
         if (value == null) throw new VaultSecretNotFound(property);
         return value.asText();
