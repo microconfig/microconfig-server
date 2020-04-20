@@ -5,5 +5,9 @@ ADD cli/build/libs/microconfig-cli.jar /microconfig-cli.jar
 RUN native-image -jar /microconfig-cli.jar
 
 FROM centos:latest
-COPY --from=builder /microconfig-cli .
+
+RUN mkdir /microconfig
+ENV PATH="/microconfig:${PATH}"
+
+COPY --from=builder /microconfig-cli /microconfig/microconfig-cli
 CMD ["microconfig-cli"]

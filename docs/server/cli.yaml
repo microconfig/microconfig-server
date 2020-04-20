@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: microconfig-server
+  name: microconfig-server
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microconfig-server
+  template:
+    metadata:
+      labels:
+        app: microconfig-server
+    spec:
+      containers:
+        - name: microconfig-server
+          image: "microconfig/server:latest_alpha"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+          - name: REMOTE_URL
+            value: https://github.com/microconfig/microconfig-examples.git
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: microconfig-server
+  name: microconfig-server
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: microconfig-server
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 80

@@ -1,4 +1,4 @@
-FROM azul/zulu-openjdk-centos:13
+FROM azul/zulu-openjdk-centos:14
 EXPOSE 80
 
 RUN yum -y install epel-release

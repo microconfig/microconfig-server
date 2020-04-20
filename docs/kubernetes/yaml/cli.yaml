@@ -3,53 +3,24 @@ kind: Deployment
 metadata:
   labels:
     app: microconfig-cli
-  name: microconfig-cli-dev
-  namespace: default
+  name: microconfig-cli
+  namespace: dev
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: microconfig-cli-dev
+      app: microconfig-cli
   template:
     metadata:
       labels:
-        app: microconfig-cli-dev
+        app: microconfig-cli
     spec:
-      serviceAccountName: team-dev
+      serviceAccountName: vault-auth
       containers:
         - name: microconfig-cli
           image: "microconfig/server-cli:latest_alpha"
           imagePullPolicy: Always
-          command: ["sleep"]
-          args: ["100000000"]
-          env:
-          - name: MCS_ADDRESS
-            value: http://docker.for.mac.localhost:8080
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: microconfig-cli
-  name: microconfig-cli-test
-  namespace: default
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: microconfig-cli-test
-  template:
-    metadata:
-      labels:
-        app: microconfig-cli-test
-    spec:
-      serviceAccountName: team-test
-      containers:
-        - name: microconfig-cli
-          image: "microconfig/server-cli:latest_alpha"
-          imagePullPolicy: Always
-          command: ["sleep"]
-          args: ["100000000"]
+          command: ["sleep", "infinity"]
           env:
             - name: MCS_ADDRESS
-              value: http://docker.for.mac.localhost:8080
+              value: http://microconfig-server.default.svc.cluster.local

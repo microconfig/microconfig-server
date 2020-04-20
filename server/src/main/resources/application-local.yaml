@@ -1,4 +1,4 @@
-spring:
+1spring:
   application.name: microconfig-server
   main:
     banner-mode: off
@@ -17,21 +17,3 @@ git:
   default-branch: ${DEFAULT_BRANCH:master}
   username: ${USERNAME:open}
   password: ${PASSWORD:source}
-
-vault:
-  address: http://127.0.0.1:8200
-  app-roles:
-    - name: test-role
-      path: team-approle
-      role: 526cae12-6958-b99e-bfaa-3dde5d0ee5b1
-      matches:
-        - env: test
-          components:
-            - payment-db-patcher
-    - name: prod-role
-      path: team-approle
-      role: 40f4d14c-87b9-6cc5-b9b0-173f6ebc967b
-      matches:
-        - env: prod
-          components:
-            - payment-db-patcher
