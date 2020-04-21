@@ -28,7 +28,15 @@ public class VaultAppRoleCredentials implements VaultCredentials {
 
         var request = request();
         var response = httpSend(request);
-        if (response.statusCode() != 200) throw new VaultAuthException();
+
+        if (response.statusCode() != 200) {
+            var node = parseJson(response.body());
+            if (node.get("errors") != null) {
+                throw new VaultAuthException(node.get("errors").asText());
+            } else {
+                throw new VaultAuthException("Auth failed with cod: " + response.statusCode());
+            }
+        }
 
         log.debug("Fetched token with AppRole");
         token = parseJson(response.body()).path("auth").path("client_token").asText();

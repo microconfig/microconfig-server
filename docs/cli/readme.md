@@ -10,8 +10,8 @@
 ```
 
 ```shell script
-./microconfig-cli config payment-db-patcher --branch vault -e test \
- --set microconfig.vault.kubernetes.jwt=$(cat docs/kubernetes/jwt_test.jwt)
+./microconfig-cli config payment-service --branch vault -e dev \
+ --set microconfig.vault.kubernetes.jwt=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 ```
 
 

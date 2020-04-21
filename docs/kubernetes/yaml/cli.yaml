@@ -24,3 +24,30 @@ spec:
           env:
             - name: MCS_ADDRESS
               value: http://microconfig-server.default.svc.cluster.local
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: microconfig-cli
+  name: microconfig-cli
+  namespace: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microconfig-cli
+  template:
+    metadata:
+      labels:
+        app: microconfig-cli
+    spec:
+      serviceAccountName: vault-auth
+      containers:
+        - name: microconfig-cli
+          image: "microconfig/server-cli:latest_alpha"
+          imagePullPolicy: Always
+          command: ["sleep", "infinity"]
+          env:
+            - name: MCS_ADDRESS
+              value: http://microconfig-server.default.svc.cluster.local

@@ -39,6 +39,7 @@ public class VaultClientImpl implements VaultClient {
             .build();
         var response = httpSend(request);
         var node = parseJson(response.body());
+        //todo debug why no errors in message
         if (node.get("errors") != null) {
             throw new VaultAuthException(node.get("errors").asText());
         }

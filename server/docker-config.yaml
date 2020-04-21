@@ -17,4 +17,4 @@ git:
 logging:
   level:
     root: INFO
-    io.microconfig: DEBUG
+    io.microconfig: ${LOG_LEVEL:DEBUG}
