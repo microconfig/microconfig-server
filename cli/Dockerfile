@@ -1,7 +1,7 @@
 FROM oracle/graalvm-ce:20.0.0-java11 AS builder
 RUN gu install native-image
 
-ADD cli/build/libs/microconfig-cli.jar /microconfig-cli.jar
+ADD build/libs/microconfig-cli.jar /microconfig-cli.jar
 RUN native-image -jar /microconfig-cli.jar
 
 FROM centos:latest

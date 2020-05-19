@@ -29,5 +29,5 @@ graalvm/
 
 # Local config files
 *.jwt
-docs/vault/ca.crt
-docs/vault/roles.txt
+docs/vault/files/ca.crt
+docs/vault/files/roles.txt

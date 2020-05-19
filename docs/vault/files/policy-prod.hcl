@@ -1,3 +1,3 @@
-path "secrets/data/prod/*" {
+path "secrets/data/payment-backend/prod/*" {
   capabilities = ["read"]
 }

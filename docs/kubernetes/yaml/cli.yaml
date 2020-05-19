@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: microconfig-cli-dev
+  namespace: default
   labels:
     app: microconfig-cli
-  name: microconfig-cli
-  namespace: dev
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: microconfig-cli
+      app: microconfig-cli-dev
   template:
     metadata:
       labels:
-        app: microconfig-cli
+        app: microconfig-cli-dev
     spec:
-      serviceAccountName: vault-auth
+      serviceAccountName: vault-auth-dev
       containers:
         - name: microconfig-cli
           image: "microconfig/server-cli:latest_alpha"
@@ -28,21 +28,21 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: microconfig-cli-prod
+  namespace: default
   labels:
     app: microconfig-cli
-  name: microconfig-cli
-  namespace: prod
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: microconfig-cli
+      app: microconfig-cli-prod
   template:
     metadata:
       labels:
-        app: microconfig-cli
+        app: microconfig-cli-prod
     spec:
-      serviceAccountName: vault-auth
+      serviceAccountName: vault-auth-prod
       containers:
         - name: microconfig-cli
           image: "microconfig/server-cli:latest_alpha"

@@ -23,7 +23,7 @@ spec:
             - containerPort: 80
           env:
           - name: REMOTE_URL
-            value: https://github.com/microconfig/microconfig-examples.git
+            value: https://github.com/microconfig/microconfig-quickstart.git
           - name: LOG_LEVEL
             value: TRACE
 ---
