@@ -25,7 +25,7 @@ out/
 
 # Native cli executable #
 microconfig-cli
-graalvm/
+.graalvm
 
 # Local config files
 *.jwt

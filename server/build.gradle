@@ -5,6 +5,9 @@ bootJar {
     archiveFileName = 'server.jar'
 }
 
+sourceCompatibility = 14
+targetCompatibility = 14
+
 dependencies {
     implementation 'io.microconfig:microconfig-core:4.0.2',
             'org.springframework.boot:spring-boot-starter-web',
