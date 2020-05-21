@@ -1,7 +1,6 @@
 package io.microconfig.server.vault;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.microconfig.server.vault.exceptions.VaultAuthException;
 import io.microconfig.server.vault.exceptions.VaultSecretNotFound;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +10,7 @@ import java.net.http.HttpRequest;
 import java.time.Duration;
 
 import static io.microconfig.server.util.HttpUtil.httpSend;
-import static io.microconfig.server.util.JsonUtil.parseJson;
+import static io.microconfig.server.vault.VaultUtil.validateResponse;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,12 +37,7 @@ public class VaultClientImpl implements VaultClient {
             .timeout(Duration.ofSeconds(2))
             .build();
         var response = httpSend(request);
-        var node = parseJson(response.body());
-        //todo debug why no errors in message
-        if (node.get("errors") != null) {
-            throw new VaultAuthException(node.get("errors").asText());
-        }
-        return node;
+        return validateResponse(response);
     }
 
     private String[] splitPath(String path) {

@@ -3,6 +3,7 @@ package io.microconfig.server.configs;
 import io.microconfig.core.Microconfig;
 import io.microconfig.core.configtypes.ConfigTypeFilter;
 import io.microconfig.core.environments.repository.EnvironmentException;
+import io.microconfig.core.properties.ResolveException;
 import io.microconfig.core.properties.serializers.ConfigResult;
 import io.microconfig.server.git.GitService;
 import io.microconfig.server.rest.exceptions.BadRequestException;
@@ -44,9 +45,7 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
                 .getPropertiesFor(configType)
                 .resolveBy(microconfig.resolver())
                 .save(asConfigResult());
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException(e.getMessage());
-        } catch (EnvironmentException e) {
+        } catch (IllegalArgumentException | EnvironmentException | ResolveException e) {
             throw new BadRequestException(e.getMessage());
         }
     }

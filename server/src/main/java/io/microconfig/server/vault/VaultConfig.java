@@ -48,7 +48,7 @@ public class VaultConfig {
 
     private static String getValue(Map<String, String> config, String key) {
         var value = config.get(key);
-        if (value == null) throw new BadRequestException("Can't find Vault config: " + key);
+        if (value == null) throw new BadRequestException("Vault config missing: " + key);
         return value;
     }
 }

@@ -7,6 +7,7 @@ import io.microconfig.core.properties.Property;
 import io.microconfig.server.configs.DynamicVarsResolverStrategy;
 import lombok.RequiredArgsConstructor;
 
+import java.util.HashMap;
 import java.util.Optional;
 
 import static io.microconfig.core.configtypes.ConfigTypeFilters.configTypeWithName;
@@ -34,8 +35,8 @@ public class VaultKVSecretResolverStrategy implements PlaceholderResolveStrategy
                 .resolveBy(microconfig.resolver())
                 .getPropertiesAsKeyValue();
 
-            var vars = dynamicVars.dynamicVars();
-            vars.putAll(properties);
+            var vars = new HashMap<>(properties);
+            vars.putAll(dynamicVars.dynamicVars());
 
             vaultConfig = vaultConfig(vars);
             vaultClient = new VaultClientImpl(vaultConfig);

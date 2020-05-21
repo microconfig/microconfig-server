@@ -1,6 +1,5 @@
 package io.microconfig.server.vault.credentials;
 
-import io.microconfig.server.vault.exceptions.VaultAuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -10,7 +9,7 @@ import java.time.Duration;
 
 import static io.microconfig.server.util.HttpUtil.httpSend;
 import static io.microconfig.server.util.JsonUtil.objectNode;
-import static io.microconfig.server.util.JsonUtil.parseJson;
+import static io.microconfig.server.vault.VaultUtil.validateResponse;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -28,18 +27,10 @@ public class VaultAppRoleCredentials implements VaultCredentials {
 
         var request = request();
         var response = httpSend(request);
-
-        if (response.statusCode() != 200) {
-            var node = parseJson(response.body());
-            if (node.get("errors") != null) {
-                throw new VaultAuthException(node.get("errors").asText());
-            } else {
-                throw new VaultAuthException("Auth failed with cod: " + response.statusCode());
-            }
-        }
+        var node = validateResponse(response);
 
         log.debug("Fetched token with AppRole");
-        token = parseJson(response.body()).path("auth").path("client_token").asText();
+        token = node.path("auth").path("client_token").asText();
         return token;
     }
 

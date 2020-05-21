@@ -17,7 +17,7 @@ public class HttpUtil {
 
     public static HttpRequest.Builder httpGET(URI uri, Optional<Integer> timeout) {
         return newBuilder(uri).GET()
-            .timeout(ofSeconds(timeout.orElse(2)));
+            .timeout(ofSeconds(timeout.orElse(10)));
     }
 
     public static String httpSend(HttpRequest request) {

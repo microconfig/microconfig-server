@@ -1,16 +1,17 @@
 package io.microconfig.server.vault.credentials;
 
-import io.microconfig.server.vault.exceptions.VaultAuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
-import java.time.Duration;
 
 import static io.microconfig.server.util.HttpUtil.httpSend;
 import static io.microconfig.server.util.JsonUtil.objectNode;
-import static io.microconfig.server.util.JsonUtil.parseJson;
+import static io.microconfig.server.vault.VaultUtil.validateResponse;
+import static java.net.http.HttpRequest.BodyPublishers.ofString;
+import static java.net.http.HttpRequest.newBuilder;
+import static java.time.Duration.ofSeconds;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -26,25 +27,21 @@ public class KubernetesTokenCredentials implements VaultCredentials {
         if (token != null) return token;
         var request = request();
         var response = httpSend(request);
-        if (response.statusCode() != 200) {
-            var node = parseJson(response.body());
-            if (node.get("errors") != null) {
-                throw new VaultAuthException(node.get("errors").asText());
-            } else {
-                throw new VaultAuthException("Auth failed with cod: " + response.statusCode());
-            }
-        }
-
-        log.debug("Fetched token with k8sJWT");
-        token = parseJson(response.body()).path("auth").path("client_token").asText();
+        var node = validateResponse(response);
+        log.debug("Fetched token with k8s JWT");
+        token = node.path("auth").path("client_token").asText();
         return token;
     }
 
     private HttpRequest request() {
-        var body = objectNode().put("role", role).put("jwt", jwt).toString();
-        return HttpRequest.newBuilder(URI.create(String.format("%s/v1/auth/%s/login", address, path)))
-            .POST(HttpRequest.BodyPublishers.ofString(body))
-            .timeout(Duration.ofSeconds(2))
+        var body = objectNode()
+            .put("role", role)
+            .put("jwt", jwt)
+            .toString();
+
+        return newBuilder(URI.create(String.format("%s/v1/auth/%s/login", address, path)))
+            .POST(ofString(body))
+            .timeout(ofSeconds(10))
             .build();
     }
 }

@@ -3,6 +3,7 @@ package io.microconfig.server.rest;
 import io.microconfig.server.rest.exceptions.BadRequestException;
 import io.microconfig.server.rest.exceptions.ForbiddenException;
 import io.microconfig.server.rest.exceptions.NotFoundException;
+import io.microconfig.server.rest.exceptions.ServerErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static io.microconfig.server.util.JsonUtil.objectNode;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @ControllerAdvice
@@ -27,6 +29,10 @@ public class ExceptionsHandler {
     }
 
     private ResponseEntity<String> response(Exception ex) {
+        if (ex instanceof ServerErrorException) {
+            return response(ex.getMessage(), INTERNAL_SERVER_ERROR);
+        }
+
         if (ex instanceof NotFoundException) {
             return response(ex.getMessage(), NOT_FOUND);
         }

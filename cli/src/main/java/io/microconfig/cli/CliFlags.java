@@ -26,16 +26,16 @@ public class CliFlags {
         return findFlag("--branch");
     }
 
-    public Optional<String> tag() {
-        return findFlag("--tag");
-    }
-
     public Optional<String> dir() {
         return findFlag("-d", "--dir");
     }
 
     public Map<String, String> vars() {
         return findVars("-s", "--set");
+    }
+
+    public Optional<String> tag() {
+        return findFlag("--tag");
     }
 
     public Optional<Integer> timeout() {
