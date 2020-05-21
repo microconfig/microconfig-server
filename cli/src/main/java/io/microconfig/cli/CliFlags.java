@@ -38,6 +38,10 @@ public class CliFlags {
         return findVars("-s", "--set");
     }
 
+    public Optional<Integer> timeout() {
+        return findFlag("--timeout").map(Integer::parseInt);
+    }
+
     public Optional<String> findFlag(String... flag) {
         var flags = asList(flag);
         for (int i = 2; i < args.length; i++) {

@@ -24,7 +24,7 @@ public class JsonUtil {
         try {
             return MAPPER.readTree(string);
         } catch (IOException e) {
-            throw new CliException("Failed to parse response json", 100);
+            throw new CliException("Failed to parse response json: " + string, 100);
         }
     }
 
@@ -45,5 +45,4 @@ public class JsonUtil {
     public static Stream<JsonNode> nodes(ArrayNode node) {
         return stream(spliteratorUnknownSize(node.elements(), ORDERED), false);
     }
-
 }

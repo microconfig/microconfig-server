@@ -1,7 +1,9 @@
 package io.microconfig.server.git;
 
-public class BranchNotFoundException extends RuntimeException {
+import io.microconfig.server.rest.exceptions.NotFoundException;
+
+public class BranchNotFoundException extends NotFoundException {
     public BranchNotFoundException(String branch) {
-        super(branch + " branch not found");
+        super("Git branch not found: " + branch);
     }
 }

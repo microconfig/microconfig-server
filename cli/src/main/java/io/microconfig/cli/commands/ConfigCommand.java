@@ -23,7 +23,7 @@ public class ConfigCommand extends Command {
             env.orElse("default")
         );
 
-        var request = httpGET(uri);
+        var request = httpGET(uri, flags.timeout());
         addFlags(request);
         var body = httpSend(request.build());
         System.out.println(body);

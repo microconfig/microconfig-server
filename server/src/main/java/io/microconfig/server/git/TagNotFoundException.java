@@ -1,7 +1,9 @@
 package io.microconfig.server.git;
 
-public class TagNotFoundException extends RuntimeException {
+import io.microconfig.server.rest.exceptions.NotFoundException;
+
+public class TagNotFoundException extends NotFoundException {
     public TagNotFoundException(String tag) {
-        super(tag + " tag not found");
+        super("Git tag not found: " + tag);
     }
 }

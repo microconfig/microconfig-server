@@ -6,36 +6,28 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.Map;
+import java.util.Optional;
 
 import static java.net.http.HttpClient.newHttpClient;
-import static java.util.stream.Collectors.joining;
+import static java.net.http.HttpRequest.newBuilder;
+import static java.net.http.HttpResponse.BodyHandlers.ofString;
+import static java.time.Duration.ofSeconds;
 
 public class HttpUtil {
-    public static String getQuery(Map<String, String> query) {
-        var q = query.entrySet().stream()
-            .map(e -> e.getKey() + "=" + e.getValue())
-            .collect(joining("&"));
 
-        return q.isEmpty()
-            ? q
-            : "?" + q;
-    }
-
-    public static HttpRequest.Builder httpGET(URI uri) {
-        return HttpRequest.newBuilder(uri)
-            .GET()
-            .timeout(Duration.ofSeconds(4));
+    public static HttpRequest.Builder httpGET(URI uri, Optional<Integer> timeout) {
+        return newBuilder(uri).GET()
+            .timeout(ofSeconds(timeout.orElse(2)));
     }
 
     public static String httpSend(HttpRequest request) {
         try {
-            var response = newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            var response = newHttpClient().send(request, ofString());
             if (response.statusCode() == 200) {
                 return response.body();
             } else {
-                throw new CliException("Bad response code: " + response.statusCode(), 200);
+                var error = processError(response);
+                throw new CliException("Server Error: " + error, 200);
             }
         } catch (IOException e) {
             throw new CliException("Failed during network call: " + e.getMessage(), 100);
@@ -43,5 +35,10 @@ public class HttpUtil {
             Thread.currentThread().interrupt();
             throw new CliException("Interrupted during network call", 666);
         }
+    }
+
+    public static String processError(HttpResponse<String> response) {
+        var json = JsonUtil.parse(response.body());
+        return json.get("error").asText();
     }
 }
