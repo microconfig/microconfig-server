@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: microconfig-init
+  namespace: default
+  labels:
+    app: microconfig-cli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microconfig-init
+  template:
+    metadata:
+      labels:
+        app: microconfig-init
+    spec:
+      serviceAccountName: vault-auth-dev
+      volumes:
+        - name: config
+          emptyDir: {}
+      initContainers:
+        - name: fetch-config
+          image: "microconfig/server-cli:latest_alpha"
+          imagePullPolicy: Always
+          command: ["/bin/bash", "-c", "microconfig-cli configs payment-backend --branch vault -e dev -d /config --set microconfig.vault.kubernetes.jwt=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"]
+          volumeMounts:
+            - name: config
+              mountPath: "/config"
+          env:
+            - name: MCS_ADDRESS
+              value: http://microconfig-server.default.svc.cluster.local
+      containers:
+        - name: microconfig-cli
+          image: "microconfig/server-cli:latest_alpha"
+          imagePullPolicy: Always
+          command: ["/bin/bash","-c","cat /config/application.yaml && sleep infinity"]
+          volumeMounts:
+            - name: config
+              mountPath: "/config"
+          env:
+            - name: MCS_ADDRESS
+              value: http://microconfig-server.default.svc.cluster.local
