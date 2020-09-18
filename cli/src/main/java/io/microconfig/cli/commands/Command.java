@@ -21,12 +21,12 @@ public abstract class Command {
     }
 
     String server() {
-        var server = System.getenv("MCS_ADDRESS");
-        return server != null ? server : "http://localhost:8080";
+        return flags.server()
+                .orElse(System.getenv().getOrDefault("MCS_ADDRESS", "http://localhost:8080"));
     }
 
-    String component() {
-        if (args.length < 2) throw new CliException("Component not provided", 3);
+    String component(String message) {
+        if (args.length < 2) throw new CliException(message, 3);
         return args[1];
     }
 

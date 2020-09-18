@@ -9,9 +9,9 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import java.util.Arrays;
 import java.util.Map;
 
+import static java.util.Arrays.stream;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
@@ -25,10 +25,10 @@ public class ConfigOptionsResolver implements HandlerMethodArgumentResolver {
     }
 
     @Override
-    public ConfigOptions resolveArgument(MethodParameter ignored,
-                                         ModelAndViewContainer ignored2,
+    public ConfigOptions resolveArgument(MethodParameter _1,
+                                         ModelAndViewContainer _2,
                                          NativeWebRequest webRequest,
-                                         WebDataBinderFactory ignored3) {
+                                         WebDataBinderFactory _3) {
         var branch = webRequest.getHeader("X-BRANCH");
         var tag = webRequest.getHeader("X-TAG");
         var vars = vars(webRequest);
@@ -38,9 +38,9 @@ public class ConfigOptionsResolver implements HandlerMethodArgumentResolver {
     private Map<String, String> vars(NativeWebRequest webRequest) {
         var headerValues = webRequest.getHeaderValues("X-VAR");
         if (headerValues == null) return emptyMap();
-        return Arrays.stream(headerValues)
-            .map(ConfigOptionsResolver::splitVar)
-            .collect(toMap(s -> s[0], s -> s[1]));
+        return stream(headerValues)
+                .map(ConfigOptionsResolver::splitVar)
+                .collect(toMap(s -> s[0], s -> s[1]));
     }
 
     private static String[] splitVar(String str) {

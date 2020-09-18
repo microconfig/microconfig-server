@@ -17,14 +17,16 @@ public class VaultConfig {
     public static VaultConfig vaultConfig(Map<String, String> config) {
         var address = getValue(config, "microconfig.vault.address");
 
-        var credentials = switch (getValue(config, "microconfig.vault.auth")) {
-            case "kubernetes" -> kubernetes(address, config);
-            case "token" -> token(address, config);
-            case "approle" -> approle(address, config);
-            default -> throw new IllegalStateException("Unsupported auth type");
-        };
-
-        return new VaultConfig(address, credentials);
+        switch (getValue(config, "microconfig.vault.auth")) {
+            case "kubernetes":
+                return new VaultConfig(address, kubernetes(address, config));
+            case "token":
+                return new VaultConfig(address, token(address, config));
+            case "approle":
+                return new VaultConfig(address, approle(address, config));
+            default:
+                throw new IllegalStateException("Unsupported auth type");
+        }
     }
 
     private static VaultCredentials kubernetes(String address, Map<String, String> config) {

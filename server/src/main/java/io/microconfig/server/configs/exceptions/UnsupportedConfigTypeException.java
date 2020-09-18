@@ -1,4 +1,4 @@
-package io.microconfig.server.configs;
+package io.microconfig.server.configs.exceptions;
 
 public class UnsupportedConfigTypeException extends RuntimeException {
     public UnsupportedConfigTypeException(String type) {

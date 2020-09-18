@@ -24,10 +24,10 @@ public class WebConfiguration implements WebMvcConfigurer {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration().applyPermitDefaultValues();
         config.addAllowedMethod(GET);
-        config.addAllowedMethod(POST);
-        config.addAllowedMethod(OPTIONS);
-        config.addAllowedMethod(PATCH);
-        config.addAllowedMethod(DELETE);
+//        config.addAllowedMethod(POST);
+//        config.addAllowedMethod(OPTIONS);
+//        config.addAllowedMethod(PATCH);
+//        config.addAllowedMethod(DELETE);
         source.registerCorsConfiguration("/api/**", config);
         FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
         bean.setOrder(0);

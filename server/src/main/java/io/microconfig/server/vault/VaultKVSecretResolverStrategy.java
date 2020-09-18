@@ -25,11 +25,11 @@ public class VaultKVSecretResolverStrategy implements PlaceholderResolveStrategy
     private VaultClient vaultClient;
 
     @Override
-    public Optional<Property> resolve(String root, String component, String key, String environment, String configType) {
+    public Optional<Property> resolve(String component, String key, String environment, String configType) {
         if (!"VAULT-KV".equals(component)) return empty();
         if (vaultConfig == null) {
             var properties = microconfig.inEnvironment(environment)
-                .getComponentWithName(root)
+                .getComponentWithName("root")
                 .getPropertiesFor(configTypeWithName(configType))
                 .withPrefix("microconfig.vault")
                 .resolveBy(microconfig.resolver())

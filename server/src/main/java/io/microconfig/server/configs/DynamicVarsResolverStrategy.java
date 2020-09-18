@@ -23,10 +23,11 @@ public class DynamicVarsResolverStrategy implements PlaceholderResolveStrategy {
     }
 
     @Override
-    public Optional<Property> resolve(String root, String component, String key, String environment, String configType) {
+    public Optional<Property> resolve(String component, String key, String environment, String configType) {
         var value = vars.get(key);
         if (value == null) return empty();
 
         return of(property(key, value, PROPERTIES, new DeclaringComponentImpl(configType, "Dynamic Vars", environment)));
     }
+
 }

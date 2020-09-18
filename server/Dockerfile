@@ -1,4 +1,4 @@
-FROM azul/zulu-openjdk-centos:14
+FROM azul/zulu-openjdk-centos:15
 EXPOSE 80
 
 RUN yum -y install epel-release
@@ -9,6 +9,6 @@ ADD build/libs/*.jar /server.jar
 
 #-Xlog:gc*
 CMD java -Dfile.encoding=UTF-8  \
-    -XX:+UnlockExperimentalVMOptions -XX:+UseShenandoahGC -XX:+UseCompressedOops \
-    -Xms256m -Xmx256m -XX:ShenandoahGCHeuristics=compact \
+    -XX:+UseShenandoahGC -XX:+UseCompressedOops -XX:ShenandoahGCHeuristics=compact \
+    -Xms256m -Xmx256m \
     -jar /server.jar --spring.config.location=/application.yaml

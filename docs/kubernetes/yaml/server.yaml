@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: microconfig-server
-          image: "microconfig/server:latest_alpha"
+          image: "microconfig/server:latest_beta"
           imagePullPolicy: Always
           ports:
             - containerPort: 80

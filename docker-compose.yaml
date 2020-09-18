@@ -1,13 +1,19 @@
 version: '3'
 
 services:
-  vault:
-    image: vault:latest
+#  vault:
+#    image: vault:latest
+#    ports:
+#      - 8200:8200
+#    environment:
+#      - VAULT_ADDR=http://0.0.0.0:8200
+#      - VAULT_API_ADDR=http://0.0.0.0:8200
+#      - VAULT_ADDRESS=http://0.0.0.0:8200
+#    cap_add:
+#      - IPC_LOCK
+  microconfig-server:
+    image: microconfig/server:latest_beta
     ports:
-      - 8200:8200
+      - 8080:80
     environment:
-      - VAULT_ADDR=http://0.0.0.0:8200
-      - VAULT_API_ADDR=http://0.0.0.0:8200
-      - VAULT_ADDRESS=http://0.0.0.0:8200
-    cap_add:
-      - IPC_LOCK
+      - REMOTE_URL=https://github.com/microconfig/microconfig-quickstart.git

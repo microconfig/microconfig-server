@@ -5,11 +5,18 @@ bootJar {
     archiveFileName = 'server.jar'
 }
 
-sourceCompatibility = 14
-targetCompatibility = 14
+//compileJava {
+//    options.compilerArgs += ["--enable-preview"]
+//}
+//test {
+//    jvmArgs '--enable-preview'
+//}
+
+sourceCompatibility = 11
+targetCompatibility = 11
 
 dependencies {
-    implementation 'io.microconfig:microconfig-core:4.0.2',
+    implementation 'io.microconfig:microconfig-core:4.3.0',
             'org.springframework.boot:spring-boot-starter-web',
             'org.springframework.boot:spring-boot-starter-actuator',
             'org.springframework.security:spring-security-core',

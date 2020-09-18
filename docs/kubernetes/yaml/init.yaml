@@ -1,43 +1,41 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: microconfig-init
+  name: payment-backend
   namespace: default
   labels:
-    app: microconfig-cli
+    app: payment-backend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: microconfig-init
+      app: payment-backend
   template:
     metadata:
       labels:
-        app: microconfig-init
+        app: payment-backend
     spec:
-      serviceAccountName: vault-auth-dev
       volumes:
         - name: config
-          emptyDir: {}
+          emptyDir: { }
       initContainers:
-        - name: fetch-config
-          image: "microconfig/server-cli:latest_alpha"
+        - name: microconfig
+          image: "microconfig/server-cli:latest_beta"
           imagePullPolicy: Always
-          command: ["/bin/bash", "-c", "microconfig-cli configs payment-backend --branch vault -e dev -d /config --set microconfig.vault.kubernetes.jwt=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"]
-          volumeMounts:
-            - name: config
-              mountPath: "/config"
+          command: [ "/bin/sh","-c", "microctl save $MC_COMPONENT -e dev -d /config" ]
           env:
             - name: MCS_ADDRESS
               value: http://microconfig-server.default.svc.cluster.local
+            - name: MC_COMPONENT
+              value: payment-backend
+          volumeMounts:
+            - name: config
+              mountPath: "/config"
       containers:
-        - name: microconfig-cli
-          image: "microconfig/server-cli:latest_alpha"
+        - name: payment-backend
+          image: "alpine:latest"
           imagePullPolicy: Always
-          command: ["/bin/bash","-c","cat /config/application.yaml && sleep infinity"]
+          command: [ "sleep", "infinity" ]
           volumeMounts:
             - name: config
               mountPath: "/config"
-          env:
-            - name: MCS_ADDRESS
-              value: http://microconfig-server.default.svc.cluster.local

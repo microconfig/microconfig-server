@@ -25,6 +25,7 @@ out/
 
 # Native cli executable #
 microconfig-cli
+microctl
 .graalvm
 
 # Local config files

@@ -2,30 +2,30 @@ package io.microconfig.cli.commands;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import io.microconfig.cli.util.FileUtil;
 
 import java.io.File;
 import java.net.URI;
 
 import static io.microconfig.cli.util.FileUtil.getOrCreateDir;
+import static io.microconfig.cli.util.FileUtil.writeFile;
 import static io.microconfig.cli.util.HttpUtil.httpGET;
 import static io.microconfig.cli.util.HttpUtil.httpSend;
 import static io.microconfig.cli.util.JsonUtil.parse;
 
-public class ConfigsCommand extends Command {
+public class SaveCommand extends Command {
 
-    public ConfigsCommand(String[] args) {
+    public SaveCommand(String[] args) {
         super(args);
     }
 
     @Override
     public int execute() {
-        var component = component();
+        var component = component(helpMessage());
 
         var env = flags.env();
         var uri = uri(
-            component,
-            env.orElse("default")
+                component,
+                env.orElse("default")
         );
 
         var request = httpGET(uri, flags.timeout());
@@ -42,11 +42,20 @@ public class ConfigsCommand extends Command {
             var filename = node.get("fileName").asText();
             var content = node.get("content").asText();
             var file = new File(outDir, filename);
-            FileUtil.writeFile(file, content);
+            writeFile(file, content);
         }
     }
 
     private URI uri(String name, String env) {
         return URI.create(String.format("%s/api/configs/%s/%s", server(), name, env));
     }
+
+    private String helpMessage() {
+        return "Usage microctl save [component] [flags]\n"
+                + "Generates configuration for component and saves it to disk\n"
+                + "Flags: \n"
+                + "  -e, --env:   config environment\n"
+                + "  -d, --dir:   output directory, current dir by default\n";
+    }
+
 }

@@ -1,5 +1,6 @@
 package io.microconfig.server.rest;
 
+import io.microconfig.core.properties.repository.ComponentNotFoundException;
 import io.microconfig.server.rest.exceptions.BadRequestException;
 import io.microconfig.server.rest.exceptions.ForbiddenException;
 import io.microconfig.server.rest.exceptions.NotFoundException;
@@ -10,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.constraints.Null;
 
 import static io.microconfig.server.util.JsonUtil.objectNode;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -34,6 +37,10 @@ public class ExceptionsHandler {
         }
 
         if (ex instanceof NotFoundException) {
+            return response(ex.getMessage(), NOT_FOUND);
+        }
+
+        if (ex instanceof ComponentNotFoundException) {
             return response(ex.getMessage(), NOT_FOUND);
         }
 

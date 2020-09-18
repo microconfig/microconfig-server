@@ -14,16 +14,8 @@ import static java.util.stream.IntStream.range;
 public class CliFlags {
     private final String[] args;
 
-    public Optional<String> type() {
-        return findFlag("-t", "--type");
-    }
-
     public Optional<String> env() {
         return findFlag("-e", "--env");
-    }
-
-    public Optional<String> branch() {
-        return findFlag("--branch");
     }
 
     public Optional<String> dir() {
@@ -34,12 +26,24 @@ public class CliFlags {
         return findVars("-s", "--set");
     }
 
+    public Optional<String> branch() {
+        return findFlag("--branch");
+    }
+
     public Optional<String> tag() {
         return findFlag("--tag");
     }
 
     public Optional<Integer> timeout() {
         return findFlag("--timeout").map(Integer::parseInt);
+    }
+
+    public Optional<String> server() {
+        return findFlag("--server");
+    }
+
+    public Optional<String> type() {
+        return findFlag("-t, --type");
     }
 
     public Optional<String> findFlag(String... flag) {
@@ -56,11 +60,11 @@ public class CliFlags {
     public Map<String, String> findVars(String... flag) {
         var flags = asList(flag);
         return range(0, args.length)
-            .filter(i -> flags.contains(args[i]))
-            .peek(this::validate)
-            .mapToObj(i -> args[i + 1])
-            .map(a -> splitFirst(a, '='))
-            .collect(toMap(a -> a[0], a -> a[1]));
+                .filter(i -> flags.contains(args[i]))
+                .peek(this::validate)
+                .mapToObj(i -> args[i + 1])
+                .map(a -> splitFirst(a, '='))
+                .collect(toMap(a -> a[0], a -> a[1]));
     }
 
     private void validate(int i) {

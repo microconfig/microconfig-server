@@ -1,51 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: microconfig-cli-dev
+  name: microctl
   namespace: default
   labels:
-    app: microconfig-cli
+    app: microctl
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: microconfig-cli-dev
+      app: microctl
   template:
     metadata:
       labels:
-        app: microconfig-cli-dev
+        app: microctl
     spec:
-      serviceAccountName: vault-auth-dev
       containers:
-        - name: microconfig-cli
-          image: "microconfig/server-cli:latest_alpha"
-          imagePullPolicy: Always
-          command: ["sleep", "infinity"]
-          env:
-            - name: MCS_ADDRESS
-              value: http://microconfig-server.default.svc.cluster.local
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: microconfig-cli-prod
-  namespace: default
-  labels:
-    app: microconfig-cli
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: microconfig-cli-prod
-  template:
-    metadata:
-      labels:
-        app: microconfig-cli-prod
-    spec:
-      serviceAccountName: vault-auth-prod
-      containers:
-        - name: microconfig-cli
-          image: "microconfig/server-cli:latest_alpha"
+        - name: cli
+          image: "microconfig/server-cli:latest_beta"
           imagePullPolicy: Always
           command: ["sleep", "infinity"]
           env:

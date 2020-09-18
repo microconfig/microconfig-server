@@ -1,3 +1,3 @@
-export GRAAL_HOME="$PWD/.graal"
+export GRAAL_HOME="$PWD/.graalvm"
 ./gradlew shadowJar -p cli
-.graalvm/bin/native-image -jar cli/build/libs/microconfig-cli.jar
+.graalvm/bin/native-image -jar cli/build/libs/microctl.jar

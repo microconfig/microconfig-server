@@ -3,6 +3,8 @@ spring:
   main:
     banner-mode: off
     allow-bean-definition-overriding: true
+  mustache:
+    check-template-location: false
 
 server:
   port: 80

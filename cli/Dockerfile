@@ -1,13 +1,10 @@
-FROM oracle/graalvm-ce:20.0.0-java11 AS builder
+FROM oracle/graalvm-ce:20.2.0-java11 AS builder
 RUN gu install native-image
 
-ADD build/libs/microconfig-cli.jar /microconfig-cli.jar
-RUN native-image -jar /microconfig-cli.jar
+ADD build/libs/microctl.jar /microctl.jar
+RUN native-image -jar /microctl.jar
 
 FROM centos:latest
 
-RUN mkdir /microconfig
-ENV PATH="/microconfig:${PATH}"
-
-COPY --from=builder /microconfig-cli /microconfig/microconfig-cli
-CMD ["microconfig-cli"]
+COPY --from=builder /microctl /usr/local/bin/microctl
+CMD ["microctl"]
