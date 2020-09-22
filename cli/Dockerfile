@@ -2,9 +2,10 @@ FROM oracle/graalvm-ce:20.2.0-java11 AS builder
 RUN gu install native-image
 
 ADD build/libs/microctl.jar /microctl.jar
-RUN native-image -jar /microctl.jar
+RUN native-image --static -jar /microctl.jar
 
-FROM centos:latest
+FROM alpine:latest
 
-COPY --from=builder /microctl /usr/local/bin/microctl
+COPY --from=builder /microctl /bin/microctl
+RUN microctl version
 CMD ["microctl"]

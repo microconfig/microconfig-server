@@ -1,1 +1,0 @@
-.graalvm/bin/native-image -jar microctl.jar

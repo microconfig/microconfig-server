@@ -36,7 +36,7 @@ jobs:
           name: microctl.jar
       - name: Install GraalVM Native Image
         shell: bash
-        run: .github/scripts/native/graalvm-linux.sh
+        run: .graalvm/bin/native-image --static -jar microctl.jar
       - name: Build Binary
         shell: bash
         run: .github/scripts/native/native.sh
@@ -80,7 +80,7 @@ jobs:
           name: microctl.jar
       - name: Install GraalVM Native Image
         shell: bash
-        run: .github/scripts/native/graalvm-mac.sh
+        run: .graalvm/bin/native-image -jar microctl.jar
       - name: Build Binary
         shell: bash
         run: .github/scripts/native/native.sh
