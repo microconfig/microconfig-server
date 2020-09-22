@@ -34,8 +34,8 @@ public class CliFlags {
         return findFlag("--tag");
     }
 
-    public Optional<Integer> timeout() {
-        return findFlag("--timeout").map(Integer::parseInt);
+    public int timeout() {
+        return findFlag("--timeout").map(Integer::parseInt).orElse(10);
     }
 
     public Optional<String> server() {

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Optional;
 
 import static java.net.http.HttpClient.newHttpClient;
 import static java.net.http.HttpRequest.newBuilder;
@@ -15,9 +14,9 @@ import static java.time.Duration.ofSeconds;
 
 public class HttpUtil {
 
-    public static HttpRequest.Builder httpGET(URI uri, Optional<Integer> timeout) {
+    public static HttpRequest.Builder httpGET(URI uri, int timeout) {
         return newBuilder(uri).GET()
-            .timeout(ofSeconds(timeout.orElse(10)));
+                .timeout(ofSeconds(timeout));
     }
 
     public static String httpSend(HttpRequest request) {
@@ -30,7 +29,7 @@ public class HttpUtil {
                 throw new CliException("Server Error: " + error, 200);
             }
         } catch (IOException e) {
-            throw new CliException("Failed during network call: " + e.getMessage(), 100);
+            throw new CliException("Failed during network call: " + e.getMessage() + " ex: " + e.getClass().getSimpleName(), 100);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new CliException("Interrupted during network call", 666);
