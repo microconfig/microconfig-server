@@ -22,12 +22,10 @@ spec:
         - name: microconfig
           image: "microconfig/server-cli:latest_beta"
           imagePullPolicy: Always
-          command: [ "/bin/sh","-c", "microctl save $MC_COMPONENT -e dev -d /config" ]
+          command: [ "/bin/sh","-c", "microctl save payment-backend -e dev -d /config" ]
           env:
             - name: MCS_ADDRESS
               value: http://microconfig-server.default.svc.cluster.local
-            - name: MC_COMPONENT
-              value: payment-backend
           volumeMounts:
             - name: config
               mountPath: "/config"

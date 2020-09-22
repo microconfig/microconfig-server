@@ -1,0 +1,174 @@
+name: "Build Release"
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: "Build Jar"
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Build Jar
+        run: ./gradlew shadowJar -p cli
+      - uses: actions/upload-artifact@v2
+        with:
+          name: microctl.jar
+          path: cli/build/libs/microctl.jar
+
+  linux:
+    name: "Build Linux"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Download Jar
+        uses: actions/download-artifact@v2
+        with:
+          name: microctl.jar
+      - name: Install GraalVM Native Image
+        shell: bash
+        run: .github/scripts/native/graalvm-linux.sh
+      - name: Build Binary
+        shell: bash
+        run: .github/scripts/native/native.sh
+      - uses: actions/upload-artifact@v2
+        with:
+          name: microctl-linux
+          path: ./microctl
+
+  windows:
+    name: "Build Windows"
+    needs: build
+    runs-on: windows-2016
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Download Jar
+        uses: actions/download-artifact@v2
+        with:
+          name: microctl.jar
+      - name: Install GraalVM Native Image
+        shell: bash
+        run: .github/scripts/native/graalvm-win.sh
+      - name: Build Binary
+        shell: bash
+        run: .github/scripts/native/native.bat
+      - uses: actions/upload-artifact@v2
+        with:
+          name: microctl-windows
+          path: microctl.exe
+
+  macos:
+    name: "Build MacOS"
+    needs: build
+    runs-on: macos-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Download Jar
+        uses: actions/download-artifact@v2
+        with:
+          name: microctl.jar
+      - name: Install GraalVM Native Image
+        shell: bash
+        run: .github/scripts/native/graalvm-mac.sh
+      - name: Build Binary
+        shell: bash
+        run: .github/scripts/native/native.sh
+      - uses: actions/upload-artifact@v2
+        with:
+          name: microctl-macos
+          path: ./microctl
+
+  release:
+    name: "Create release"
+    needs: [linux, macos, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+#          tag_name: v${{ env.version }}
+#          release_name: ${{ env.version }}
+          draft: true
+          prerelease: false
+
+      - name: Download Jar
+        uses: actions/download-artifact@v2
+        with:
+          name: microctl.jar
+      - name: Upload Jar Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: microctl.jar
+          asset_name: microctl.jar
+          asset_content_type: application/java-archive
+
+      - name: Download Binary
+        uses: actions/download-artifact@v2
+        with:
+          name: microctl-linux
+      - name: Zip
+        shell: bash
+        run: zip -m microctl-linux.zip microctl
+      - name: Upload Release Artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: microctl-linux.zip
+          asset_name: microctl-linux.zip
+          asset_content_type: application/zip
+
+      - name: Download Binary
+        uses: actions/download-artifact@v2
+        with:
+          name: microctl-macos
+      - name: Zip
+        shell: bash
+        run: zip -m microctl-macos.zip microctl
+      - name: Upload Release Artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: microctl-macos.zip
+          asset_name: microctl-macos.zip
+          asset_content_type: application/zip
+
+      - name: Download Binary
+        uses: actions/download-artifact@v2
+        with:
+          name: microctl-windows
+      - name: Zip
+        shell: bash
+        run: zip -m microctl-windows.zip microctl.exe
+      - name: Upload Release Artifact
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: microctl-windows.zip
+          asset_name: microctl-windows.zip
+          asset_content_type: application/zip
