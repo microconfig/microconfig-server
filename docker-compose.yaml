@@ -17,3 +17,8 @@ services:
       - 8080:80
     environment:
       - REMOTE_URL=https://github.com/microconfig/microconfig-quickstart.git
+  microconfig-cli:
+    image: microconfig/server-cli:latest_beta
+    environment:
+      - MCS_ADDRESS=http://microconfig-server
+    command: ["sleep", "infinity"]
