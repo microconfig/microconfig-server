@@ -36,10 +36,10 @@ jobs:
           name: microctl.jar
       - name: Install GraalVM Native Image
         shell: bash
-        run: .graalvm/bin/native-image --static -jar microctl.jar
+        run: .github/scripts/native/graalvm-linux.sh
       - name: Build Binary
         shell: bash
-        run: .github/scripts/native/native.sh
+        run: .graalvm/bin/native-image --static -jar microctl.jar
       - uses: actions/upload-artifact@v2
         with:
           name: microctl-linux
@@ -80,10 +80,10 @@ jobs:
           name: microctl.jar
       - name: Install GraalVM Native Image
         shell: bash
-        run: .graalvm/bin/native-image -jar microctl.jar
+        run: .github/scripts/native/graalvm-mac.sh
       - name: Build Binary
         shell: bash
-        run: .github/scripts/native/native.sh
+        run: .graalvm/bin/native-image -jar microctl.jar
       - uses: actions/upload-artifact@v2
         with:
           name: microctl-macos

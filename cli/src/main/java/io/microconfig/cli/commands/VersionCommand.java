@@ -8,7 +8,7 @@ public class VersionCommand extends Command {
 
     @Override
     public int execute() {
-        System.out.println("Version 0.1.0");
+        System.out.println("Version 0.1.1");
         return 0;
     }
 }
