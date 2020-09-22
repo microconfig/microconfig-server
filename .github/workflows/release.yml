@@ -102,8 +102,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-#          tag_name: v${{ env.version }}
-#          release_name: ${{ env.version }}
+          tag_name: ${{ github.ref }}
+          release_name: MicroCTL Release ${{ github.ref }}
           draft: true
           prerelease: false
 

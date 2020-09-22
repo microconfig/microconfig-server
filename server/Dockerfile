@@ -5,7 +5,7 @@ RUN yum -y install epel-release
 RUN yum -y install jq
 
 ADD docker-config.yaml /application.yaml
-ADD build/libs/*.jar /server.jar
+ADD build/libs/server.jar /server.jar
 
 #-Xlog:gc*
 CMD java -Dfile.encoding=UTF-8  \

@@ -11,7 +11,7 @@ server:
 
 git:
   workingDir: /microconfig
-  remoteUrl: ${REMOTE_URL}
+  remoteUrl: ${REMOTE_URL:https://github.com/microconfig/microconfig-quickstart.git}
   default-branch: ${DEFAULT_BRANCH:master}
   username: ${USERNAME:open}
   password: ${PASSWORD:source}
