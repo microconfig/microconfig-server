@@ -9,18 +9,19 @@ chmod +x .graalvm/bin/gu
 .graalvm/bin/native-image --version
 
 #Install musl
+mkdir musl
 curl -sL https://musl.libc.org/releases/musl-1.2.1.tar.gz | tar xz
 cd musl-1.2.1
-mkdir /musl && ./configure --disable-shared --prefix=/musl
+./configure --disable-shared --prefix="../musl"
 make && make install
-export PATH="/musl/bin:$PATH"
+cd ..
+export PATH="$PWD/musl/bin:$PATH"
 export CC=musl-gcc
 musl-gcc -v
-cd ..
 
 # Install zlib
 curl -sL https://zlib.net/zlib-1.2.11.tar.gz | tar xz
 cd zlib-1.2.11
-./configure --static --prefix=/musl
+./configure --static --prefix="../musl"
 make && make install
 cd ..
