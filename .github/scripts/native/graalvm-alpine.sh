@@ -16,12 +16,12 @@ cd musl-1.2.1
 make && make install
 cd ..
 export PATH="$PWD/musl/bin:$PATH"
-export CC=musl-gcc
 musl-gcc -v
 
 # Install zlib
 curl -sL https://zlib.net/zlib-1.2.11.tar.gz | tar xz
 cd zlib-1.2.11
+export CC=musl-gcc
 ./configure --static --prefix="../musl"
 make && make install
 cd ..

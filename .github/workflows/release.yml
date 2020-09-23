@@ -61,7 +61,7 @@ jobs:
         run: .github/scripts/native/graalvm-alpine.sh
       - name: Build Binary
         shell: bash
-        run: PATH="$PWD/musl/bin:$PATH"; CC=musl-gcc; .graalvm/bin/native-image --static --libc=musl -jar microctl.jar
+        run: PATH="$PWD/musl/bin:$PATH"; .graalvm/bin/native-image --static --libc=musl -jar microctl.jar
       - uses: actions/upload-artifact@v2
         with:
           name: microctl-alpine
