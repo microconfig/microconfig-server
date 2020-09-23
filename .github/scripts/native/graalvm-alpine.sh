@@ -1,5 +1,3 @@
-sudo apt-get install -y build-essential libz-dev zlib1g-dev
-
 curl -sL https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-20.2.0/graalvm-ce-java11-linux-amd64-20.2.0.tar.gz -o graalvm.tar.gz
 mkdir .graalvm
 tar -xf graalvm.tar.gz -C .graalvm
