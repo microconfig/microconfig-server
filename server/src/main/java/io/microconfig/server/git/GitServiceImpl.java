@@ -68,6 +68,7 @@ public class GitServiceImpl implements GitService {
     }
 
     private void checkout(String branch) throws GitAPIException, IOException {
+        git.fetch().setCredentialsProvider(config.credentialsProvider()).call();
         if (git.getRepository().findRef(branch) == null) {
             createBranch(branch);
         }

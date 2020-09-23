@@ -40,6 +40,7 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
 
     private List<ConfigResult> generateConfigsFor(ConfigTypeFilter configType, String component, String env, ConfigOptions options) {
         try {
+            log.info("Generating configs for {} in {} env", component, env);
             var microconfig = initMicroconfig(gitService, options);
             return microconfig.inEnvironment(env)
                     .findComponentsFrom(emptyList(), List.of(component))
@@ -54,6 +55,7 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
 
     private Microconfig initMicroconfig(GitService gitService, ConfigOptions options) {
         var microconfig = searchConfigsIn(configDir(gitService, options));
+        microconfig.logger(false);
         return withAdditionalPlaceholderResolvers(microconfig, options);
     }
 
@@ -64,10 +66,9 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
     }
 
     private Microconfig withAdditionalPlaceholderResolvers(Microconfig microconfig, ConfigOptions options) {
-        return microconfig;
         //todo add vault and dynamic vars when strategy has root component
-//        var dynamicVars = new DynamicVarsResolverStrategy(options.vars);
+        var dynamicVars = new DynamicVarsResolverStrategy(options.vars);
 //        var vault = new VaultKVSecretResolverStrategy(microconfig, dynamicVars);
-//        return microconfig.withAdditionalPlaceholderResolvers(List.of(dynamicVars));
+        return microconfig.withAdditionalPlaceholderResolvers(List.of(dynamicVars));
     }
 }

@@ -8,7 +8,11 @@ spring:
 
 logging:
   level:
-    root: INFO
+    root: WARN
+    org:
+      springframework:
+        boot:
+          StartupInfoLogger: INFO
     io.microconfig: TRACE
 
 server.port: 8080

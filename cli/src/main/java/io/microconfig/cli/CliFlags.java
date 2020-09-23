@@ -43,7 +43,7 @@ public class CliFlags {
     }
 
     public Optional<String> type() {
-        return findFlag("-t, --type");
+        return findFlag("-t", "--type");
     }
 
     public Optional<String> findFlag(String... flag) {

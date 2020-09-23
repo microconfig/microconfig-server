@@ -7,8 +7,8 @@ import static org.springframework.boot.SpringApplication.run;
 
 @EnableScheduling
 @SpringBootApplication
-public class MicroConfigServerStarter {
+public class MicroconfigServer {
     public static void main(String[] args) {
-        run(MicroConfigServerStarter.class, args);
+        run(MicroconfigServer.class, args);
     }
 }
