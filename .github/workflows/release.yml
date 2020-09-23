@@ -56,16 +56,13 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: microctl.jar
-      - name: Install GraalVM Native Image
-        shell: bash
-        run: .github/scripts/native/graalvm-alpine.sh
       - name: Build Binary
         shell: bash
-        run: PATH="$PWD/musl/bin:$PATH"; .graalvm/bin/native-image --static --libc=musl -H:-CheckToolchain -jar microctl.jar
+        run: mkdir microctl && docker build -t microctl:alpine -f cli/Dockerfile-alpine cli && docker run -v "$PWD/microctl":/volume microctl:alpine cp /microctl /volume/microctl
       - uses: actions/upload-artifact@v2
         with:
           name: microctl-alpine
-          path: ./microctl
+          path: microctl/microctl
 
   windows:
     name: "Build Windows"
