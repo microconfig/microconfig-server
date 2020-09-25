@@ -1,13 +1,13 @@
 package io.microconfig.server.configs;
 
 import io.microconfig.core.Microconfig;
-import io.microconfig.core.MicroconfigRunner;
 import io.microconfig.core.configtypes.ConfigTypeFilter;
 import io.microconfig.core.environments.repository.EnvironmentException;
 import io.microconfig.core.properties.ResolveException;
 import io.microconfig.core.properties.serializers.ConfigResult;
 import io.microconfig.server.git.GitService;
 import io.microconfig.server.rest.exceptions.BadRequestException;
+import io.microconfig.server.vault.VaultKVSecretResolverStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -66,9 +66,8 @@ public class ConfigGeneratorImpl implements ConfigGenerator {
     }
 
     private Microconfig withAdditionalPlaceholderResolvers(Microconfig microconfig, ConfigOptions options) {
-        //todo add vault and dynamic vars when strategy has root component
         var dynamicVars = new DynamicVarsResolverStrategy(options.vars);
-//        var vault = new VaultKVSecretResolverStrategy(microconfig, dynamicVars);
-        return microconfig.withAdditionalPlaceholderResolvers(List.of(dynamicVars));
+        var vault = new VaultKVSecretResolverStrategy(microconfig, dynamicVars);
+        return microconfig.withAdditionalPlaceholderResolvers(List.of(dynamicVars, vault));
     }
 }

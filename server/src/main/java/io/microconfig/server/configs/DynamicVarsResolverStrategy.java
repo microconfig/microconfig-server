@@ -1,6 +1,7 @@
 package io.microconfig.server.configs;
 
 import io.microconfig.core.properties.DeclaringComponentImpl;
+import io.microconfig.core.properties.Placeholder;
 import io.microconfig.core.properties.PlaceholderResolveStrategy;
 import io.microconfig.core.properties.Property;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +24,12 @@ public class DynamicVarsResolverStrategy implements PlaceholderResolveStrategy {
     }
 
     @Override
-    public Optional<Property> resolve(String component, String key, String environment, String configType) {
-        var value = vars.get(key);
+    public Optional<Property> resolve(Placeholder placeholder) {
+        var value = vars.get(placeholder.getKey());
         if (value == null) return empty();
 
-        return of(property(key, value, PROPERTIES, new DeclaringComponentImpl(configType, "Dynamic Vars", environment)));
+        return of(property(placeholder.getKey(), value, PROPERTIES,
+                new DeclaringComponentImpl(placeholder.getConfigType(), "Dynamic Vars", placeholder.getEnvironment())));
     }
 
 }

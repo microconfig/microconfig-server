@@ -16,7 +16,7 @@ sourceCompatibility = 11
 targetCompatibility = 11
 
 dependencies {
-    implementation 'io.microconfig:microconfig-core:4.3.0',
+    implementation 'io.microconfig:microconfig-core:4.4.0',
             'org.springframework.boot:spring-boot-starter-web',
             'org.springframework.boot:spring-boot-starter-actuator',
             'org.springframework.security:spring-security-core',
