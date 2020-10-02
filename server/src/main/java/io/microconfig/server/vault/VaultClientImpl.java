@@ -11,6 +11,7 @@ import java.time.Duration;
 
 import static io.microconfig.server.util.HttpUtil.httpSend;
 import static io.microconfig.server.vault.VaultUtil.validateResponse;
+import static java.net.http.HttpRequest.newBuilder;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,7 +33,9 @@ public class VaultClientImpl implements VaultClient {
 
     private JsonNode readPath(String path, String token) {
         var splitPath = splitPath(path);
-        var request = HttpRequest.newBuilder(URI.create(config.getAddress() + "/v1/" + splitPath[0] + "/data" + splitPath[1]))
+        var url = URI.create(config.getAddress() + "/v1/" + splitPath[0] + "/data" + splitPath[1]);
+        log.debug("Calling Vault via {}", url);
+        var request = newBuilder(url)
             .setHeader("X-Vault-Token", token)
             .timeout(Duration.ofSeconds(2))
             .build();
