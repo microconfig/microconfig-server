@@ -29,10 +29,11 @@ public class ConfigOptionsResolver implements HandlerMethodArgumentResolver {
                                          ModelAndViewContainer _2,
                                          NativeWebRequest webRequest,
                                          WebDataBinderFactory _3) {
+        var type = webRequest.getHeader("X-TYPE");
         var branch = webRequest.getHeader("X-BRANCH");
         var tag = webRequest.getHeader("X-TAG");
         var vars = vars(webRequest);
-        return new ConfigOptions(branch, tag, vars);
+        return new ConfigOptions(type, branch, tag, vars);
     }
 
     private Map<String, String> vars(NativeWebRequest webRequest) {

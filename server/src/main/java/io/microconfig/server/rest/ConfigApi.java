@@ -36,16 +36,6 @@ public class ConfigApi {
                 .collect(toList());
     }
 
-    @GetMapping("/config/{type}/{component}/{env}")
-    public String fetchType(@PathVariable("type") String type,
-                            @PathVariable("component") String component,
-                            @PathVariable("env") String env,
-                            ConfigOptions options) {
-        return configGenerator
-                .generateConfig(component, env, type, options)
-                .getContent();
-    }
-
     @RequiredArgsConstructor
     @Getter
     public static class ConfigsResponse {

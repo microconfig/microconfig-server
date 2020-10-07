@@ -29,7 +29,7 @@ public class SaveCommand extends Command {
         );
 
         var request = httpGET(uri, flags.timeout());
-        addFlags(request);
+        addHeaders(request);
         var body = httpSend(request.build());
         var json = parse(body);
         var outDir = getOrCreateDir(flags.dir().orElse("."));
@@ -55,7 +55,10 @@ public class SaveCommand extends Command {
                 + "Generates configuration for component and saves it to disk\n"
                 + "Flags: \n"
                 + "  -e, --env:   config environment\n"
-                + "  -d, --dir:   output directory, current dir by default\n";
+                + "  -t, --type:  config type, all types by default\n"
+                + "  -d, --dir:   output directory, current dir by default\n"
+                + "  -s, --set:   override values for placeholders [foo.bar=baz]\n"
+                ;
     }
 
 }

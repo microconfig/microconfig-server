@@ -10,6 +10,8 @@ import java.util.Map;
 @Getter
 public class ConfigOptions {
     @Nullable
+    public final String type;
+    @Nullable
     public final String branch;
     @Nullable
     public final String tag;

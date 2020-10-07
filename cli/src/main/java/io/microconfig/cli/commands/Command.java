@@ -14,7 +14,8 @@ public abstract class Command {
         this.flags = new CliFlags(args);
     }
 
-    void addFlags(HttpRequest.Builder request) {
+    void addHeaders(HttpRequest.Builder request) {
+        flags.type().ifPresent(t -> request.setHeader("X-TYPE", t));
         flags.branch().ifPresent(b -> request.setHeader("X-BRANCH", b));
         flags.tag().ifPresent(t -> request.setHeader("X-TAG", t));
         flags.vars().forEach((key, value) -> request.header("X-VAR", key + "=" + value));
