@@ -25,4 +25,4 @@ FROM alpine:latest
 
 COPY --from=builder /microctl /bin/microctl
 RUN microctl version
-CMD ["microctl"]
+ENTRYPOINT ["microctl"]
