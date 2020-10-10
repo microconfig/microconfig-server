@@ -5,13 +5,6 @@ bootJar {
     archiveFileName = 'server.jar'
 }
 
-//compileJava {
-//    options.compilerArgs += ["--enable-preview"]
-//}
-//test {
-//    jvmArgs '--enable-preview'
-//}
-
 sourceCompatibility = 11
 targetCompatibility = 11
 
