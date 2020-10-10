@@ -2,7 +2,6 @@ package io.microconfig.server.vault;
 
 import io.microconfig.core.Microconfig;
 import io.microconfig.core.properties.DeclaringComponentImpl;
-import io.microconfig.core.properties.Placeholder;
 import io.microconfig.core.properties.PlaceholderResolveStrategy;
 import io.microconfig.core.properties.Property;
 import io.microconfig.server.configs.DynamicVarsResolverStrategy;
@@ -26,12 +25,12 @@ public class VaultKVSecretResolverStrategy implements PlaceholderResolveStrategy
     private VaultClient vaultClient;
 
     @Override
-    public Optional<Property> resolve(Placeholder placeholder) {
-        if (!"VAULT-KV".equals(placeholder.getComponent())) return empty();
+    public Optional<Property> resolve(String component, String key, String environment, String configType, String root) {
+        if (!"VAULT-KV".equals(component)) return empty();
         if (vaultConfig == null) {
-            var properties = microconfig.inEnvironment(placeholder.getEnvironment())
-                .getComponentWithName(placeholder.getRootComponent())
-                .getPropertiesFor(configTypeWithName(placeholder.getConfigType()))
+            var properties = microconfig.inEnvironment(environment)
+                .getComponentWithName(root)
+                .getPropertiesFor(configTypeWithName(configType))
                 .withPrefix("microconfig.vault")
                 .resolveBy(microconfig.resolver())
                 .getPropertiesAsKeyValue();
@@ -43,8 +42,9 @@ public class VaultKVSecretResolverStrategy implements PlaceholderResolveStrategy
             vaultClient = new VaultClientImpl(vaultConfig);
         }
 
-        String secret = vaultClient.fetchKV(placeholder.getKey());
-        return of(property(placeholder.getKey(), secret, PROPERTIES,
-                new DeclaringComponentImpl(placeholder.getConfigType(), "HashiCorp Vault", placeholder.getEnvironment())));
+        String secret = vaultClient.fetchKV(key);
+        return of(property(key, secret, PROPERTIES,
+                new DeclaringComponentImpl(configType, "HashiCorp Vault", environment)));
     }
+
 }

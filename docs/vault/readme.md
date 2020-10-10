@@ -1,4 +1,4 @@
-`docker-compose up`
+prod-vault`docker-compose up`
 
 Note Vault root token in logs.
 

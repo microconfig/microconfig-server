@@ -1,43 +1,18 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: vault-auth-dev
-  namespace: default
-  labels:
-    env: dev
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: vault-auth-prod
-  namespace: default
-  labels:
-    env: prod
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: vault-auth-dev
-  namespace: default
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: system:auth-delegator
-subjects:
-  - kind: ServiceAccount
-    name: vault-auth-dev
-    namespace: default
+  name: vault-jwt-review
+  namespace: kube-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: vault-auth-prod
-  namespace: default
+  name: vault-jwt-review
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: system:auth-delegator
 subjects:
   - kind: ServiceAccount
-    name: vault-auth-prod
-    namespace: default
+    name: vault-jwt-review
+    namespace: kube-system

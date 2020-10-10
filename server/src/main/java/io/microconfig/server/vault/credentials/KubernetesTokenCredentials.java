@@ -1,5 +1,6 @@
 package io.microconfig.server.vault.credentials;
 
+import io.microconfig.server.vault.exceptions.VaultAuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,23 +26,35 @@ public class KubernetesTokenCredentials implements VaultCredentials {
     @Override
     public String getToken() {
         if (token != null) return token;
+        validate();
         var request = request();
         var response = httpSend(request);
         var node = validateResponse(response);
-        log.debug("Fetched token with k8s JWT");
+        var policy = node.path("auth").path("token_policies").toString();
+
+        log.debug("Fetched token with k8s JWT. Assigned policies: {}", policy);
         token = node.path("auth").path("client_token").asText();
         return token;
     }
 
+    private void validate() {
+        if (address == null) throw new VaultAuthException("Missing microconfig.vault.address");
+        if (path == null) throw new VaultAuthException("Missing microconfig.vault.kubernetes.path");
+        if (role == null) throw new VaultAuthException("Missing microconfig.vault.kubernetes.role");
+        if (jwt == null) throw new VaultAuthException("Missing microconfig.vault.kubernetes.jwt");
+    }
+
     private HttpRequest request() {
         var body = objectNode()
-            .put("role", role)
-            .put("jwt", jwt)
-            .toString();
+                .put("role", role)
+                .put("jwt", jwt)
+                .toString();
 
-        return newBuilder(URI.create(String.format("%s/v1/auth/%s/login", address, path)))
-            .POST(ofString(body))
-            .timeout(ofSeconds(10))
-            .build();
+        var path = String.format("%s/v1/auth/%s/login", address, this.path);
+        log.debug("Calling {} to auth with kubernetes jwt for '{}' role", path, role);
+        return newBuilder(URI.create(path))
+                .POST(ofString(body))
+                .timeout(ofSeconds(10))
+                .build();
     }
 }
