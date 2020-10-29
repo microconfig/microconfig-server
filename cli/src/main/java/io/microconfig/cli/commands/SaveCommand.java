@@ -30,12 +30,13 @@ public class SaveCommand extends Command {
 
         var request = httpGET(uri, flags.timeout());
         addHeaders(request);
-        var body = httpSend(request.build());
+        var body = httpSend(request.build(), sslContext());
         var json = parse(body);
         var outDir = getOrCreateDir(flags.dir().orElse("."));
         saveFiles(outDir, (ArrayNode) json);
         return 0;
     }
+
 
     private void saveFiles(File outDir, ArrayNode nodes) {
         for (JsonNode node : nodes) {
@@ -54,10 +55,10 @@ public class SaveCommand extends Command {
         return "Usage microctl save [component] [flags]\n"
                 + "Generates configuration for component and saves it to disk\n"
                 + "Flags: \n"
-                + "  -e, --env:   config environment\n"
-                + "  -t, --type:  config type, all types by default\n"
-                + "  -d, --dir:   output directory, current dir by default\n"
-                + "  -s, --set:   override values for placeholders [foo.bar=baz]\n"
+                + "  -e, --env  [name]: config environment\n"
+                + "  -t, --type [app]: config type, all types by default\n"
+                + "  -d, --dir  [path]: output directory, current dir by default\n"
+                + "  -s, --set  [foo=bar]: override values for placeholders\n"
                 ;
     }
 

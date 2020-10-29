@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.microconfig.cli.CliException;
 
 import java.net.URI;
-import java.util.stream.StreamSupport;
 
 import static io.microconfig.cli.util.HttpUtil.httpGET;
 import static io.microconfig.cli.util.HttpUtil.httpSend;
@@ -29,7 +28,7 @@ public class ShowCommand extends Command {
 
         var request = httpGET(uri, flags.timeout());
         addHeaders(request);
-        var body = httpSend(request.build());
+        var body = httpSend(request.build(), sslContext());
         var json = (ArrayNode) parse(body);
         var content = stream(json.spliterator(), false)
                 .filter(j -> j.path("type").asText().equals(type))
@@ -49,9 +48,9 @@ public class ShowCommand extends Command {
         return "Usage microctl show [component] [flags]\n"
                 + "Generates configuration for component of specified type and outputs it to console\n"
                 + "Flags: \n"
-                + "  -e, --env:   config environment\n"
-                + "  -t, --type:  config type, 'app' by default\n"
-                + "  -s, --set:   override values for placeholders [foo=bar]\n"
+                + "  -e, --env  [name]: config environment\n"
+                + "  -t, --type [app]: config type, 'app' by default\n"
+                + "  -s, --set  [foo=bar]: override values for placeholders\n"
                 ;
     }
 

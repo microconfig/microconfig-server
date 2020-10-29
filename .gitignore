@@ -11,6 +11,8 @@ out/
 .gradle/
 .graal
 
+*.crt
+
 # Log file
 *.log
 

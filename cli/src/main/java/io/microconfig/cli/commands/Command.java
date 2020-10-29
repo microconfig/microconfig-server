@@ -2,8 +2,13 @@ package io.microconfig.cli.commands;
 
 import io.microconfig.cli.CliException;
 import io.microconfig.cli.CliFlags;
+import io.microconfig.cli.ssl.TrustManagerFactory;
 
+import javax.net.ssl.SSLContext;
 import java.net.http.HttpRequest;
+
+import static io.microconfig.cli.ssl.TrustManagerFactory.defaultTrust;
+import static io.microconfig.cli.ssl.TrustManagerFactory.trustAll;
 
 public abstract class Command {
     final CliFlags flags;
@@ -32,4 +37,10 @@ public abstract class Command {
     }
 
     public abstract int execute();
+
+    SSLContext sslContext() {
+        if (flags.skipTls()) return trustAll();
+        return flags.rootCa().map(TrustManagerFactory::rootCa).orElse(defaultTrust());
+    }
+
 }

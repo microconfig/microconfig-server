@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.IntStream.range;
@@ -40,6 +41,14 @@ public class CliFlags {
 
     public Optional<String> server() {
         return findFlag("--server");
+    }
+
+    public boolean skipTls() {
+        return asList(args).contains("--skip-tls");
+    }
+
+    public Optional<String> rootCa() {
+        return findFlag("--tls-root-ca");
     }
 
     public Optional<String> type() {

@@ -2,12 +2,13 @@ package io.microconfig.cli.util;
 
 import io.microconfig.cli.CliException;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import static java.net.http.HttpClient.newHttpClient;
 import static java.net.http.HttpRequest.newBuilder;
 import static java.net.http.HttpResponse.BodyHandlers.ofString;
 import static java.time.Duration.ofSeconds;
@@ -19,9 +20,10 @@ public class HttpUtil {
                 .timeout(ofSeconds(timeout));
     }
 
-    public static String httpSend(HttpRequest request) {
+    public static String httpSend(HttpRequest request, SSLContext sslContext) {
         try {
-            var response = newHttpClient().send(request, ofString());
+            var client = HttpClient.newBuilder().sslContext(sslContext).build();
+            var response = client.send(request, ofString());
             if (response.statusCode() == 200) {
                 return response.body();
             } else {
