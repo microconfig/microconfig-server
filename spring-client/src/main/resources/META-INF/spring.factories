@@ -1,0 +1,1 @@
+org.springframework.boot.env.EnvironmentPostProcessor=io.microconfig.spring.client.MicroconfigPostProcessor
