@@ -1,50 +1,49 @@
-package io.microconfig.server.vault;
+package io.microconfig.server.vault
 
-import io.microconfig.core.Microconfig;
-import io.microconfig.core.properties.DeclaringComponentImpl;
-import io.microconfig.core.properties.PlaceholderResolveStrategy;
-import io.microconfig.core.properties.Property;
-import io.microconfig.server.configs.DynamicVarsResolverStrategy;
-import lombok.RequiredArgsConstructor;
+import io.microconfig.core.Microconfig
+import io.microconfig.core.configtypes.ConfigTypeFilters.configTypeWithName
+import io.microconfig.core.properties.ConfigFormat.PROPERTIES
+import io.microconfig.core.properties.DeclaringComponentImpl
+import io.microconfig.core.properties.PlaceholderResolveStrategy
+import io.microconfig.core.properties.Property
+import io.microconfig.core.properties.PropertyImpl
+import java.util.Optional
+import java.util.Optional.empty
 
-import java.util.HashMap;
-import java.util.Optional;
+class VaultKVSecretResolverStrategy(val microconfig: Microconfig) : PlaceholderResolveStrategy {
 
-import static io.microconfig.core.configtypes.ConfigTypeFilters.configTypeWithName;
-import static io.microconfig.core.properties.ConfigFormat.PROPERTIES;
-import static io.microconfig.core.properties.PropertyImpl.property;
-import static io.microconfig.server.vault.VaultConfig.vaultConfig;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
+    private var vaultClient: VaultClient? = null
 
-@RequiredArgsConstructor
-public class VaultKVSecretResolverStrategy implements PlaceholderResolveStrategy {
-    private final Microconfig microconfig;
-    private final DynamicVarsResolverStrategy dynamicVars;
-    private VaultConfig vaultConfig;
-    private VaultClient vaultClient;
-
-    @Override
-    public Optional<Property> resolve(String component, String key, String environment, String configType, String root) {
-        if (!"VAULT-KV".equals(component)) return empty();
-        if (vaultConfig == null) {
-            var properties = microconfig.inEnvironment(environment)
-                .getComponentWithName(root)
-                .getPropertiesFor(configTypeWithName(configType))
-                .withPrefix("microconfig.vault")
-                .resolveBy(microconfig.resolver())
-                .getPropertiesAsKeyValue();
-
-            var vars = new HashMap<>(properties);
-            vars.putAll(dynamicVars.dynamicVars());
-
-            vaultConfig = vaultConfig(vars);
-            vaultClient = new VaultClientImpl(vaultConfig);
+    override fun resolve(
+        component: String,
+        key: String,
+        environment: String,
+        configType: String,
+        root: String
+    ): Optional<Property> {
+        if ("VAULT-KV" != component) return empty()
+        if (vaultClient == null) {
+            initClient(environment, root, configType)
         }
 
-        String secret = vaultClient.fetchKV(key);
-        return of(property(key, secret, PROPERTIES,
-                new DeclaringComponentImpl(configType, "HashiCorp Vault", environment)));
+        val secret = vaultClient!!.fetchKV(key)
+
+        return Optional.of(
+            PropertyImpl.property(
+                key, secret, PROPERTIES,
+                DeclaringComponentImpl(configType, "HashiCorp Vault", environment)
+            )
+        )
     }
 
+    private fun initClient(environment: String, root: String, configType: String) {
+        val properties: Map<String, String> = microconfig.inEnvironment(environment)
+            .getComponentWithName(root)
+            .getPropertiesFor(configTypeWithName(configType))
+            .withPrefix("microconfig.vault")
+            .resolveBy(microconfig.resolver())
+            .propertiesAsKeyValue
+
+        vaultClient = VaultClientImpl(vaultConfig(properties))
+    }
 }

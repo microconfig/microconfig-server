@@ -1,11 +1,14 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 plugins {
-    id 'org.springframework.boot' version '2.2.5.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'org.springframework.boot' version '2.4.1' apply false
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
     id 'java'
     id 'idea'
-}
 
-bootJar.enabled = false
+    id 'org.jetbrains.kotlin.jvm' version '1.4.21'
+    id 'org.jetbrains.kotlin.plugin.spring' version '1.4.21'
+}
 
 repositories {
     mavenCentral()
@@ -13,6 +16,14 @@ repositories {
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: "io.spring.dependency-management"
+    apply plugin: "kotlin"
+    apply plugin: "kotlin-spring"
+
+    version = "0.1.0"
+    group = "io.microconfig"
+    sourceCompatibility = 11
+    targetCompatibility = 11
 
     repositories {
         mavenLocal()
@@ -20,19 +31,50 @@ subprojects {
     }
 
     dependencies {
-        compileOnly 'org.projectlombok:lombok:1.18.12'
-        annotationProcessor 'org.projectlombok:lombok:1.18.12'
+        implementation "com.fasterxml.jackson.module:jackson-module-kotlin",
+                "org.jetbrains.kotlin:kotlin-reflect",
+                "org.jetbrains.kotlin:kotlin-stdlib-jdk8",
+                'ch.qos.logback:logback-classic'
+
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation 'org.assertj:assertj-core:3.15.0'
     }
+
+    dependencyManagement {
+        imports {
+            mavenBom SpringBootPlugin.BOM_COORDINATES
+        }
+    }
+
+    sourceSets {
+        main.kotlin.srcDirs += 'src/main/kotlin'
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    compileKotlin {
+        kotlinOptions {
+            jvmTarget = "11"
+            freeCompilerArgs = ["-Xjsr305=strict"]
+        }
+    }
+    compileTestKotlin {
+        kotlinOptions {
+            jvmTarget = "11"
+            freeCompilerArgs = ["-Xjsr305=strict"]
+        }
+    }
+
+//    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+//        kotlinOptions {
+//            freeCompilerArgs = ["-Xjsr305=strict"]
+////            freeCompilerArgs = ["-Xjsr305=strict", "-Xjvm-default=enable"]
+//            jvmTarget = "11"
+//        }
+//    }
 
     test {
         useJUnitPlatform()
         exclude '**/*IT.class'
+
     }
 }
-
-ext.libs = [
-        test: [
-                'org.springframework.boot:spring-boot-starter-test',
-                'org.assertj:assertj-core:3.15.0'
-        ]
-]

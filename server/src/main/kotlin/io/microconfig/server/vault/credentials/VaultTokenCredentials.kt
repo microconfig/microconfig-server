@@ -1,10 +1,9 @@
-package io.microconfig.server.vault.credentials;
+package io.microconfig.server.vault.credentials
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+class VaultTokenCredentials(private val token: String) : VaultCredentials {
 
-@RequiredArgsConstructor
-public class VaultTokenCredentials implements VaultCredentials {
-    @Getter
-    private final String token;
+    override fun getToken(): String {
+        return token
+    }
+
 }

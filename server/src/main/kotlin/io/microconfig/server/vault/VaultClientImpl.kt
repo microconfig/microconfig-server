@@ -1,50 +1,55 @@
-package io.microconfig.server.vault;
+package io.microconfig.server.vault
 
-import com.fasterxml.jackson.databind.JsonNode;
-import io.microconfig.server.vault.exceptions.VaultSecretNotFound;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.databind.JsonNode
+import io.microconfig.server.common.Http
+import io.microconfig.server.common.httpGet
+import io.microconfig.server.common.logger
+import io.microconfig.server.common.send
+import io.microconfig.server.vault.exceptions.VaultSecretNotFound
+import java.time.Duration
 
-import java.net.URI;
-import java.net.http.HttpRequest;
-import java.time.Duration;
+class VaultClientImpl(private val config: VaultConfig) : VaultClient {
+    private val log = logger()
+    private val http = Http.client()
 
-import static io.microconfig.server.util.HttpUtil.httpSend;
-import static io.microconfig.server.vault.VaultUtil.validateResponse;
-import static java.net.http.HttpRequest.newBuilder;
-
-@Slf4j
-@RequiredArgsConstructor
-public class VaultClientImpl implements VaultClient {
-    private final VaultConfig config;
-
-    @Override
-    public String fetchKV(String property) {
-        int dotIndex = property.lastIndexOf('.');
-        String path = property.substring(0, dotIndex);
-        String key = property.substring(dotIndex + 1);
-        log.debug("Fetching {} {}", path, key);
-
-        var node = readPath(path, config.getCredentials().getToken());
-        var value = node.path("data").path("data").get(key);
-        if (value == null) throw new VaultSecretNotFound(property);
-        return value.asText();
+    override fun fetchKV(property: String): String {
+        val (path, key) = pathKey(property)
+        log.debug("Fetching {} {}", path, key)
+        val node = getPath(path, config.credentials.getToken())
+        val value = node
+            .path("data")
+            .path("data")[key] ?: throw VaultSecretNotFound(property)
+        return value.asText()
     }
 
-    private JsonNode readPath(String path, String token) {
-        var splitPath = splitPath(path);
-        var url = URI.create(config.getAddress() + "/v1/" + splitPath[0] + "/data" + splitPath[1]);
-        log.debug("Calling Vault via {}", url);
-        var request = newBuilder(url)
+    private fun pathKey(property: String): Pair<String, String> {
+        val dotIndex = property.lastIndexOf('.')
+        val path = property.substring(0, dotIndex)
+        val key = property.substring(dotIndex + 1)
+        return Pair(path, key)
+    }
+
+    private fun getPath(path: String, token: String): JsonNode {
+        val url = kvUrl(path)
+        log.debug("Calling Vault {}", url)
+        val request = httpGet(url)
             .setHeader("X-Vault-Token", token)
             .timeout(Duration.ofSeconds(2))
-            .build();
-        var response = httpSend(request);
-        return validateResponse(response);
+            .build()
+
+        return request
+            .send(http)
+            .vaultResponse()
     }
 
-    private String[] splitPath(String path) {
-        int slash = path.indexOf('/');
-        return new String[]{path.substring(0, slash), path.substring(slash)};
+    private fun kvUrl(path: String): String {
+        val splitPath = splitPath(path)
+        return "${config.address}/v1/${splitPath[0]}/data/${splitPath[1]}"
+    }
+
+    private fun splitPath(path: String): Array<String> {
+        val slash = path.indexOf('/')
+        return arrayOf(path.substring(0, slash), path.substring(slash))
     }
 }
+

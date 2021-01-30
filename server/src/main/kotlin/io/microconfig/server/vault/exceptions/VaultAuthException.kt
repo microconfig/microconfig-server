@@ -1,9 +1,5 @@
-package io.microconfig.server.vault.exceptions;
+package io.microconfig.server.vault.exceptions
 
-import io.microconfig.server.rest.exceptions.ForbiddenException;
+import io.microconfig.server.api.exceptions.ForbiddenException
 
-public class VaultAuthException extends ForbiddenException {
-    public VaultAuthException(String message) {
-        super(message);
-    }
-}
+class VaultAuthException(message: String) : ForbiddenException(message)

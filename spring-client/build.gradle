@@ -19,5 +19,4 @@ dependencies {
 
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.0'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    testImplementation libs.test
 }

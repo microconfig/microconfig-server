@@ -1,60 +1,45 @@
-package io.microconfig.server.vault.credentials;
+package io.microconfig.server.vault.credentials
 
-import io.microconfig.server.vault.exceptions.VaultAuthException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import io.microconfig.server.common.Http
+import io.microconfig.server.common.httpPost
+import io.microconfig.server.common.logger
+import io.microconfig.server.common.send
+import io.microconfig.server.common.toJson
+import io.microconfig.server.vault.vaultResponse
+import java.net.http.HttpRequest
+import java.time.Duration
 
-import java.net.URI;
-import java.net.http.HttpRequest;
+class KubernetesTokenCredentials(
+    val address: String,
+    val path: String,
+    val role: String,
+    val jwt: String
+) : VaultCredentials {
 
-import static io.microconfig.server.util.HttpUtil.httpSend;
-import static io.microconfig.server.util.JsonUtil.objectNode;
-import static io.microconfig.server.vault.VaultUtil.validateResponse;
-import static java.net.http.HttpRequest.BodyPublishers.ofString;
-import static java.net.http.HttpRequest.newBuilder;
-import static java.time.Duration.ofSeconds;
+    private val log = logger()
+    private val http = Http.client()
+    private var token: String? = null
 
-@RequiredArgsConstructor
-@Slf4j
-public class KubernetesTokenCredentials implements VaultCredentials {
-    private final String address;
-    private final String path;
-    private final String role;
-    private final String jwt;
-    private String token;
-
-    @Override
-    public String getToken() {
-        if (token != null) return token;
-        validate();
-        var request = request();
-        var response = httpSend(request);
-        var node = validateResponse(response);
-        var policy = node.path("auth").path("token_policies").toString();
-
-        log.debug("Fetched token with k8s JWT. Assigned policies: {}", policy);
-        token = node.path("auth").path("client_token").asText();
-        return token;
+    override fun getToken(): String {
+        if (token != null) return token!!
+        val request = request()
+        val node = request.send(http).vaultResponse()
+        token = node.path("auth").path("client_token").asText()
+        log.debug("Fetched token with k8s JWT")
+        return token!!
     }
 
-    private void validate() {
-        if (address == null) throw new VaultAuthException("Missing microconfig.vault.address");
-        if (path == null) throw new VaultAuthException("Missing microconfig.vault.kubernetes.path");
-        if (role == null) throw new VaultAuthException("Missing microconfig.vault.kubernetes.role");
-        if (jwt == null) throw new VaultAuthException("Missing microconfig.vault.kubernetes.jwt");
+    private fun request(): HttpRequest {
+        val body = Request(role, jwt).toJson()
+        val url = "$address/v1/auth/$path/login"
+        return httpPost(url, body)
+            .timeout(Duration.ofSeconds(2))
+            .build()
     }
 
-    private HttpRequest request() {
-        var body = objectNode()
-                .put("role", role)
-                .put("jwt", jwt)
-                .toString();
+    data class Request(
+        val role: String,
+        val jwt: String
+    )
 
-        var path = String.format("%s/v1/auth/%s/login", address, this.path);
-        log.debug("Calling {} to auth with kubernetes jwt for '{}' role", path, role);
-        return newBuilder(URI.create(path))
-                .POST(ofString(body))
-                .timeout(ofSeconds(10))
-                .build();
-    }
 }

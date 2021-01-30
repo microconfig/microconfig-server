@@ -1,5 +1,5 @@
-package io.microconfig.server.vault;
+package io.microconfig.server.vault
 
-public interface VaultClient {
-    String fetchKV(String property);
+interface VaultClient {
+    fun fetchKV(property: String): String
 }

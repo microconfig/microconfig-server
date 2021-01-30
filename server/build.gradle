@@ -5,17 +5,17 @@ bootJar {
     archiveFileName = 'server.jar'
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
 
 dependencies {
+    implementation project(":common")
+
     implementation 'io.microconfig:microconfig-core:4.3.0',
             'org.springframework.boot:spring-boot-starter-web',
             'org.springframework.boot:spring-boot-starter-actuator',
-            'org.springframework.security:spring-security-core',
-            'org.eclipse.jgit:org.eclipse.jgit:5.6.0.201912101111-r'
+            "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+            "org.jetbrains.kotlinx:kotlinx-coroutines-reactor",
+            'org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r'
 
-    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.0'
+//    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.0'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    testImplementation libs.test
 }

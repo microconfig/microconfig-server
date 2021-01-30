@@ -1,56 +1,47 @@
-package io.microconfig.server.vault;
+package io.microconfig.server.vault
 
-import io.microconfig.server.rest.exceptions.BadRequestException;
-import io.microconfig.server.vault.credentials.KubernetesTokenCredentials;
-import io.microconfig.server.vault.credentials.VaultAppRoleCredentials;
-import io.microconfig.server.vault.credentials.VaultCredentials;
-import io.microconfig.server.vault.credentials.VaultTokenCredentials;
-import lombok.Data;
+import io.microconfig.server.vault.credentials.KubernetesTokenCredentials
+import io.microconfig.server.vault.credentials.VaultAppRoleCredentials
+import io.microconfig.server.vault.credentials.VaultCredentials
+import io.microconfig.server.vault.credentials.VaultTokenCredentials
+import io.microconfig.server.vault.exceptions.VaultAuthException
 
-import java.util.Map;
+data class VaultConfig(val address: String, val credentials: VaultCredentials)
 
-@Data
-public class VaultConfig {
-    private final String address;
-    private final VaultCredentials credentials;
+fun vaultConfig(config: Map<String, String>): VaultConfig {
+    val address = getValue(config, "microconfig.vault.address")
+    val auth = auth(address, config)
+    return VaultConfig(address, auth)
+}
 
-    public static VaultConfig vaultConfig(Map<String, String> config) {
-        var address = getValue(config, "microconfig.vault.address");
-
-        switch (getValue(config, "microconfig.vault.auth")) {
-            case "kubernetes":
-                return new VaultConfig(address, kubernetes(address, config));
-            case "token":
-                return new VaultConfig(address, token(address, config));
-            case "approle":
-                return new VaultConfig(address, approle(address, config));
-            default:
-                throw new IllegalStateException("Unsupported auth type");
-        }
+private fun auth(address: String, config: Map<String, String>): VaultCredentials {
+    return when (val auth = getValue(config, "microconfig.vault.auth")) {
+        "token" -> token(config)
+        "kubernetes" -> kubernetes(address, config)
+        "approle" -> approle(address, config)
+        else -> throw VaultAuthException("Unsupported auth type: $auth")
     }
+}
 
-    private static VaultCredentials kubernetes(String address, Map<String, String> config) {
-        var path = getValue(config, "microconfig.vault.kubernetes.path");
-        var role = getValue(config, "microconfig.vault.kubernetes.role");
-        var jwt = getValue(config, "microconfig.vault.kubernetes.jwt");
-        return new KubernetesTokenCredentials(address, path, role, jwt);
-    }
+private fun token(config: Map<String, String>): VaultCredentials {
+    val token = getValue(config, "microconfig.vault.token")
+    return VaultTokenCredentials(token)
+}
 
-    private static VaultCredentials token(String address, Map<String, String> config) {
-        var token = getValue(config, "microconfig.vault.token");
-        return new VaultTokenCredentials(token);
-    }
+private fun kubernetes(address: String, config: Map<String, String>): VaultCredentials {
+    val path = getValue(config, "microconfig.vault.kubernetes.path")
+    val role = getValue(config, "microconfig.vault.kubernetes.role")
+    val jwt = getValue(config, "microconfig.vault.kubernetes.jwt")
+    return KubernetesTokenCredentials(address, path, role, jwt)
+}
 
-    private static VaultCredentials approle(String address, Map<String, String> config) {
-        var path = getValue(config, "microconfig.vault.approle.path");
-        var role = getValue(config, "microconfig.vault.approle.role");
-        var secret = getValue(config, "microconfig.vault.approle.secret");
-        return new VaultAppRoleCredentials(address, path, role, secret);
-    }
+private fun approle(address: String, config: Map<String, String>): VaultCredentials {
+    val path = getValue(config, "microconfig.vault.approle.path")
+    val role = getValue(config, "microconfig.vault.approle.role")
+    val secret = getValue(config, "microconfig.vault.approle.secret")
+    return VaultAppRoleCredentials(address, path, role, secret)
+}
 
-    private static String getValue(Map<String, String> config, String key) {
-        var value = config.get(key);
-        if (value == null) throw new BadRequestException("Vault config missing: " + key);
-        return value;
-    }
+private fun getValue(config: Map<String, String>, key: String): String {
+    return config[key] ?: throw VaultAuthException("Vault config missing: $key")
 }

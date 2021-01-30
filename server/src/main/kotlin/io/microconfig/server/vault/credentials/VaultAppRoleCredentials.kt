@@ -1,44 +1,45 @@
-package io.microconfig.server.vault.credentials;
+package io.microconfig.server.vault.credentials
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.microconfig.server.common.Http.client
+import io.microconfig.server.common.httpPost
+import io.microconfig.server.common.logger
+import io.microconfig.server.common.send
+import io.microconfig.server.common.toJson
+import io.microconfig.server.vault.vaultResponse
+import java.net.http.HttpRequest
+import java.time.Duration
 
-import java.net.URI;
-import java.net.http.HttpRequest;
-import java.time.Duration;
+class VaultAppRoleCredentials(
+    val address: String,
+    val path: String,
+    val role: String,
+    val secret: String
+) : VaultCredentials {
+    private val log = logger()
+    private val http = client()
+    private var token: String? = null
 
-import static io.microconfig.server.util.HttpUtil.httpSend;
-import static io.microconfig.server.util.JsonUtil.objectNode;
-import static io.microconfig.server.vault.VaultUtil.validateResponse;
+    override fun getToken(): String {
+        if (token != null) return token!!
 
-@RequiredArgsConstructor
-@Slf4j
-public class VaultAppRoleCredentials implements VaultCredentials {
-    private final String address;
-    private final String path;
-    private final String role;
-    private final String secret;
-
-    private String token;
-
-    @Override
-    public String getToken() {
-        if (token != null) return token;
-
-        var request = request();
-        var response = httpSend(request);
-        var node = validateResponse(response);
-
-        log.debug("Fetched token with AppRole");
-        token = node.path("auth").path("client_token").asText();
-        return token;
+        val request = request()
+        val node = request.send(http).vaultResponse()
+        log.debug("Fetched token with AppRole")
+        token = node.path("auth").path("client_token").asText()
+        return token!!
     }
 
-    private HttpRequest request() {
-        var body = objectNode().put("role_id", role).put("secret_id", secret).toString();
-        return HttpRequest.newBuilder(URI.create(String.format("%s/v1/auth/%s/login", address, path)))
-            .POST(HttpRequest.BodyPublishers.ofString(body))
+    private fun request(): HttpRequest {
+        val body = Request(role, secret).toJson()
+        val url = "$address/v1/auth/$path/login"
+        return httpPost(url, body)
             .timeout(Duration.ofSeconds(2))
-            .build();
+            .build()
     }
+
+    data class Request(
+        @JsonProperty("role_id") val role: String,
+        @JsonProperty("secret_id") val secret: String
+    )
 }

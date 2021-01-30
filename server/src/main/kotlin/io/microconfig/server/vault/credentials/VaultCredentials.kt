@@ -1,5 +1,5 @@
-package io.microconfig.server.vault.credentials;
+package io.microconfig.server.vault.credentials
 
-public interface VaultCredentials {
-    String getToken();
+interface VaultCredentials {
+    fun getToken() : String
 }
