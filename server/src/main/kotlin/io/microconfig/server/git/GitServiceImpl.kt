@@ -51,19 +51,19 @@ class GitServiceImpl(private val config: GitConfig) : GitService {
 
     private fun checkout(checkout: GitCheckout) {
         val (name, git) = checkout
-        val r = git.repository.refDatabase.refs.firstOrNull { it.name.endsWith(name) }
-        checkout.ref = r
+        val ref = git.repository.refDatabase.refs.firstOrNull { it.name.endsWith(name) }
+        checkout.ref = ref
 
-        if (r == null) {
+        if (ref == null) {
             deleteRecursively(checkout.dir)
             throw RefNotFound(name)
         }
 
         // second case for previous tag checkout
-        if (git.repository.branch != name && git.repository.branch != r.objectId.name) {
+        if (git.repository.branch != name && git.repository.branch != ref.objectId.name) {
             git.checkout()
                 .setCreateBranch(true)
-                .setStartPoint(r.name)
+                .setStartPoint(ref.name)
                 .setName(name)
                 .call()
         }
