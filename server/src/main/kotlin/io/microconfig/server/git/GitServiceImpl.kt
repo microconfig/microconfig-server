@@ -10,21 +10,18 @@ import org.springframework.util.FileSystemUtils.deleteRecursively
 import java.io.File
 import java.time.Instant
 import java.time.Instant.now
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class GitServiceImpl(private val config: GitConfig) : GitService {
     private val log = logger()
-    private val checkouts = HashMap<String, GitCheckout>()
+    private val checkouts = ConcurrentHashMap<String, GitCheckout>()
 
     final override fun checkoutRef(ref: String?): File {
-        val checkout = checkout(ref ?: config.defaultBranch)
+        val r = ref ?: config.defaultBranch
+        val checkout = checkouts.computeIfAbsent(r) { createCheckout(r) }
         pull(checkout)
         return checkout.dir
-    }
-
-    @Synchronized
-    private fun checkout(ref: String): GitCheckout {
-        return checkouts.computeIfAbsent(ref) { createCheckout(ref) }
     }
 
     private fun createCheckout(name: String): GitCheckout {
