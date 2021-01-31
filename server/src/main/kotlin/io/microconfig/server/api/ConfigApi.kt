@@ -27,6 +27,21 @@ class ConfigApi(val configGenerator: ConfigGenerator) {
             .toList()
     }
 
+    @GetMapping("/config/{component}/{env}")
+    fun fetchConfig(
+        @PathVariable("component") component: String,
+        @PathVariable("env") env: String,
+        options: ConfigOptions
+    ): String {
+        return configGenerator
+            .generateConfigs(component, env, options)
+            .asSequence()
+            .filter { it.content.isNotEmpty() }
+            .flatMap { map(it) }
+            .first()
+            .content
+    }
+
     data class ConfigsResponse(val service: String, val type: String, val fileName: String, val content: String)
 
     private fun map(result: ConfigResult): List<ConfigsResponse> {

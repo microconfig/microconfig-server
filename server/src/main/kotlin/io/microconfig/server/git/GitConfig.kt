@@ -13,9 +13,14 @@ data class GitConfig(
     var remoteUrl: String,
     var username: String = "open",
     var password: String = "source",
-    var defaultBranch: String = "master"
+    var defaultBranch: String = "master",
+    var pullDelay: Long = 10
 ) {
     fun credentialsProvider(): CredentialsProvider {
         return UsernamePasswordCredentialsProvider(username, password)
+    }
+
+    fun dir(): File {
+        return workingDir.resolve("repo")
     }
 }

@@ -7,7 +7,6 @@ import io.microconfig.core.configtypes.ConfigTypeFilters.eachConfigType
 import io.microconfig.core.properties.serializers.ConfigResult
 import io.microconfig.core.properties.serializers.PropertySerializers
 import io.microconfig.core.properties.templates.TemplatesService
-import io.microconfig.server.api.exceptions.BadRequestException
 import io.microconfig.server.common.logger
 import io.microconfig.server.git.GitService
 import io.microconfig.server.vault.DynamicVarsResolverStrategy
@@ -20,20 +19,15 @@ class ConfigGeneratorImpl(val gitService: GitService) : ConfigGenerator {
     private val log = logger()
 
     override fun generateConfigs(component: String, env: String, options: ConfigOptions): List<ConfigResult> {
-
-        return try {
-            log.info("Generating configs for {} in {} env", component, env)
-            val microconfig: Microconfig = initMicroconfig(options)
-            val configType: ConfigTypeFilter = configTypes(options)
-            microconfig.inEnvironment(env)
-                .findComponentsFrom(emptyList<String>(), listOf(component))
-                .getPropertiesFor(configType)
-                .resolveBy(microconfig.resolver())
-                .forEachComponent(TemplatesService.resolveTemplatesBy(microconfig.resolver()))
-                .save(PropertySerializers.asConfigResult())
-        } catch (e: Exception) {
-            throw BadRequestException(e.message)
-        }
+        log.info("Generating configs for {} in {} env", component, env)
+        val microconfig: Microconfig = initMicroconfig(options)
+        val configType: ConfigTypeFilter = configTypes(options)
+        return microconfig.inEnvironment(env)
+            .findComponentsFrom(emptyList<String>(), listOf(component))
+            .getPropertiesFor(configType)
+            .resolveBy(microconfig.resolver())
+            .forEachComponent(TemplatesService.resolveTemplatesBy(microconfig.resolver()))
+            .save(PropertySerializers.asConfigResult())
     }
 
     private fun initMicroconfig(options: ConfigOptions): Microconfig {
@@ -43,8 +37,7 @@ class ConfigGeneratorImpl(val gitService: GitService) : ConfigGenerator {
     }
 
     private fun configDir(options: ConfigOptions): File {
-        if (options.tag != null) return gitService.checkoutTag(options.tag)
-        return if (options.branch != null) gitService.checkoutBranch(options.branch) else gitService.checkoutDefault()
+        return gitService.checkoutRef(options.tag ?: options.branch)
     }
 
     private fun withAdditionalPlaceholderResolvers(microconfig: Microconfig, options: ConfigOptions): Microconfig {

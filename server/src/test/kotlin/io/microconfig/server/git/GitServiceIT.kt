@@ -1,74 +1,83 @@
-package io.microconfig.server.git;
+package io.microconfig.server.git
 
-import org.junit.Test;
+import io.microconfig.server.git.exceptions.RefNotFound
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.io.File
 
-import java.io.File;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class GitServiceIT {
-    private File local = new File(System.getProperty("user.home") + "/microconfig");
-
-    @Test
-    public void should_checkout_default() {
-        var config = gitConfig("https://github.com/microconfig/configs-layout-example.git");
-
-        //when
-        var git = new GitServiceImpl(config);
-        git.checkoutDefault();
-
-        //then
-        testDir("configs-layout-example");
-    }
+class GitServiceIT {
+    private val local = File(System.getProperty("user.home") + "/microconfig")
+    private val repo = "https://github.com/microconfig/microconfig-quickstart.git"
 
     @Test
-    public void should_checkout_open() {
-        var config = gitConfig("https://github.com/microconfig/configs-layout-example.git");
+    fun should_checkout_default() {
+        val config = gitConfig(repo)
 
         //when
-        var git = new GitServiceImpl(config);
-        git.checkoutBranch("vault");
+        val git = GitServiceImpl(config)
+        git.checkoutRef(null)
 
         //then
-        testDir("configs-layout-example");
+        testDir(config, "master")
     }
 
     @Test
-    public void should_checkout_tag() {
-        var config = gitConfig("https://github.com/microconfig/configs-layout-example.git");
+    fun should_checkout_branch() {
+        val config = gitConfig(repo)
 
         //when
-        var git = new GitServiceImpl(config);
-        git.checkoutTag("vault-tag");
+        val git = GitServiceImpl(config)
+        git.checkoutRef("vault")
 
         //then
-        testDir("configs-layout-example");
+        testDir(config, "vault")
     }
 
     @Test
-    public void should_checkout_private() {
-        var config = gitConfig("private url");
-        config.setUsername("user");
-        config.setPassword("pass");
+    fun should_checkout_tag() {
+        val config = gitConfig("https://github.com/microconfig/microconfig-quickstart.git")
 
         //when
-        var git = new GitServiceImpl(config);
-        git.checkoutDefault();
+        val git = GitServiceImpl(config)
+        git.checkoutRef("test-tag")
 
         //then
-        testDir("name");
+        testDir(config, "test-tag")
     }
 
-    private GitConfig gitConfig(String remote) {
-        var config = new GitConfig();
-        config.setRemoteUrl(remote);
-        config.setWorkingDir(local);
-        return config;
+    @Test
+    fun should_fail_on_missing_tag() {
+        val config = gitConfig("https://github.com/microconfig/microconfig-quickstart.git")
+        val git = GitServiceImpl(config)
+
+        //expected
+        assertThrows<RefNotFound> { git.checkoutRef("missing-tag") }
+        val expected = File(config.dir(), "missing-tag")
+        assertThat(expected).doesNotExist()
     }
 
-    private void testDir(String dirName) {
-        var expected = new File(local, dirName);
-        assertThat(expected).exists();
-        assertThat(expected).isDirectory();
+    //    @Test
+    fun should_checkout_private() {
+        val config = gitConfig("private url")
+        config.username = "user"
+        config.password = "pass"
+
+        //when
+        val git = GitServiceImpl(config)
+        git.checkoutRef("master")
+
+        //then
+        testDir(config, "name")
+    }
+
+    private fun gitConfig(remote: String): GitConfig {
+        return GitConfig(local, remote)
+    }
+
+    private fun testDir(config: GitConfig, dirName: String) {
+        val expected = File(config.dir(), dirName)
+        assertThat(expected).exists()
+        assertThat(expected).isDirectory
     }
 }

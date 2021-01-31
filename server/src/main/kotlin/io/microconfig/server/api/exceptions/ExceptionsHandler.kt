@@ -19,7 +19,7 @@ class ExceptionsHandler {
 
     @ExceptionHandler(Exception::class)
     fun handle(ex: Exception): ResponseEntity<ErrorResponse> {
-        log.error("{}: {} at {}", ex.javaClass, ex.message, ex.stackTrace[0])
+        logEx(ex)
 
         return when (ex) {
             is ServerErrorException -> response(ex.message, INTERNAL_SERVER_ERROR)
@@ -33,6 +33,12 @@ class ExceptionsHandler {
 
     private fun response(error: String?, status: HttpStatus): ResponseEntity<ErrorResponse> {
         return ResponseEntity<ErrorResponse>(ErrorResponse(error), status)
+    }
+
+    private fun logEx(ex: Exception) {
+        val e = ex
+        log.error("{}: {} at {}", e.javaClass, e.message, e.stackTrace[0])
+
     }
 
     data class ErrorResponse(val error: String?)
