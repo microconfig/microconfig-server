@@ -1,22 +1,21 @@
-package io.microconfig.cli.commands;
+package io.microconfig.cli.commands
 
-import io.microconfig.cli.CliException;
+import io.microconfig.cli.CliException
 
-public class CommandFactory {
-    public static Command command(String[] args) {
-        if (args.length == 0) throw new CliException("Usage: microctl [command] [component] [flags]\nNo command provided.\nSupported commands are [show, save, version, help]", 1);
+val errorMessage = """
+    Usage: microctl [command] [component] [flags]
+    No command provided.
+    Supported commands are [show, save, version, help]
+    """.trimIndent()
 
-        switch (args[0]) {
-            case "show":
-                return new ShowCommand(args);
-            case "save":
-                return new SaveCommand(args);
-            case "version":
-                return new VersionCommand(args);
-            case "help":
-                return new HelpCommand(args);
-            default:
-                throw new CliException("Unsupported argument " + args[0], 2);
-        }
+fun command(args: Array<String>): Command {
+    if (args.isEmpty()) throw CliException(errorMessage, 1)
+
+    return when (val command = args[0]) {
+        "show" -> ShowCommand(args)
+        "save" -> SaveCommand(args)
+        "version" -> VersionCommand(args)
+        "help" -> HelpCommand(args)
+        else -> throw CliException("Unsupported argument $command", 2)
     }
 }

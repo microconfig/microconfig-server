@@ -1,57 +1,34 @@
-package io.microconfig.cli.commands;
+package io.microconfig.cli.commands
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import io.microconfig.cli.CliException;
+import io.microconfig.cli.CliException
+import io.microconfig.server.common.json
 
-import java.net.URI;
+class ShowCommand(args: Array<String>) : Command(args) {
 
-import static io.microconfig.cli.util.HttpUtil.httpGET;
-import static io.microconfig.cli.util.HttpUtil.httpSend;
-import static io.microconfig.cli.util.JsonUtil.parse;
-import static java.util.stream.StreamSupport.stream;
+    // TODO replace with /config/ call to fetch string instead of json
+    override fun execute(): Int {
+        val component = component(helpMessage())
+        val type = flags.type() ?: "app"
+        val request = request(component)
+        val json = send(request).json()
 
-public class ShowCommand extends Command {
+        val content: String = json
+            .firstOrNull { it.path("type").asText() == type }
+            ?.let { it["content"].asText() }
+            ?: throw CliException("No component with requested type", 404)
 
-    public ShowCommand(String[] args) {
-        super(args);
+        println(content)
+        return 0
     }
 
-    @Override
-    public int execute() {
-        var component = component(helpMessage());
-        var type = flags.type().orElse("app");
-        var env = flags.env();
-        var uri = uri(
-                component,
-                env.orElse("default")
-        );
-
-        var request = httpGET(uri, flags.timeout());
-        addHeaders(request);
-        var body = httpSend(request.build(), sslContext());
-        var json = (ArrayNode) parse(body);
-        var content = stream(json.spliterator(), false)
-                .filter(j -> j.path("type").asText().equals(type))
-                .findFirst()
-                .map(j -> j.get("content").asText())
-                .orElseThrow(() -> new CliException("No component with requested type", 404));
-
-        System.out.println(content);
-        return 0;
+    private fun helpMessage(): String {
+        return """
+            Usage microctl show [component] [flags]
+            Generates configuration for component of specified type and outputs it to console
+            Flags: 
+              -e, --env  [name]: config environment
+              -t, --type [name]: config type, 'app' by default
+              -s, --set  [foo=bar]: override values for placeholders and vars
+            """.trimIndent()
     }
-
-    private URI uri(String name, String env) {
-        return URI.create(String.format("%s/api/configs/%s/%s", server(), name, env));
-    }
-
-    private String helpMessage() {
-        return "Usage microctl show [component] [flags]\n"
-                + "Generates configuration for component of specified type and outputs it to console\n"
-                + "Flags: \n"
-                + "  -e, --env  [name]: config environment\n"
-                + "  -t, --type [app]: config type, 'app' by default\n"
-                + "  -s, --set  [foo=bar]: override values for placeholders\n"
-                ;
-    }
-
 }

@@ -1,14 +1,8 @@
-package io.microconfig.cli.commands;
+package io.microconfig.cli.commands
 
-public class VersionCommand extends Command {
-
-    public VersionCommand(String[] args) {
-        super(args);
-    }
-
-    @Override
-    public int execute() {
-        System.out.println("Version 0.2.0");
-        return 0;
+class VersionCommand(args: Array<String>) : Command(args) {
+    override fun execute(): Int {
+        println("Version 0.2.0")
+        return 0
     }
 }

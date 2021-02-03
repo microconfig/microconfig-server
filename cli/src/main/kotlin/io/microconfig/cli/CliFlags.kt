@@ -1,90 +1,84 @@
-package io.microconfig.cli;
+package io.microconfig.cli
 
-import lombok.RequiredArgsConstructor;
+import java.util.stream.IntStream.range
+import kotlin.streams.asSequence
 
-import java.util.Map;
-import java.util.Optional;
-
-import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.IntStream.range;
-
-@RequiredArgsConstructor
-public class CliFlags {
-    private final String[] args;
-
-    public Optional<String> env() {
-        return findFlag("-e", "--env");
+class CliFlags(private val args: Array<String>) {
+    fun env(): String? {
+        return findFlag("-e", "--env")
     }
 
-    public Optional<String> dir() {
-        return findFlag("-d", "--dir");
+    fun dir(): String? {
+        return findFlag("-d", "--dir")
     }
 
-    public Map<String, String> vars() {
-        return findVars("-s", "--set");
+    fun vars(): Map<String, String> {
+        return findVars("-s", "--set")
     }
 
-    public Optional<String> branch() {
-        return findFlag("--branch");
+    fun branch(): String? {
+        return findFlag("--branch")
     }
 
-    public Optional<String> tag() {
-        return findFlag("--tag");
+    fun tag(): String? {
+        return findFlag("--tag")
     }
 
-    public int timeout() {
-        return findFlag("--timeout").map(Integer::parseInt).orElse(10);
+    fun ref(): String? {
+        return findFlag("--ref")
     }
 
-    public Optional<String> server() {
-        return findFlag("--server");
+    fun timeout(): Long {
+        return findFlag("--timeout")?.toLong() ?: 10
     }
 
-    public boolean skipTls() {
-        return asList(args).contains("--skip-tls");
+    fun server(): String? {
+        return findFlag("--server")
     }
 
-    public Optional<String> rootCa() {
-        return findFlag("--tls-root-ca");
+    fun skipTls(): Boolean {
+        return args.contains("--skip-tls")
     }
 
-    public Optional<String> type() {
-        return findFlag("-t", "--type");
+    fun rootCa(): String? {
+        return findFlag("--tls-root-ca")
     }
 
-    public Optional<String> findFlag(String... flag) {
-        var flags = asList(flag);
-        for (int i = 2; i < args.length; i++) {
-            if (flags.contains(args[i])) {
-                if (i == args.length - 1) throw new CliException(args[i] + " value not provided", 4);
-                return Optional.of(args[i + 1]);
+    fun type(): String? {
+        return findFlag("-t", "--type")
+    }
+
+    private fun findFlag(vararg flags: String): String? {
+        for (i in 2 until args.size) {
+            val arg = args[i]
+            if (flags.contains(arg)) {
+                if (i == args.size - 1) throw CliException("$arg value not provided", 4)
+                return args[i + 1]
             }
         }
-        return empty();
+        return null
     }
 
-    public Map<String, String> findVars(String... flag) {
-        var flags = asList(flag);
-        return range(0, args.length)
-                .filter(i -> flags.contains(args[i]))
-                .peek(this::validate)
-                .mapToObj(i -> args[i + 1])
-                .map(a -> splitFirst(a, '='))
-                .collect(toMap(a -> a[0], a -> a[1]));
+    private fun findVars(vararg flags: String): Map<String, String> {
+        return range(0, args.size).asSequence()
+            .filter { flags.contains(args[it]) }
+            .onEach { validate(it) }
+            .map { splitVar(args[it + 1]) }
+            .toMap()
     }
 
-    private void validate(int i) {
-        if (i == args.length - 1) throw new CliException("--set doesn't have a value", 4);
-        if (args[i + 1].startsWith("-")) throw new CliException("--set doesn't have a value", 4);
-        if (!args[i + 1].contains("=")) throw new CliException("--set value should contain '=' " + args[i + 1], 4);
+    private fun validate(i: Int) {
+        if (i == args.size - 1) throw CliException("--set doesn't have a value", 4)
+        val value = args[i + 1]
+        if (value.startsWith('-')) throw CliException("--set doesn't have a value", 4)
+        if (!value.contains('=')) throw CliException("--set value should contain '=' $value", 4)
     }
 
-    private String[] splitFirst(String str, char c) {
-        int idx = str.indexOf(c);
-        if (idx == str.length() - 1) throw new CliException("No value after '=' in " + str, 4);
-        return new String[]{str.substring(0, idx), str.substring(idx + 1)};
+    private fun splitVar(str: String): Pair<String, String> {
+        val idx = str.indexOf('=')
+        if (idx == str.length - 1) throw CliException("No value after '=' in $str", 4)
+        val key = str.substring(0, idx)
+        val value = str.substring(idx + 1)
+        return Pair(key, value)
     }
 }

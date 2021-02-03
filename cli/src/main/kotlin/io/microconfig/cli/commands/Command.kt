@@ -1,46 +1,75 @@
-package io.microconfig.cli.commands;
+package io.microconfig.cli.commands
 
-import io.microconfig.cli.CliException;
-import io.microconfig.cli.CliFlags;
-import io.microconfig.cli.ssl.TrustManagerFactory;
+import io.microconfig.cli.CliException
+import io.microconfig.cli.CliFlags
+import io.microconfig.server.common.GET
+import io.microconfig.server.common.HttpException
+import io.microconfig.server.common.httpClient
+import io.microconfig.server.common.json
+import io.microconfig.server.common.send
+import io.microconfig.server.common.ssl.defaultTrust
+import io.microconfig.server.common.ssl.rootCa
+import io.microconfig.server.common.ssl.trustAll
+import java.lang.System.getenv
+import java.net.http.HttpRequest
+import java.time.Duration
+import javax.net.ssl.SSLContext
 
-import javax.net.ssl.SSLContext;
-import java.net.http.HttpRequest;
+abstract class Command(val args: Array<String>) {
+    val flags: CliFlags = CliFlags(args)
 
-import static io.microconfig.cli.ssl.TrustManagerFactory.defaultTrust;
-import static io.microconfig.cli.ssl.TrustManagerFactory.trustAll;
+    abstract fun execute(): Int
 
-public abstract class Command {
-    final CliFlags flags;
-    final String[] args;
-
-    public Command(String[] args) {
-        this.args = args;
-        this.flags = new CliFlags(args);
+    fun component(message: String): String {
+        if (args.size < 2) throw CliException(message, 3)
+        return args[1]
     }
 
-    void addHeaders(HttpRequest.Builder request) {
-        flags.type().ifPresent(t -> request.setHeader("X-TYPE", t));
-        flags.branch().ifPresent(b -> request.setHeader("X-BRANCH", b));
-        flags.tag().ifPresent(t -> request.setHeader("X-TAG", t));
-        flags.vars().forEach((key, value) -> request.header("X-VAR", key + "=" + value));
+    fun request(component: String): HttpRequest {
+        return GET(url(component))
+            .timeout(timeout())
+            .addHeaders()
     }
 
-    String server() {
-        return flags.server()
-                .orElse(System.getenv().getOrDefault("MCS_ADDRESS", "http://localhost:8080"));
+    private fun HttpRequest.Builder.addHeaders(): HttpRequest {
+        flags.type()?.let { this.setHeader("X-TYPE", it) }
+        flags.branch()?.let { this.setHeader("X-REF", it) }
+        flags.tag()?.let { this.setHeader("X-REF", it) }
+        flags.ref()?.let { this.setHeader("X-REF", it) }
+        flags.vars().forEach { (key: String, value: String) -> this.header("X-VAR", "$key=$value") }
+        return this.build()
     }
 
-    String component(String message) {
-        if (args.length < 2) throw new CliException(message, 3);
-        return args[1];
+    fun send(request: HttpRequest): String {
+        try {
+            val client = httpClient(sslContext())
+            val response = request.send(client)
+            if (response.statusCode() == 200) {
+                return response.body()
+            } else {
+                val error = response.json().get("error").asText()
+                throw CliException("Server Error: $error", 200)
+            }
+        } catch (e: HttpException) {
+            throw CliException(e.message!!, 100)
+        }
     }
 
-    public abstract int execute();
+    private fun url(name: String): String {
+        val env = flags.env() ?: "default"
+        return "${server()}/api/configs/$name/$env"
+    }
 
-    SSLContext sslContext() {
-        if (flags.skipTls()) return trustAll();
-        return flags.rootCa().map(TrustManagerFactory::rootCa).orElse(defaultTrust());
+    private fun server(): String {
+        return flags.server() ?: getenv()["MCS_ADDRESS"] ?: "http://localhost:8080"
+    }
+
+    private fun timeout(): Duration {
+        return Duration.ofSeconds(flags.timeout())
+    }
+
+    private fun sslContext(): SSLContext {
+        return if (flags.skipTls()) trustAll() else flags.rootCa()?.let { rootCa(it) } ?: defaultTrust()
     }
 
 }

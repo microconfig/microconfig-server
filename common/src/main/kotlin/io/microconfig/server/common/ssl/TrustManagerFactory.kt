@@ -23,15 +23,9 @@ fun defaultTrust(): SSLContext {
 }
 
 fun rootCa(path: String): SSLContext {
-    return try {
-        val rootCa = File(path)
-        val sc = SSLContext.getInstance("TLS")
-        val trustManager = ProvidedCaTrustManager(rootCa)
-        sc.init(null, arrayOf<TrustManager>(trustManager), SecureRandom())
-        sc
-    } catch (e: NoSuchAlgorithmException) {
-        throw RuntimeException("Can't init TLS context: $e")
-    } catch (e: KeyManagementException) {
-        throw RuntimeException("Can't init TLS context: $e")
-    }
+    val rootCa = File(path)
+    val sc = SSLContext.getInstance("TLS")
+    val trustManager = ProvidedCaTrustManager(rootCa)
+    sc.init(null, arrayOf<TrustManager>(trustManager), SecureRandom())
+    return sc
 }

@@ -1,42 +1,42 @@
-package io.microconfig.cli.util;
+package io.microconfig.cli
 
-import io.microconfig.cli.CliException;
+import java.io.File
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-
-import static java.nio.file.Files.createDirectory;
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static java.nio.file.StandardOpenOption.WRITE;
-
-public class FileUtil {
-    public static void writeFile(File file, String content) {
+object FileUtil {
+    fun writeFile(file: File, content: String) {
         try {
-            Files.writeString(file.toPath(), content, TRUNCATE_EXISTING, WRITE, CREATE_NEW);
-        } catch (IOException e) {
-            throw new CliException("Failed to write a file " + file.getAbsolutePath() + " " + e.getMessage(), 50);
+            Files.writeString(
+                file.toPath(),
+                content,
+                StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.WRITE,
+                StandardOpenOption.CREATE_NEW
+            )
+        } catch (e: IOException) {
+            throw CliException("Failed to write a file ${file.absolutePath} ${e.message}", 50)
         }
     }
 
-    public static File getOrCreateDir(String path) {
-        var outDir = new File(path);
+    fun getOrCreateDir(path: String): File {
+        val outDir = File(path)
         if (!outDir.exists()) {
             try {
-                createDirectory(outDir.toPath());
-            } catch (Exception e) {
-                throw new CliException("Failed to create output directory " + outDir.getAbsolutePath(), 51);
+                Files.createDirectory(outDir.toPath())
+            } catch (e: Exception) {
+                throw CliException("Failed to create output directory ${outDir.absolutePath}", 51)
             }
         }
-        return outDir;
+        return outDir
     }
 
-    public static String readFile(File file) {
-        try {
-            return Files.readString(file.toPath());
-        } catch (IOException e) {
-            throw new CliException("Failed to read a file " + file.getAbsolutePath() + " " + e.getMessage(), 52);
+    fun readFile(file: File): String {
+        return try {
+            Files.readString(file.toPath())
+        } catch (e: IOException) {
+            throw CliException("Failed to read a file ${file.absolutePath} ${e.message}", 52)
         }
     }
 }

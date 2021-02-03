@@ -1,15 +1,14 @@
-package io.microconfig.cli;
+package io.microconfig.cli
 
-import static io.microconfig.cli.commands.CommandFactory.command;
+import io.microconfig.cli.commands.command
+import kotlin.system.exitProcess
 
-public class CliStarter {
-    public static void main(String[] args) {
-        try {
-            var code = command(args).execute();
-            System.exit(code);
-        } catch (CliException e) {
-            System.out.println(e.getMessage());
-            System.exit(e.getExitCode());
-        }
+fun main(args: Array<String>) {
+    try {
+        val code = command(args).execute()
+        exitProcess(code)
+    } catch (e: CliException) {
+        println(e.message)
+        exitProcess(e.exitCode)
     }
 }

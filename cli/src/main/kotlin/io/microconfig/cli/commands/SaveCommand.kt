@@ -1,65 +1,39 @@
-package io.microconfig.cli.commands;
+package io.microconfig.cli.commands
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ArrayNode
+import io.microconfig.cli.FileUtil
+import io.microconfig.server.common.json
+import java.io.File
 
-import java.io.File;
-import java.net.URI;
+class SaveCommand(args: Array<String>) : Command(args) {
 
-import static io.microconfig.cli.util.FileUtil.getOrCreateDir;
-import static io.microconfig.cli.util.FileUtil.writeFile;
-import static io.microconfig.cli.util.HttpUtil.httpGET;
-import static io.microconfig.cli.util.HttpUtil.httpSend;
-import static io.microconfig.cli.util.JsonUtil.parse;
-
-public class SaveCommand extends Command {
-
-    public SaveCommand(String[] args) {
-        super(args);
+    override fun execute(): Int {
+        val component = component(helpMessage())
+        val request = request(component)
+        val json = send(request).json()
+        val outDir = FileUtil.getOrCreateDir(flags.dir() ?: ".")
+        saveFiles(outDir, json as ArrayNode)
+        return 0
     }
 
-    @Override
-    public int execute() {
-        var component = component(helpMessage());
-
-        var env = flags.env();
-        var uri = uri(
-                component,
-                env.orElse("default")
-        );
-
-        var request = httpGET(uri, flags.timeout());
-        addHeaders(request);
-        var body = httpSend(request.build(), sslContext());
-        var json = parse(body);
-        var outDir = getOrCreateDir(flags.dir().orElse("."));
-        saveFiles(outDir, (ArrayNode) json);
-        return 0;
-    }
-
-
-    private void saveFiles(File outDir, ArrayNode nodes) {
-        for (JsonNode node : nodes) {
-            var filename = node.get("fileName").asText();
-            var content = node.get("content").asText();
-            var file = new File(outDir, filename);
-            writeFile(file, content);
+    private fun saveFiles(outDir: File, nodes: ArrayNode) {
+        for (node in nodes) {
+            val filename = node["fileName"].asText()
+            val content = node["content"].asText()
+            val file = File(outDir, filename)
+            FileUtil.writeFile(file, content)
         }
     }
 
-    private URI uri(String name, String env) {
-        return URI.create(String.format("%s/api/configs/%s/%s", server(), name, env));
+    private fun helpMessage(): String {
+        return """
+            Usage microctl save [component] [flags]
+            Generates configuration for component and saves it to disk
+            Flags: 
+              -e, --env  [name]: config environment
+              -t, --type [name]: config type, all types by default
+              -d, --dir  [path]: output directory, current dir by default
+              -s, --set  [foo=bar]: override values for placeholders and vars
+            """.trimIndent()
     }
-
-    private String helpMessage() {
-        return "Usage microctl save [component] [flags]\n"
-                + "Generates configuration for component and saves it to disk\n"
-                + "Flags: \n"
-                + "  -e, --env  [name]: config environment\n"
-                + "  -t, --type [app]: config type, all types by default\n"
-                + "  -d, --dir  [path]: output directory, current dir by default\n"
-                + "  -s, --set  [foo=bar]: override values for placeholders\n"
-                ;
-    }
-
 }
