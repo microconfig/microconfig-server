@@ -30,7 +30,9 @@ class VaultClientImpl(private val config: VaultConfig) : VaultClient {
 
     private fun getPath(path: String): JsonNode {
         return GET(kvUrl(path))
-            .build(config)
+            .setHeader("X-Vault-Token", config.credentials.getToken())
+            .timeout(config.timeout)
+            .build()
             .send(http)
             .vaultResponse()
     }

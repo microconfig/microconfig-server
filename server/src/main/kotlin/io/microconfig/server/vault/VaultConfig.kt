@@ -12,16 +12,16 @@ data class VaultConfig(val address: String, val timeout: Duration, val credentia
 
 fun vaultConfig(config: Map<String, String>): VaultConfig {
     val address = getValue(config, "microconfig.vault.address")
-    val timeout = config["microconfig.vault.timeout"]?.toLong() ?: 2
-    val auth = auth(address, config)
-    return VaultConfig(address, ofSeconds(timeout), auth)
+    val timeout = timeout(config)
+    val auth = auth(address, timeout, config)
+    return VaultConfig(address, timeout, auth)
 }
 
-private fun auth(address: String, config: Map<String, String>): VaultCredentials {
+private fun auth(address: String, timeout: Duration, config: Map<String, String>): VaultCredentials {
     return when (val auth = getValue(config, "microconfig.vault.auth")) {
         "token" -> token(config)
-        "kubernetes" -> kubernetes(address, config)
-        "approle" -> approle(address, config)
+        "kubernetes" -> kubernetes(address, timeout, config)
+        "approle" -> approle(address, timeout, config)
         else -> throw VaultAuthException("Unsupported auth type: $auth")
     }
 }
@@ -31,18 +31,23 @@ private fun token(config: Map<String, String>): VaultCredentials {
     return VaultTokenCredentials(token)
 }
 
-private fun kubernetes(address: String, config: Map<String, String>): VaultCredentials {
+private fun kubernetes(address: String, timeout: Duration, config: Map<String, String>): VaultCredentials {
     val path = getValue(config, "microconfig.vault.kubernetes.path")
     val role = getValue(config, "microconfig.vault.kubernetes.role")
     val jwt = getValue(config, "microconfig.vault.kubernetes.jwt")
-    return KubernetesTokenCredentials(address, path, role, jwt)
+    return KubernetesTokenCredentials(address, timeout, path, role, jwt)
 }
 
-private fun approle(address: String, config: Map<String, String>): VaultCredentials {
+private fun approle(address: String, timeout: Duration, config: Map<String, String>): VaultCredentials {
     val path = getValue(config, "microconfig.vault.approle.path")
     val role = getValue(config, "microconfig.vault.approle.role")
     val secret = getValue(config, "microconfig.vault.approle.secret")
-    return VaultAppRoleCredentials(address, path, role, secret)
+    return VaultAppRoleCredentials(address, timeout, path, role, secret)
+}
+
+private fun timeout(config: Map<String, String>): Duration {
+    val t = config["microconfig.vault.timeout"]?.toLong() ?: 2
+    return ofSeconds(t)
 }
 
 private fun getValue(config: Map<String, String>, key: String): String {
