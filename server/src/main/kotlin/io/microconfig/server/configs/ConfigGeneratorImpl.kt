@@ -11,7 +11,6 @@ import io.microconfig.core.properties.serializers.PropertySerializers.asConfigRe
 import io.microconfig.core.properties.templates.TemplatesService.resolveTemplatesBy
 import io.microconfig.server.common.logger
 import io.microconfig.server.git.GitService
-import io.microconfig.server.vault.DynamicVarsResolverStrategy
 import io.microconfig.server.vault.VaultKVSecretResolverStrategy
 import org.springframework.stereotype.Service
 

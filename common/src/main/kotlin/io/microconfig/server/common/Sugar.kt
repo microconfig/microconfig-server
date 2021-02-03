@@ -11,6 +11,7 @@ import java.net.http.HttpRequest.BodyPublishers.ofString
 import java.net.http.HttpRequest.newBuilder
 import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers.ofString
+import java.util.Optional
 import java.util.UUID
 
 private val mapper = ObjectMapper()
@@ -36,6 +37,8 @@ private fun http(url: String): HttpRequest.Builder = newBuilder(create(url))
 fun HttpRequest.send(client: HttpClient): HttpResponse<String> = client.send(this, ofString())
 
 fun HttpResponse<String>.json(): JsonNode = mapper.readTree(this.body())
+
+fun <T> T.toOptional(): Optional<T> = Optional.of(this)
 
 fun Any.toJson(): String = mapper.writeValueAsString(this)
 
