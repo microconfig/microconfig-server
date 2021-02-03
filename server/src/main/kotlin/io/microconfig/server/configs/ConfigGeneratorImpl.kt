@@ -1,18 +1,19 @@
 package io.microconfig.server.configs
 
 import io.microconfig.core.Microconfig
+import io.microconfig.core.Microconfig.searchConfigsIn
 import io.microconfig.core.configtypes.ConfigTypeFilter
 import io.microconfig.core.configtypes.ConfigTypeFilters.configTypeWithName
 import io.microconfig.core.configtypes.ConfigTypeFilters.eachConfigType
+import io.microconfig.core.properties.PlaceholderResolveStrategy
 import io.microconfig.core.properties.serializers.ConfigResult
-import io.microconfig.core.properties.serializers.PropertySerializers
-import io.microconfig.core.properties.templates.TemplatesService
+import io.microconfig.core.properties.serializers.PropertySerializers.asConfigResult
+import io.microconfig.core.properties.templates.TemplatesService.resolveTemplatesBy
 import io.microconfig.server.common.logger
 import io.microconfig.server.git.GitService
 import io.microconfig.server.vault.DynamicVarsResolverStrategy
 import io.microconfig.server.vault.VaultKVSecretResolverStrategy
 import org.springframework.stereotype.Service
-import java.io.File
 
 @Service
 class ConfigGeneratorImpl(val gitService: GitService) : ConfigGenerator {
@@ -20,30 +21,28 @@ class ConfigGeneratorImpl(val gitService: GitService) : ConfigGenerator {
 
     override fun generateConfigs(component: String, env: String, options: ConfigOptions): List<ConfigResult> {
         log.info("Generating configs for {} in {} env", component, env)
-        val microconfig: Microconfig = initMicroconfig(options)
-        val configType: ConfigTypeFilter = configTypes(options)
+        val microconfig = initMicroconfig(options)
+        val configType = configTypes(options)
         return microconfig.inEnvironment(env)
-            .findComponentsFrom(emptyList<String>(), listOf(component))
+            .findComponentWithName(component)
             .getPropertiesFor(configType)
             .resolveBy(microconfig.resolver())
-            .forEachComponent(TemplatesService.resolveTemplatesBy(microconfig.resolver()))
-            .save(PropertySerializers.asConfigResult())
+            .forEachComponent(resolveTemplatesBy(microconfig.resolver()))
+            .save(asConfigResult())
     }
 
     private fun initMicroconfig(options: ConfigOptions): Microconfig {
-        val microconfig: Microconfig = Microconfig.searchConfigsIn(configDir(options))
+        val configDir = gitService.checkoutRef(options.ref)
+        val microconfig = searchConfigsIn(configDir)
         microconfig.logger(false)
-        return withAdditionalPlaceholderResolvers(microconfig, options)
+        return microconfig
+            .withAdditionalPlaceholderResolvers(placeholderResolvers(microconfig, options))
     }
 
-    private fun configDir(options: ConfigOptions): File {
-        return gitService.checkoutRef(options.tag ?: options.branch)
-    }
-
-    private fun withAdditionalPlaceholderResolvers(microconfig: Microconfig, options: ConfigOptions): Microconfig {
+    private fun placeholderResolvers(microconfig: Microconfig, options: ConfigOptions): List<PlaceholderResolveStrategy> {
         val dynamicVars = DynamicVarsResolverStrategy(options.vars)
         val vault = VaultKVSecretResolverStrategy(microconfig)
-        return microconfig.withAdditionalPlaceholderResolvers(listOf(dynamicVars, vault))
+        return listOf(dynamicVars, vault)
     }
 
     private fun configTypes(options: ConfigOptions): ConfigTypeFilter {

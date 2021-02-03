@@ -34,9 +34,7 @@ class GitServiceImpl(private val config: GitConfig) : GitService {
 
     private fun useLocal(gitDir: File): Git {
         val git = Git(FileRepository(gitDir))
-        git.fetch()
-            .setCredentialsProvider(config.credentialsProvider())
-            .call()
+        git.fetch().setCredentialsProvider(config.credentialsProvider()).call()
         return git
     }
 
@@ -52,12 +50,12 @@ class GitServiceImpl(private val config: GitConfig) : GitService {
     private fun checkout(checkout: GitCheckout) {
         val (name, git) = checkout
         val ref = git.repository.refDatabase.refs.firstOrNull { it.name.endsWith(name) }
-        checkout.ref = ref
-
         if (ref == null) {
-            deleteRecursively(checkout.dir)
+            checkout.delete()
             throw RefNotFound(name)
         }
+
+        checkout.ref = ref
 
         // second case for previous tag checkout
         if (git.repository.branch != name && git.repository.branch != ref.objectId.name) {
@@ -68,22 +66,20 @@ class GitServiceImpl(private val config: GitConfig) : GitService {
                 .call()
         }
 
-        checkout.nextPull = now().plusSeconds(config.pullDelay)
+        checkout.pulled(config)
     }
 
     private fun pull(checkout: GitCheckout) {
+        if (checkout.isTag()) return
         synchronized(checkout) {
-            if (checkout.timeToCheckout()) pullRef(checkout)
+            if (checkout.timeToPull()) pullBranch(checkout)
         }
     }
 
-    private fun pullRef(checkout: GitCheckout) {
-        if (checkout.isTag()) return
-        log.debug("Pulling ref {}", checkout.name)
-        checkout.git.pull()
-            .setCredentialsProvider(config.credentialsProvider())
-            .call()
-        checkout.nextPull = now().plusSeconds(config.pullDelay)
+    private fun pullBranch(checkout: GitCheckout) {
+        log.debug("Pulling branch {}", checkout.name)
+        checkout.git.pull().setCredentialsProvider(config.credentialsProvider()).call()
+        checkout.pulled(config)
     }
 
     data class GitCheckout(
@@ -93,10 +89,17 @@ class GitServiceImpl(private val config: GitConfig) : GitService {
         var ref: Ref? = null,
         var nextPull: Instant = now()
     ) {
-        fun timeToCheckout(): Boolean {
+        fun timeToPull(): Boolean {
             return now().isAfter(nextPull)
         }
 
+        fun pulled(config: GitConfig) {
+            nextPull = now().plusSeconds(config.pullDelay)
+        }
+
         fun isTag(): Boolean = ref!!.name.startsWith("refs/tags/")
+        fun delete() {
+            deleteRecursively(dir)
+        }
     }
 }

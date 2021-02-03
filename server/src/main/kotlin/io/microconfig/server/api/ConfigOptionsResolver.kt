@@ -20,11 +20,10 @@ class ConfigOptionsResolver : HandlerMethodArgumentResolver {
         webRequest: NativeWebRequest,
         _3: WebDataBinderFactory?
     ): ConfigOptions {
-        val type: String? = webRequest.getHeader("X-TYPE")
-        val branch: String? = webRequest.getHeader("X-BRANCH")
-        val tag: String? = webRequest.getHeader("X-TAG")
+        val type = webRequest.getHeader("X-TYPE")
+        val ref = webRequest.getHeader("X-REF")
         val vars = vars(webRequest)
-        return ConfigOptions(type, branch, tag, vars)
+        return ConfigOptions(type, ref, vars)
     }
 
     private fun vars(webRequest: NativeWebRequest): Map<String, String> {
