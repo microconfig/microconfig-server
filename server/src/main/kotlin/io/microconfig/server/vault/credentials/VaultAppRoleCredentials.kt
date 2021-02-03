@@ -2,7 +2,7 @@ package io.microconfig.server.vault.credentials
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.microconfig.server.common.Http.client
-import io.microconfig.server.common.httpPost
+import io.microconfig.server.common.POST
 import io.microconfig.server.common.logger
 import io.microconfig.server.common.send
 import io.microconfig.server.common.toJson
@@ -33,7 +33,7 @@ class VaultAppRoleCredentials(
     private fun request(): HttpRequest {
         val body = Request(role, secret).toJson()
         val url = "$address/v1/auth/$path/login"
-        return httpPost(url, body)
+        return POST(url, body)
             .timeout(Duration.ofSeconds(2))
             .build()
     }

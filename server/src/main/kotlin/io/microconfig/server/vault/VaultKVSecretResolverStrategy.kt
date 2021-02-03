@@ -6,7 +6,8 @@ import io.microconfig.core.properties.ConfigFormat.PROPERTIES
 import io.microconfig.core.properties.DeclaringComponentImpl
 import io.microconfig.core.properties.PlaceholderResolveStrategy
 import io.microconfig.core.properties.Property
-import io.microconfig.core.properties.PropertyImpl
+import io.microconfig.core.properties.PropertyImpl.property
+import io.microconfig.server.common.toOptional
 import java.util.Optional
 import java.util.Optional.empty
 
@@ -22,28 +23,27 @@ class VaultKVSecretResolverStrategy(val microconfig: Microconfig) : PlaceholderR
         root: String
     ): Optional<Property> {
         if ("VAULT-KV" != component) return empty()
-        if (vaultClient == null) {
-            initClient(environment, root, configType)
-        }
+        val secret = client(environment, root, configType).fetchKV(key)
 
-        val secret = vaultClient!!.fetchKV(key)
-
-        return Optional.of(
-            PropertyImpl.property(
-                key, secret, PROPERTIES,
-                DeclaringComponentImpl(configType, "HashiCorp Vault", environment)
-            )
-        )
+        val parent = DeclaringComponentImpl(configType, "HashiCorp Vault", environment)
+        return property(key, secret, PROPERTIES, parent).toOptional()
     }
 
-    private fun initClient(environment: String, root: String, configType: String) {
-        val properties: Map<String, String> = microconfig.inEnvironment(environment)
+    private fun client(environment: String, root: String, configType: String): VaultClient {
+        if (vaultClient == null) {
+            vaultClient = initClient(environment, root, configType)
+        }
+        return vaultClient!!
+    }
+
+    private fun initClient(environment: String, root: String, configType: String): VaultClient {
+        val properties = microconfig.inEnvironment(environment)
             .getComponentWithName(root)
             .getPropertiesFor(configTypeWithName(configType))
             .withPrefix("microconfig.vault")
             .resolveBy(microconfig.resolver())
             .propertiesAsKeyValue
 
-        vaultClient = VaultClientImpl(vaultConfig(properties))
+        return VaultClientImpl(vaultConfig(properties))
     }
 }

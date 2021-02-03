@@ -5,13 +5,16 @@ import io.microconfig.server.vault.credentials.VaultAppRoleCredentials
 import io.microconfig.server.vault.credentials.VaultCredentials
 import io.microconfig.server.vault.credentials.VaultTokenCredentials
 import io.microconfig.server.vault.exceptions.VaultAuthException
+import java.time.Duration
+import java.time.Duration.ofSeconds
 
-data class VaultConfig(val address: String, val credentials: VaultCredentials)
+data class VaultConfig(val address: String, val timeout: Duration, val credentials: VaultCredentials)
 
 fun vaultConfig(config: Map<String, String>): VaultConfig {
     val address = getValue(config, "microconfig.vault.address")
+    val timeout = config["microconfig.vault.timeout"]?.toLong() ?: 2
     val auth = auth(address, config)
-    return VaultConfig(address, auth)
+    return VaultConfig(address, ofSeconds(timeout), auth)
 }
 
 private fun auth(address: String, config: Map<String, String>): VaultCredentials {

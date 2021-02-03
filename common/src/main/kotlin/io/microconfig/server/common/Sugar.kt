@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import java.io.IOException
 import java.net.URI.create
 import java.net.http.HttpClient
+import java.net.http.HttpConnectTimeoutException
 import java.net.http.HttpRequest
 import java.net.http.HttpRequest.BodyPublishers.ofString
 import java.net.http.HttpRequest.newBuilder
@@ -16,16 +18,16 @@ import java.util.UUID
 
 private val mapper = ObjectMapper()
 
-fun httpGet(url: String): HttpRequest.Builder {
+fun GET(url: String): HttpRequest.Builder {
     return http(url).GET()
 }
 
-fun httpPost(url: String, body: String): HttpRequest.Builder {
+fun POST(url: String, body: String): HttpRequest.Builder {
     return http(url).POST(ofString(body))
         .setHeader("Content-Type", "application/json")
 }
 
-fun httpPost(url: String, body: JsonNode): HttpRequest.Builder {
+fun POST(url: String, body: JsonNode): HttpRequest.Builder {
     return http(url).POST(ofString(body.toString()))
         .setHeader("Content-Type", "application/json")
 }
@@ -34,7 +36,15 @@ fun httpDelete(url: String): HttpRequest.Builder = http(url).DELETE()
 
 private fun http(url: String): HttpRequest.Builder = newBuilder(create(url))
 
-fun HttpRequest.send(client: HttpClient): HttpResponse<String> = client.send(this, ofString())
+fun HttpRequest.send(client: HttpClient): HttpResponse<String> {
+    try {
+        return client.send(this, ofString())
+    } catch (e: HttpConnectTimeoutException) {
+        throw HttpException("HTTP timeout: ${this.uri()}")
+    } catch (e: IOException) {
+        throw HttpException("IO exception: ${this.uri()}").initCause(e)
+    }
+}
 
 fun HttpResponse<String>.json(): JsonNode = mapper.readTree(this.body())
 
