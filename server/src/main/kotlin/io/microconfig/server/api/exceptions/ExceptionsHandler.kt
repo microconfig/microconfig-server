@@ -1,5 +1,6 @@
 package io.microconfig.server.api.exceptions
 
+import io.microconfig.core.environments.repository.EnvironmentException
 import io.microconfig.core.properties.repository.ComponentNotFoundException
 import io.microconfig.server.common.logger
 import org.springframework.http.HttpStatus
@@ -20,8 +21,8 @@ class ExceptionsHandler {
     @ExceptionHandler(Exception::class)
     fun handle(ex: Exception): ResponseEntity<ErrorResponse> {
         logEx(ex)
-
         return when (ex) {
+            is EnvironmentException -> response(ex.message, BAD_REQUEST)
             is ServerErrorException -> response(ex.message, INTERNAL_SERVER_ERROR)
             is NotFoundException -> response(ex.message, NOT_FOUND)
             is ComponentNotFoundException -> response(ex.message, NOT_FOUND)

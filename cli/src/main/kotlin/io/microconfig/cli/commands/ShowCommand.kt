@@ -1,22 +1,18 @@
 package io.microconfig.cli.commands
 
 import io.microconfig.cli.CliException
-import io.microconfig.server.common.json
 
 class ShowCommand(args: Array<String>) : Command(args) {
 
     override fun execute(): Int {
         val component = component(helpMessage())
         val type = flags.type() ?: "app"
-        val request = request(component)
-        val json = send(request).json()
 
-        val content: String = json
-            .firstOrNull { it.path("type").asText() == type }
-            ?.let { it["content"].asText() }
+        configs(component, type)
+            .firstOrNull { it.type == type }
+            ?.let { println(it) }
             ?: throw CliException("No component with requested type", 404)
 
-        println(content)
         return 0
     }
 

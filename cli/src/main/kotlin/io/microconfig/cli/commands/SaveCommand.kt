@@ -1,8 +1,6 @@
 package io.microconfig.cli.commands
 
-import com.fasterxml.jackson.databind.node.ArrayNode
 import io.microconfig.cli.CliException
-import io.microconfig.server.common.json
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files.createDirectory
@@ -15,10 +13,13 @@ class SaveCommand(args: Array<String>) : Command(args) {
 
     override fun execute(): Int {
         val component = component(helpMessage())
-        val request = request(component)
-        val json = send(request).json()
+        val configs = configs(component)
         val outDir = createDir(flags.dir() ?: ".")
-        saveFiles(outDir, json as ArrayNode)
+
+        configs.forEach {
+            writeFile(File(outDir, it.file), it.content)
+        }
+
         return 0
     }
 
@@ -32,15 +33,6 @@ class SaveCommand(args: Array<String>) : Command(args) {
             }
         }
         return outDir
-    }
-
-    private fun saveFiles(outDir: File, nodes: ArrayNode) {
-        for (node in nodes) {
-            val filename = node["fileName"].asText()
-            val content = node["content"].asText()
-            val file = File(outDir, filename)
-            writeFile(file, content)
-        }
     }
 
     private fun writeFile(file: File, content: String) {

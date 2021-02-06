@@ -48,11 +48,13 @@ fun HttpRequest.send(client: HttpClient): HttpResponse<String> {
 
 fun HttpResponse<String>.json(): JsonNode = mapper.readTree(this.body())
 
-fun <T> T.toOptional(): Optional<T> = Optional.of(this)
+fun <T> T.toOptional(): Optional<T> = Optional.of(this!!)
 
 fun Any.toJson(): String = mapper.writeValueAsString(this)
 
 fun String.json(): JsonNode = mapper.readTree(this)
+
+fun <T> JsonNode.convert(clazz: Class<T>): T = mapper.convertValue(this, clazz)
 
 fun objectNode(): ObjectNode = mapper.createObjectNode()
 
