@@ -5,7 +5,6 @@ import io.microconfig.server.common.json
 
 class ShowCommand(args: Array<String>) : Command(args) {
 
-    // TODO replace with /config/ call to fetch string instead of json
     override fun execute(): Int {
         val component = component(helpMessage())
         val type = flags.type() ?: "app"

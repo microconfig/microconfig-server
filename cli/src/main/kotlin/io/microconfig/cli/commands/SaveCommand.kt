@@ -1,9 +1,15 @@
 package io.microconfig.cli.commands
 
 import com.fasterxml.jackson.databind.node.ArrayNode
-import io.microconfig.cli.FileUtil
+import io.microconfig.cli.CliException
 import io.microconfig.server.common.json
 import java.io.File
+import java.io.IOException
+import java.nio.file.Files.createDirectory
+import java.nio.file.Files.writeString
+import java.nio.file.StandardOpenOption.CREATE_NEW
+import java.nio.file.StandardOpenOption.TRUNCATE_EXISTING
+import java.nio.file.StandardOpenOption.WRITE
 
 class SaveCommand(args: Array<String>) : Command(args) {
 
@@ -11,9 +17,21 @@ class SaveCommand(args: Array<String>) : Command(args) {
         val component = component(helpMessage())
         val request = request(component)
         val json = send(request).json()
-        val outDir = FileUtil.getOrCreateDir(flags.dir() ?: ".")
+        val outDir = createDir(flags.dir() ?: ".")
         saveFiles(outDir, json as ArrayNode)
         return 0
+    }
+
+    private fun createDir(path: String): File {
+        val outDir = File(path)
+        if (!outDir.exists()) {
+            try {
+                createDirectory(outDir.toPath())
+            } catch (e: Exception) {
+                throw CliException("Failed to create output directory ${outDir.absolutePath}", 51)
+            }
+        }
+        return outDir
     }
 
     private fun saveFiles(outDir: File, nodes: ArrayNode) {
@@ -21,7 +39,15 @@ class SaveCommand(args: Array<String>) : Command(args) {
             val filename = node["fileName"].asText()
             val content = node["content"].asText()
             val file = File(outDir, filename)
-            FileUtil.writeFile(file, content)
+            writeFile(file, content)
+        }
+    }
+
+    private fun writeFile(file: File, content: String) {
+        try {
+            writeString(file.toPath(), content, TRUNCATE_EXISTING, WRITE, CREATE_NEW)
+        } catch (e: IOException) {
+            throw CliException("Failed to write a file ${file.absolutePath} ${e.message}", 50)
         }
     }
 
