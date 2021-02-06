@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "spring.microconfig.enabled",
+      "type": "java.lang.String",
+      "description": "Enable Microconfig Server client."
+    },
+    §{
+      "name": "spring.microconfig.environment",
+      "type": "java.lang.String",
+      "description": "Environment to use for service configuration."
+    }
+  ] }

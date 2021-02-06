@@ -1,7 +1,7 @@
 package io.microconfig.server.api
 
-import io.microconfig.core.properties.serializers.ConfigResult
-import io.microconfig.core.templates.Template
+import io.microconfig.server.client.dto.ServiceConfigMap
+import io.microconfig.server.client.dto.ServiceConfigRaw
 import io.microconfig.server.configs.ConfigGenerator
 import io.microconfig.server.configs.ConfigOptions
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,13 +18,18 @@ class ConfigApi(val configGenerator: ConfigGenerator) {
         @PathVariable("component") component: String,
         @PathVariable("env") env: String,
         options: ConfigOptions
-    ): List<ConfigsResponse> {
-        return configGenerator
-            .generateConfigs(component, env, options)
-            .asSequence()
-            .filter { it.content.isNotEmpty() }
-            .flatMap { map(it) }
-            .toList()
+    ): List<ServiceConfigRaw> {
+        return configGenerator.generateConfigs(component, env, options)
+
+    }
+
+    @GetMapping("/configs-map/{component}/{env}")
+    fun fetchConfigsMap(
+        @PathVariable("component") component: String,
+        @PathVariable("env") env: String,
+        options: ConfigOptions
+    ): List<ServiceConfigMap> {
+        return configGenerator.generateConfigMaps(component, env, options)
     }
 
     @GetMapping("/config/{component}/{env}")
@@ -33,33 +38,7 @@ class ConfigApi(val configGenerator: ConfigGenerator) {
         @PathVariable("env") env: String,
         options: ConfigOptions
     ): String {
-        return configGenerator
-            .generateConfigs(component, env, options)
-            .asSequence()
-            .filter { it.content.isNotEmpty() }
-            .flatMap { map(it) }
-            .first()
-            .content
-    }
-
-    data class ConfigsResponse(val service: String, val type: String, val fileName: String, val content: String)
-
-    private fun map(result: ConfigResult): List<ConfigsResponse> {
-        val resp = ConfigsResponse(
-            result.component,
-            result.configType,
-            result.fileName,
-            result.content
-        )
-        val files = templates(result.component, result.templates)
-        files.add(resp)
-        return files
-    }
-
-    private fun templates(component: String, templates: List<Template>): MutableList<ConfigsResponse> {
-        return templates
-            .map { ConfigsResponse(component, "template", it.fileName, it.content) }
-            .toMutableList()
+        return configGenerator.generateConfigs(component, env, options).first().content
     }
 
 }

@@ -1,3 +1,6 @@
 spring:
+  microconfig:
+    enabled: true
+    env: dev
   application:
-    name: spring-client
+    name: payment-backend

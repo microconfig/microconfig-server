@@ -13,10 +13,11 @@ sourceCompatibility = 11
 targetCompatibility = 11
 
 dependencies {
-    implementation 'io.microconfig:microconfig-core:4.3.0',
-            'org.springframework.boot:spring-boot-starter-web'
+    implementation project(":client")
+    implementation project(":common")
+    implementation "org.springframework:spring-core"
+    implementation "org.springframework.boot:spring-boot-starter"
 
-
-    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.0'
+//    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.0'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 }

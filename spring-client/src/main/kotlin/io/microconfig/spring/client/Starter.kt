@@ -1,24 +1,23 @@
-package io.microconfig.spring.client;
+package io.microconfig.spring.client
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import static org.springframework.boot.SpringApplication.run;
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 
 @SpringBootApplication
-public class Starter {
-    public static void main(String[] args) {
-        run(Starter.class, args);
-    }
+class Starter
 
-    @Configuration
-    public static class Config {
-        @Bean
-        public String micro(@Value("micro") String micro) {
-            System.out.println(micro);
-            return "";
-        }
+fun main(args: Array<String>) {
+    runApplication<Starter>(*args)
+}
+
+@Configuration
+class Config {
+    @Bean
+    fun micro(@Value("\${database.url}") value: String): String {
+        println(value)
+        return value
     }
 }

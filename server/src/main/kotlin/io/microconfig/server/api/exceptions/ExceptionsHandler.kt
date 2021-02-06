@@ -37,8 +37,7 @@ class ExceptionsHandler {
     }
 
     private fun logEx(ex: Exception) {
-        val e = ex
-        log.error("{}: {} at {}", e.javaClass, e.message, e.stackTrace[0])
+        log.error("${ex.javaClass}: ${ex.message} at ${ex.stackTrace[0]}")
 
     }
 

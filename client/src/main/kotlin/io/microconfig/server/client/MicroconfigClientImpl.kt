@@ -1,6 +1,8 @@
 package io.microconfig.server.client
 
 import com.fasterxml.jackson.databind.JsonNode
+import io.microconfig.server.client.dto.ServiceConfigMap
+import io.microconfig.server.client.dto.ServiceConfigRaw
 import io.microconfig.server.common.GET
 import io.microconfig.server.common.convert
 import io.microconfig.server.common.json
@@ -10,13 +12,18 @@ import java.net.http.HttpRequest
 class MicroconfigClientImpl(private val config: ClientConfig) : MicroconfigClient {
     private val http = config.http()
 
-    override fun configs(request: MicroconfigRequest): List<ServiceConfig> {
-        return send(request).map { it.convert(ServiceConfig::class.java) }
-
+    override fun configs(request: MicroconfigRequest): List<ServiceConfigRaw> {
+        val url = urlRaw(request)
+        return send(request, url).map { it.convert(ServiceConfigRaw::class.java) }
     }
 
-    private fun send(request: MicroconfigRequest): JsonNode {
-        val get = GET(url(request)).addHeaders(request)
+    override fun configMaps(request: MicroconfigRequest): List<ServiceConfigMap> {
+        val url = urlMap(request)
+        return send(request, url).map { it.convert(ServiceConfigMap::class.java) }
+    }
+
+    private fun send(request: MicroconfigRequest, url: String): JsonNode {
+        val get = GET(url).addHeaders(request)
         val response = get.send(http)
         if (response.statusCode() == 200) {
             return response.body().json()
@@ -26,8 +33,12 @@ class MicroconfigClientImpl(private val config: ClientConfig) : MicroconfigClien
         }
     }
 
-    private fun url(request: MicroconfigRequest): String {
+    private fun urlRaw(request: MicroconfigRequest): String {
         return "${config.server}/api/configs/${request.component}/${request.env}"
+    }
+
+    private fun urlMap(request: MicroconfigRequest): String {
+        return "${config.server}/api/configs-map/${request.component}/${request.env}"
     }
 
     private fun HttpRequest.Builder.addHeaders(request: MicroconfigRequest): HttpRequest {

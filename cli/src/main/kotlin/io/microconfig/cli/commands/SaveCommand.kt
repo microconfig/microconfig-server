@@ -1,6 +1,7 @@
 package io.microconfig.cli.commands
 
 import io.microconfig.cli.CliException
+import io.microconfig.server.client.dto.ServiceConfigRaw
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files.createDirectory
@@ -16,9 +17,7 @@ class SaveCommand(args: Array<String>) : Command(args) {
         val configs = configs(component)
         val outDir = createDir(flags.dir() ?: ".")
 
-        configs.forEach {
-            writeFile(File(outDir, it.file), it.content)
-        }
+        configs.forEach { save(it, outDir) }
 
         return 0
     }
@@ -33,6 +32,14 @@ class SaveCommand(args: Array<String>) : Command(args) {
             }
         }
         return outDir
+    }
+
+    private fun save(config: ServiceConfigRaw, dir: File) {
+        writeFile(File(dir, config.file), config.content)
+
+        config.templates.forEach {
+            writeFile(File(dir, it.file), it.content)
+        }
     }
 
     private fun writeFile(file: File, content: String) {

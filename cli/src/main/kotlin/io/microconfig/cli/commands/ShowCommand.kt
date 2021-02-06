@@ -10,7 +10,7 @@ class ShowCommand(args: Array<String>) : Command(args) {
 
         configs(component, type)
             .firstOrNull { it.type == type }
-            ?.let { println(it) }
+            ?.let { println(it.content) }
             ?: throw CliException("No component with requested type", 404)
 
         return 0

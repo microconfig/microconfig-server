@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import java.io.IOException
 import java.net.URI.create
 import java.net.http.HttpClient
@@ -16,7 +17,7 @@ import java.net.http.HttpResponse.BodyHandlers.ofString
 import java.util.Optional
 import java.util.UUID
 
-private val mapper = ObjectMapper()
+private val mapper = ObjectMapper().registerModule(KotlinModule())
 
 fun GET(url: String): HttpRequest.Builder {
     return http(url).GET()

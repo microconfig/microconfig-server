@@ -6,7 +6,7 @@ import io.microconfig.server.client.ClientConfig
 import io.microconfig.server.client.MicroconfigClientImpl
 import io.microconfig.server.client.MicroconfigException
 import io.microconfig.server.client.MicroconfigRequest
-import io.microconfig.server.client.ServiceConfig
+import io.microconfig.server.client.dto.ServiceConfigRaw
 import io.microconfig.server.common.HttpException
 import io.microconfig.server.common.ssl.defaultTrust
 import io.microconfig.server.common.ssl.rootCa
@@ -26,7 +26,7 @@ abstract class Command(val args: Array<String>) {
         return args[1]
     }
 
-    fun configs(component: String, type: String? = null): List<ServiceConfig> {
+    fun configs(component: String, type: String? = null): List<ServiceConfigRaw> {
         try {
             val request = configsRequest(component, type)
             return client.configs(request)
