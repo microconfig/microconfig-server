@@ -5,7 +5,12 @@
       "type": "java.lang.String",
       "description": "Enable Microconfig Server client."
     },
-    §{
+    {
+      "name": "spring.microconfig.ref",
+      "type": "java.lang.String",
+      "description": "Git ref (branch/tag) to use in configuration repository."
+    },
+    {
       "name": "spring.microconfig.environment",
       "type": "java.lang.String",
       "description": "Environment to use for service configuration."

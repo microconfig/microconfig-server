@@ -6,7 +6,7 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.Files.createDirectory
 import java.nio.file.Files.writeString
-import java.nio.file.StandardOpenOption.CREATE_NEW
+import java.nio.file.StandardOpenOption.CREATE
 import java.nio.file.StandardOpenOption.TRUNCATE_EXISTING
 import java.nio.file.StandardOpenOption.WRITE
 
@@ -44,7 +44,7 @@ class SaveCommand(args: Array<String>) : Command(args) {
 
     private fun writeFile(file: File, content: String) {
         try {
-            writeString(file.toPath(), content, TRUNCATE_EXISTING, WRITE, CREATE_NEW)
+            writeString(file.toPath(), content, TRUNCATE_EXISTING, WRITE, CREATE)
         } catch (e: IOException) {
             throw CliException("Failed to write a file ${file.absolutePath} ${e.message}", 50)
         }

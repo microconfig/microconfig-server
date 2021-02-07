@@ -3,6 +3,7 @@ package io.microconfig.server.api.exceptions
 import io.microconfig.core.environments.repository.EnvironmentException
 import io.microconfig.core.properties.repository.ComponentNotFoundException
 import io.microconfig.server.common.logger
+import io.microconfig.server.git.exceptions.RefNotFound
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.FORBIDDEN
@@ -22,6 +23,7 @@ class ExceptionsHandler {
     fun handle(ex: Exception): ResponseEntity<ErrorResponse> {
         logEx(ex)
         return when (ex) {
+            is RefNotFound -> response(ex.message, BAD_REQUEST)
             is EnvironmentException -> response(ex.message, BAD_REQUEST)
             is ServerErrorException -> response(ex.message, INTERNAL_SERVER_ERROR)
             is NotFoundException -> response(ex.message, NOT_FOUND)

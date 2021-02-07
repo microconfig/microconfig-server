@@ -7,17 +7,17 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @SpringBootApplication
-class Starter
+class SpringApp
 
 fun main(args: Array<String>) {
-    runApplication<Starter>(*args)
+    runApplication<SpringApp>(*args)
 }
 
 @Configuration
 class Config {
     @Bean
-    fun micro(@Value("\${database.url}") value: String): String {
-        println(value)
-        return value
+    fun foo(@Value("\${foo}") foo: String): String {
+        println("Value fetched from remote: $foo")
+        return foo
     }
 }
