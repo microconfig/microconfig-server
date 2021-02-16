@@ -1,5 +1,4 @@
 apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
 
 bootJar {
     archiveFileName = 'server.jar'
@@ -17,6 +16,5 @@ dependencies {
             "org.jetbrains.kotlinx:kotlinx-coroutines-reactor",
             'org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r'
 
-//    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.0'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 }
