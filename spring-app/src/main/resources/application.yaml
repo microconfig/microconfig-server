@@ -1,7 +1,11 @@
 spring:
   application:
     name: spring-app
-  microconfig:
-    enabled: true
-    env: dev
-    ref: spring
+
+microconfig:
+  enabled: true
+  env: dev
+  ref: spring
+  vars:
+    remote:
+      property1: prop1
