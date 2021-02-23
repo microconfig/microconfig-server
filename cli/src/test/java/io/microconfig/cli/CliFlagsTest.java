@@ -1,8 +1,9 @@
 package io.microconfig.cli;
 
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CliFlagsTest {
     String[] args = new String[]{

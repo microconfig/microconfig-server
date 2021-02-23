@@ -18,7 +18,4 @@ shadowJar {
 dependencies {
     implementation project(":client")
     implementation project(":common")
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.2'
-    testImplementation 'junit:junit:4.13'
-    testImplementation 'org.assertj:assertj-core:3.15.0'
 }
