@@ -4,8 +4,7 @@ spring:
 
 microconfig:
   enabled: true
-  env: dev
-  ref: spring
+  server: https://microconfig-server.microconfig:8443
   vars:
-    remote:
-      property1: prop1
+    dynamic:
+      var1: prop1

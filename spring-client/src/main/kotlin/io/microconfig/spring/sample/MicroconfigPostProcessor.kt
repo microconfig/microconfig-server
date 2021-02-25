@@ -1,4 +1,4 @@
-package io.microconfig.spring.client
+package io.microconfig.spring.sample
 
 import io.microconfig.server.client.dto.ServiceTemplate
 import org.springframework.boot.SpringApplication
@@ -7,9 +7,7 @@ import org.springframework.core.env.ConfigurableEnvironment
 import java.io.File
 import java.nio.file.Files.createDirectory
 import java.nio.file.Files.writeString
-import java.nio.file.StandardOpenOption.CREATE
-import java.nio.file.StandardOpenOption.TRUNCATE_EXISTING
-import java.nio.file.StandardOpenOption.WRITE
+import java.nio.file.StandardOpenOption.*
 
 class MicroconfigPostProcessor(private val client: MicroconfigSpringClient) : EnvironmentPostProcessor {
     constructor() : this(MicroconfigSpringClient())

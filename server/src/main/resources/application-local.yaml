@@ -1,26 +1,5 @@
-spring:
-  application.name: microconfig-server
-  main:
-    banner-mode: off
-    allow-bean-definition-overriding: true
-  mustache:
-    check-template-location: false
-
 logging:
   level:
-    root: WARN
-    org:
-      springframework:
-        boot:
-          StartupInfoLogger: INFO
     io.microconfig: TRACE
 
 server.port: 8080
-
-git:
-  workingDir: ${WORK_DIR}
-  remoteUrl: ${REMOTE_URL:https://github.com/microconfig/microconfig-quickstart.git}
-  defaultBranch: ${DEFAULT_BRANCH:master}
-  username: ${USERNAME:open}
-  password: ${PASSWORD:source}
-  pullDelay: 10

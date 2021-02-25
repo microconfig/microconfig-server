@@ -1,0 +1,9 @@
+logging:
+  level:
+    io.microconfig: TRACE
+
+server:
+  port: 8443
+  ssl:
+    key-store: "classpath:microconfig.jks"
+    key-store-password: "tls-password"

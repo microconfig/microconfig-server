@@ -1,4 +1,4 @@
-package io.microconfig.spring.client
+package io.microconfig.spring.sample
 
 import org.springframework.core.env.MapPropertySource
 
