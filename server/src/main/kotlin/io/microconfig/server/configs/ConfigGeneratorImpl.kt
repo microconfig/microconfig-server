@@ -5,7 +5,6 @@ import io.microconfig.core.Microconfig.searchConfigsIn
 import io.microconfig.core.configtypes.ConfigTypeFilter
 import io.microconfig.core.configtypes.ConfigTypeFilters.configTypeWithName
 import io.microconfig.core.configtypes.ConfigTypeFilters.eachConfigType
-import io.microconfig.core.properties.PlaceholderResolveStrategy
 import io.microconfig.core.properties.Properties
 import io.microconfig.core.properties.serializers.PropertySerializers.asConfigResult
 import io.microconfig.core.properties.templates.TemplatesService.resolveTemplatesBy
@@ -49,13 +48,19 @@ class ConfigGeneratorImpl(val gitService: GitService) : ConfigGenerator {
         val microconfig = searchConfigsIn(configDir)
         microconfig.logger(false)
         return microconfig
-            .withAdditionalPlaceholderResolvers(placeholderResolvers(microconfig, options))
+            .addDynamicVars(options)
+            .addVaultResolver()
     }
 
-    private fun placeholderResolvers(microconfig: Microconfig, options: ConfigOptions): List<PlaceholderResolveStrategy> {
-        val dynamicVars = DynamicVarsResolverStrategy(options.vars)
-        val vault = VaultKVSecretResolverStrategy(microconfig)
-        return listOf(dynamicVars, vault)
+    private fun Microconfig.addDynamicVars(options: ConfigOptions): Microconfig {
+        val dynamicVars = DynamicVarsPropertiesRepository(options.vars)
+        return this.withAdditionalPropertiesRepositories(listOf(dynamicVars))
+    }
+
+    private fun Microconfig.addVaultResolver(): Microconfig {
+        val vault = VaultKVSecretResolverStrategy(this)
+        val resolvers = this.additionalPlaceholderResolvers() + vault
+        return this.withAdditionalPlaceholderResolvers(resolvers)
     }
 
     private fun configTypes(options: ConfigOptions): ConfigTypeFilter {

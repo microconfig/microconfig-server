@@ -34,7 +34,7 @@ private fun token(config: Map<String, String>): VaultCredentials {
 private fun kubernetes(address: String, timeout: Duration, config: Map<String, String>): VaultCredentials {
     val path = getValue(config, "microconfig.vault.kubernetes.path")
     val role = getValue(config, "microconfig.vault.kubernetes.role")
-    val jwt = getValue(config, "microconfig.vault.kubernetes.jwt")
+    val jwt = getValue(config, "microconfig.vault.jwt")
     return KubernetesTokenCredentials(address, timeout, path, role, jwt)
 }
 

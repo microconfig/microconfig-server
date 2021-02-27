@@ -14,8 +14,8 @@ import java.net.http.HttpRequest.BodyPublishers.ofString
 import java.net.http.HttpRequest.newBuilder
 import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers.ofString
-import java.util.Optional
-import java.util.UUID
+import java.util.*
+import javax.net.ssl.SSLException
 
 private val mapper = ObjectMapper().registerModule(KotlinModule())
 
@@ -41,9 +41,18 @@ fun HttpRequest.send(client: HttpClient): HttpResponse<String> {
     try {
         return client.send(this, ofString())
     } catch (e: HttpConnectTimeoutException) {
-        throw HttpException("HTTP timeout: ${this.uri()}")
+        throw HttpException("HTTP timeout: ${this.uri()}", e)
     } catch (e: IOException) {
-        throw HttpException("IO exception: ${this.uri()}").initCause(e)
+        throw e.toHttpException(this.uri().toString())
+    }
+}
+
+fun IOException.toHttpException(url: String): HttpException {
+    val cause = this.cause
+    return if (cause is SSLException) {
+        HttpException("SSL exception: $url: ${cause.message}", cause)
+    } else {
+        HttpException("IO exception: $url", this)
     }
 }
 

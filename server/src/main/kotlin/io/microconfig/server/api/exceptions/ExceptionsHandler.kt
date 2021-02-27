@@ -1,14 +1,12 @@
 package io.microconfig.server.api.exceptions
 
 import io.microconfig.core.environments.repository.EnvironmentException
+import io.microconfig.core.properties.ResolveException
 import io.microconfig.core.properties.repository.ComponentNotFoundException
 import io.microconfig.server.common.logger
 import io.microconfig.server.git.exceptions.RefNotFound
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatus.BAD_REQUEST
-import org.springframework.http.HttpStatus.FORBIDDEN
-import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
-import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.*
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -23,6 +21,7 @@ class ExceptionsHandler {
     fun handle(ex: Exception): ResponseEntity<ErrorResponse> {
         logEx(ex)
         return when (ex) {
+            is ResolveException -> response(ex.message, BAD_REQUEST)
             is RefNotFound -> response(ex.message, BAD_REQUEST)
             is EnvironmentException -> response(ex.message, BAD_REQUEST)
             is ServerErrorException -> response(ex.message, INTERNAL_SERVER_ERROR)
@@ -39,8 +38,11 @@ class ExceptionsHandler {
     }
 
     private fun logEx(ex: Exception) {
-        log.error("${ex.javaClass}: ${ex.message} at ${ex.stackTrace[0]}")
-
+        val c = ex.javaClass.name
+        when {
+            c.startsWith("io.microconfig") -> log.error(ex.message)
+            else -> log.error("$c: ${ex.message} at ${ex.stackTrace[0]}")
+        }
     }
 
     data class ErrorResponse(val error: String?)
