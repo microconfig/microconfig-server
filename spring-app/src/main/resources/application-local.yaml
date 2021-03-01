@@ -1,8 +1,0 @@
-microconfig:
-  enabled: false
-
-config:
-  foo: local-foo
-  secret: local-secret
-  prop1: local-prop1
-  prop2: local-prop2

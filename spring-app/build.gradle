@@ -1,8 +1,0 @@
-apply plugin: 'org.springframework.boot'
-
-dependencies {
-    implementation project(":spring-client")
-    implementation "org.springframework.boot:spring-boot-starter"
-    implementation "org.springframework.boot:spring-boot-starter-logging"
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-}
