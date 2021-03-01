@@ -9,7 +9,7 @@ import org.springframework.boot.runApplication
 @EnableConfigurationProperties(Config::class)
 class SpringApp
 
-val logger = LoggerFactory.getLogger(SpringApp::class.java)
+private val logger = LoggerFactory.getLogger(SpringApp::class.java)
 
 fun main(args: Array<String>) {
     val context = runApplication<SpringApp>(*args)

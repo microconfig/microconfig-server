@@ -8,9 +8,6 @@ jar {
     }
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
-
 shadowJar {
     archiveFileName = "microctl.jar"
 }

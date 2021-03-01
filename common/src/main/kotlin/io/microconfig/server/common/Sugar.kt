@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import java.io.IOException
+import java.net.ConnectException
 import java.net.URI.create
 import java.net.http.HttpClient
 import java.net.http.HttpConnectTimeoutException
@@ -49,10 +50,10 @@ fun HttpRequest.send(client: HttpClient): HttpResponse<String> {
 
 fun IOException.toHttpException(url: String): HttpException {
     val cause = this.cause
-    return if (cause is SSLException) {
-        HttpException("SSL exception: $url: ${cause.message}", cause)
-    } else {
-        HttpException("IO exception: $url", this)
+    return when (cause) {
+        is ConnectException -> HttpException("Can't connect to $url. ${cause.message}", cause)
+        is SSLException -> HttpException("SSL exception: $url: ${cause.message}", cause)
+        else -> HttpException("IO exception: $url", this)
     }
 }
 

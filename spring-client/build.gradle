@@ -1,11 +1,6 @@
-apply plugin: 'io.spring.dependency-management'
-
 jar {
     enabled = true
 }
-
-sourceCompatibility = 11
-targetCompatibility = 11
 
 dependencies {
     implementation project(":client")
