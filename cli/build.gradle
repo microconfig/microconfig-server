@@ -1,6 +1,4 @@
-plugins {
-    id "com.github.johnrengelman.shadow" version "5.2.0"
-}
+apply plugin: 'com.github.johnrengelman.shadow'
 
 jar {
     manifest {
@@ -14,5 +12,5 @@ shadowJar {
 
 dependencies {
     implementation project(":server-client")
-    implementation project(":common")
+    implementation project(":server-common")
 }

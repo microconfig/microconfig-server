@@ -1,14 +1,14 @@
 apply plugin: 'maven-publish'
 
-dependencies {
-    implementation project(":server-common")
+jar {
+    enabled = true
 }
 
 publishing {
     publications {
         maven(MavenPublication) {
             groupId = 'io.microconfig'
-            artifactId = 'server-client'
+            artifactId = 'server-common'
             version = '0.1.0'
 
             from components.java

@@ -2,7 +2,7 @@ package io.microconfig.server.common
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 
 internal class SugarKtTest {
     @Test
