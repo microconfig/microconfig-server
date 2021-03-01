@@ -5,6 +5,7 @@ import org.springframework.core.MethodParameter
 import org.springframework.stereotype.Service
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
+import org.springframework.web.context.request.ServletWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
 
@@ -20,15 +21,16 @@ class ConfigOptionsResolver : HandlerMethodArgumentResolver {
         webRequest: NativeWebRequest,
         _3: WebDataBinderFactory?
     ): ConfigOptions {
-        val type = webRequest.getHeader("X-TYPE")
-        val ref = webRequest.getHeader("X-REF")
+        val query = query(webRequest)
+        val type = query["type"] ?: webRequest.getHeader("X-TYPE")
+        val ref = query["ref"] ?: webRequest.getHeader("X-REF")
         val vars = vars(webRequest)
         return ConfigOptions(type, ref, vars)
     }
 
     private fun vars(webRequest: NativeWebRequest): Map<String, String> {
         val headerValues = webRequest.getHeaderValues("X-VAR") ?: return emptyMap()
-        return headerValues.asSequence()
+        return headerValues
             .map(this::splitVar)
             .toMap()
     }
@@ -38,6 +40,14 @@ class ConfigOptionsResolver : HandlerMethodArgumentResolver {
         val key = str.substring(0, idx)
         val value = str.substring(idx + 1)
         return Pair(key, value)
+    }
+
+    private fun query(webRequest: NativeWebRequest): Map<String, String> {
+        val servletRequest = webRequest as? ServletWebRequest ?: return emptyMap()
+        return servletRequest.request.queryString
+            .split('&')
+            .map { it.split('=') }
+            .associate { it[0] to it[1] }
     }
 }
 
