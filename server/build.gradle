@@ -7,7 +7,6 @@ bootJar {
 
 dependencies {
     implementation project(":common")
-    implementation project(":client")
 
     implementation 'io.microconfig:microconfig-core:4.3.3',
             'org.springframework.boot:spring-boot-starter-web',

@@ -22,6 +22,12 @@ fun defaultTrust(): SSLContext {
     return SSLContext.getDefault()
 }
 
+fun tls12(): SSLContext {
+    val ssl = SSLContext.getInstance("TLSv1.2")
+    ssl.init(null, null, SecureRandom())
+    return ssl
+}
+
 fun rootCa(path: String): SSLContext {
     val rootCa = File(path)
     val sc = SSLContext.getInstance("TLS")
