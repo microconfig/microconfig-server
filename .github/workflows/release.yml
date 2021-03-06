@@ -17,11 +17,11 @@ jobs:
         with:
           java-version: 11
       - name: Build Jar
-        run: ./gradlew shadowJar -p cli
+        run: ./gradlew shadowJar -p server-microctl
       - uses: actions/upload-artifact@v2
         with:
           name: microctl.jar
-          path: cli/build/libs/microctl.jar
+          path: server-microctl/build/libs/microctl.jar
 
   linux:
     name: "Build Linux"
@@ -58,7 +58,7 @@ jobs:
           name: microctl.jar
       - name: Build Binary
         shell: bash
-        run: mkdir microctl && docker build -t microctl:alpine -f cli/Dockerfile-alpine . && docker run -v "$PWD/microctl":/volume microctl:alpine cp /microctl /volume/microctl
+        run: .graalvm/bin/native-image --static --libc=musl -jar /microctl.jar
       - uses: actions/upload-artifact@v2
         with:
           name: microctl-alpine
