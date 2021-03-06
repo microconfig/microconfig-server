@@ -12,5 +12,4 @@ shadowJar {
 
 dependencies {
     implementation project(":server-client")
-    implementation project(":server-common")
 }

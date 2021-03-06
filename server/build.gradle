@@ -10,12 +10,13 @@ bootJar {
 dependencies {
     implementation project(":server-client")
 
-    implementation 'io.microconfig:microconfig-core:4.3.3',
+    implementation 'io.microconfig:microconfig-core:4.3.4',
+            'org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r',
             'org.springframework.boot:spring-boot-starter-web',
             'org.springframework.boot:spring-boot-starter-actuator',
             "org.jetbrains.kotlinx:kotlinx-coroutines-core",
-            "org.jetbrains.kotlinx:kotlinx-coroutines-reactor",
-            'org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r'
+            "org.jetbrains.kotlinx:kotlinx-coroutines-reactor"
+
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 }

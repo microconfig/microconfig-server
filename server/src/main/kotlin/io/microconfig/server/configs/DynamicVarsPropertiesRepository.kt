@@ -5,7 +5,7 @@ import io.microconfig.core.properties.ConfigFormat.PROPERTIES
 import io.microconfig.core.properties.DeclaringComponentImpl
 import io.microconfig.core.properties.PropertiesRepository
 import io.microconfig.core.properties.Property
-import io.microconfig.core.properties.PropertyImpl.property
+import io.microconfig.core.properties.PropertyImpl.varProperty
 
 class DynamicVarsPropertiesRepository(private val vars: Map<String, String>) : PropertiesRepository {
 
@@ -16,7 +16,7 @@ class DynamicVarsPropertiesRepository(private val vars: Map<String, String>) : P
     ): Map<String, Property> {
         val parent = DeclaringComponentImpl(configType.name, "Dynamic Vars", environment)
         return vars
-            .map { (k, v) -> k to property(k, v, PROPERTIES, parent) }
+            .map { (k, v) -> k to varProperty(k, v, PROPERTIES, parent) }
             .toMap()
     }
 }

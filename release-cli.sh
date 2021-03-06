@@ -5,8 +5,8 @@ then
     TAG=$1
 fi
 
-./gradlew shadowJar -p cli
+./gradlew shadowJar -p server-microctl
 
-docker build -t microconfig/server-cli:"$TAG" -t microconfig/server-cli:latest -f cli/Dockerfile cli
+docker build -t microconfig/server-cli:"$TAG" -t microconfig/server-cli:latest server-microctl
 docker push microconfig/server-cli:"$TAG"
 docker push microconfig/server-cli:latest

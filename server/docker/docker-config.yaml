@@ -1,10 +1,18 @@
 spring:
-  application.name: microconfig-server
+  application:
+    name: microconfig-server
   main:
     banner-mode: off
     allow-bean-definition-overriding: true
   mustache:
     check-template-location: false
+
+management:
+  endpoints:
+    enabled-by-default: false
+  endpoint:
+    health:
+      enabled: true
 
 server:
   port: 80

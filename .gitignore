@@ -28,7 +28,6 @@ config/
 
 
 # Native cli executable #
-microconfig-cli
 microctl
 .graalvm
 
