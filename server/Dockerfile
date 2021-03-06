@@ -1,11 +1,14 @@
 FROM azul/zulu-openjdk-centos:15
 EXPOSE 80
 
-ADD docker-config.yaml /application.yaml
-ADD build/libs/server.jar /server.jar
+RUN yum -y install openssl; yum clean all
 
-#-Xlog:gc*
-CMD java -Dfile.encoding=UTF-8  \
-    -XX:+UseShenandoahGC -XX:+UseCompressedOops \
-    -Xmx256m \
-    -jar /server.jar --spring.config.location=/application.yaml
+RUN mkdir /microconfig && mkdir /tls
+
+ADD docker/docker-config.yaml /microconfig/application.yaml
+ADD docker/docker-config-tls.yaml /microconfig/application-tls.yaml
+ADD docker/starter.sh /microconfig/starter.sh
+
+ADD build/libs/server.jar /microconfig/server.jar
+
+CMD /microconfig/starter.sh

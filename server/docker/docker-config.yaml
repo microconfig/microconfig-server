@@ -19,8 +19,8 @@ git:
 logging:
   level:
     ROOT: WARN
+    io.microconfig: ${LOG_LEVEL:DEBUG}
     org:
       springframework:
         boot:
           StartupInfoLogger: INFO
-    io.microconfig: ${LOG_LEVEL:DEBUG}

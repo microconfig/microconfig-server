@@ -44,7 +44,8 @@ class ConfigOptionsResolver : HandlerMethodArgumentResolver {
 
     private fun query(webRequest: NativeWebRequest): Map<String, String> {
         val servletRequest = webRequest as? ServletWebRequest ?: return emptyMap()
-        return servletRequest.request.queryString
+        val query = servletRequest.request.queryString ?: return emptyMap()
+        return query
             .split('&')
             .map { it.split('=') }
             .associate { it[0] to it[1] }

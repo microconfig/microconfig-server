@@ -1,7 +1,7 @@
 apply plugin: 'maven-publish'
 
 dependencies {
-    implementation project(":server-common")
+    api project(":server-common")
 }
 
 publishing {
