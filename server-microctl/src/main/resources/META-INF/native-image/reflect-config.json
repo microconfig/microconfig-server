@@ -1,9 +1,5 @@
 [
 {
-  "name":"apple.security.AppleProvider",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"com.fasterxml.jackson.databind.deser.Deserializers[]"
 },
 {
