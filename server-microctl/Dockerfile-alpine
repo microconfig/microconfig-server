@@ -1,4 +1,4 @@
-FROM ghcr.io/graalvm/graalvm-ce:21.0.0-java11 AS builder
+FROM ghcr.io/graalvm/graalvm-ce:21.0.0-java11
 RUN gu install native-image
 
 # Install musl clib for alpine
@@ -18,11 +18,6 @@ RUN ./configure --static --prefix=/musl
 RUN make && make install
 WORKDIR /
 
-ADD build/libs/microctl.jar /microctl.jar
+ADD microctl.jar /microctl.jar
 RUN native-image --static --libc=musl -jar /microctl.jar
-
-FROM alpine:latest
-
-COPY --from=builder /microctl /bin/microctl
-RUN microctl version
-ENTRYPOINT ["microctl"]
+RUN /microctl version
