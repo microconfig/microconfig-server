@@ -17,7 +17,6 @@ cd musl-1.2.1
 ./configure --disable-shared --prefix="../musl"
 make && make install
 cd ..
-export PATH="$PWD/musl/bin:$PATH"
 musl-gcc -v
 
 # Install zlib
