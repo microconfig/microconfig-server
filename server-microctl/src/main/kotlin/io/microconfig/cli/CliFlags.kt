@@ -1,19 +1,24 @@
 package io.microconfig.cli
 
+import java.lang.System.getenv
 import java.util.stream.IntStream.range
 import kotlin.streams.asSequence
 
 class CliFlags(private val args: Array<String>) {
     fun env(): String? {
-        return findFlag("-e", "--env")
+        return findFlag("-e", "--env") ?: getenv()["MC_ENV"]
+    }
+
+    fun type(): String? {
+        return findFlag("-t", "--type") ?: getenv()["MC_TYPE"]
     }
 
     fun dir(): String? {
-        return findFlag("-d", "--dir")
+        return findFlag("-d", "--dir") ?: getenv()["MC_DIR"]
     }
 
     fun vars(): Map<String, String> {
-        return findVars("-s", "--set")
+        return envVars() + findVars("-s", "--set")
     }
 
     fun branch(): String? {
@@ -25,27 +30,24 @@ class CliFlags(private val args: Array<String>) {
     }
 
     fun ref(): String? {
-        return findFlag("--ref")
+        return findFlag("--ref") ?: getenv()["MC_REF"]
     }
 
     fun timeout(): Long {
-        return findFlag("--timeout")?.toLong() ?: 10
+        return findFlag("--timeout")?.toLong() ?: getenv()["MC_TIMEOUT"]?.toLong() ?: 10
     }
 
+    // TODO remove MCS_ADDRESS option
     fun server(): String? {
-        return findFlag("--server")
+        return findFlag("--server") ?: getenv()["MCS_ADDRESS"] ?: getenv()["MC_ADDRESS"]
     }
 
     fun skipTls(): Boolean {
-        return args.contains("--skip-tls")
+        return args.contains("--skip-tls") || getenv()["MC_SKIP_TLS"] == "true"
     }
 
     fun rootCa(): String? {
-        return findFlag("--tls-root-ca")
-    }
-
-    fun type(): String? {
-        return findFlag("-t", "--type")
+        return findFlag("--tls-root-ca") ?: getenv()["MC_ROOT_CA"]
     }
 
     private fun findFlag(vararg flags: String): String? {
@@ -80,5 +82,15 @@ class CliFlags(private val args: Array<String>) {
         val key = str.substring(0, idx)
         val value = str.substring(idx + 1)
         return Pair(key, value)
+    }
+
+    private fun envVars(): Map<String, String> {
+        return getenv().asSequence()
+            .filter { (k, _) -> k.startsWith("MC_VAR_") }
+            .associate { extractVarName(it.key) to it.value }
+    }
+
+    private fun extractVarName(key: String): String {
+        return key.substring(7).toLowerCase().replace('_', '.')
     }
 }

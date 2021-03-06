@@ -11,7 +11,6 @@ import io.microconfig.server.common.HttpException
 import io.microconfig.server.common.ssl.defaultTrust
 import io.microconfig.server.common.ssl.rootCa
 import io.microconfig.server.common.ssl.trustAll
-import java.lang.System.getenv
 import java.time.Duration
 import javax.net.ssl.SSLContext
 
@@ -38,13 +37,13 @@ abstract class Command(val args: Array<String>) {
     }
 
     private fun configsRequest(component: String, type: String?): MicroconfigRequest {
-        val env = flags.env() ?: "default"
+        val env = flags.env() ?: "base"
         val ref = flags.branch() ?: flags.tag() ?: flags.ref()
         return MicroconfigRequest(component, env, type, ref, flags.vars())
     }
 
     private fun server(): String {
-        return flags.server() ?: getenv()["MCS_ADDRESS"] ?: "http://localhost:8080"
+        return flags.server() ?: "http://localhost:8080"
     }
 
     private fun timeout(): Duration {
