@@ -7,11 +7,10 @@ import java.net.http.HttpResponse
 
 fun HttpResponse<String>.vaultResponse(): JsonNode {
     val node = this.json()
-    if (statusCode() == 200) return node
+    if (statusCode() / 100 == 2) return node
 
-    if (node["errors"] != null) {
-        throw VaultAuthException("Vault request failed with errors: ${node["errors"]}")
-    } else {
-        throw VaultAuthException("Vault request failed with http status: ${this.statusCode()}")
+    when (val error = node["errors"]) {
+        null -> throw VaultAuthException("Vault request failed with http status: ${this.statusCode()}")
+        else -> throw VaultAuthException("Vault request failed with errors: $error")
     }
 }

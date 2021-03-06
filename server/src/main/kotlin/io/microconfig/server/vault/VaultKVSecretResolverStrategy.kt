@@ -8,7 +8,7 @@ import io.microconfig.core.properties.PlaceholderResolveStrategy
 import io.microconfig.core.properties.Property
 import io.microconfig.core.properties.PropertyImpl.property
 import io.microconfig.server.common.toOptional
-import java.util.Optional
+import java.util.*
 import java.util.Optional.empty
 
 class VaultKVSecretResolverStrategy(val microconfig: Microconfig) : PlaceholderResolveStrategy {
@@ -30,9 +30,7 @@ class VaultKVSecretResolverStrategy(val microconfig: Microconfig) : PlaceholderR
     }
 
     private fun client(environment: String, root: String, configType: String): VaultClient {
-        if (vaultClient == null) {
-            vaultClient = initClient(environment, root, configType)
-        }
+        vaultClient = vaultClient ?: initClient(environment, root, configType)
         return vaultClient!!
     }
 
@@ -44,6 +42,7 @@ class VaultKVSecretResolverStrategy(val microconfig: Microconfig) : PlaceholderR
             .resolveBy(microconfig.resolver())
             .propertiesAsKeyValue
 
-        return VaultClientImpl(vaultConfig(properties))
+        val vaultConfig = vaultConfig(properties)
+        return VaultClientImpl(vaultConfig)
     }
 }

@@ -10,11 +10,18 @@ import java.time.Duration.ofSeconds
 
 data class VaultConfig(val address: String, val timeout: Duration, val credentials: VaultCredentials)
 
+const val DEFAULT_TIMEOUT = 2L
+
 fun vaultConfig(config: Map<String, String>): VaultConfig {
     val address = getValue(config, "microconfig.vault.address")
     val timeout = timeout(config)
     val auth = auth(address, timeout, config)
     return VaultConfig(address, timeout, auth)
+}
+
+private fun timeout(config: Map<String, String>): Duration {
+    val t = config["microconfig.vault.timeout"]?.toLong() ?: DEFAULT_TIMEOUT
+    return ofSeconds(t)
 }
 
 private fun auth(address: String, timeout: Duration, config: Map<String, String>): VaultCredentials {
@@ -43,11 +50,6 @@ private fun approle(address: String, timeout: Duration, config: Map<String, Stri
     val role = getValue(config, "microconfig.vault.approle.role")
     val secret = getValue(config, "microconfig.vault.approle.secret")
     return VaultAppRoleCredentials(address, timeout, path, role, secret)
-}
-
-private fun timeout(config: Map<String, String>): Duration {
-    val t = config["microconfig.vault.timeout"]?.toLong() ?: 2
-    return ofSeconds(t)
 }
 
 private fun getValue(config: Map<String, String>, key: String): String {
