@@ -24,7 +24,7 @@ jobs:
           path: server-microctl/build/libs/microctl.jar
 
   linux:
-    name: "Build Linux"
+    name: "Build Linux Binary"
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -40,13 +40,16 @@ jobs:
       - name: Build Binary
         shell: bash
         run: .graalvm/bin/native-image --static -jar microctl.jar
+      - name: Test Run
+        shell: bash
+        run: ./microctl version
       - uses: actions/upload-artifact@v2
         with:
           name: microctl-linux
           path: ./microctl
 
   alpine:
-    name: "Build Alpine"
+    name: "Build Alpine Binary"
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -61,14 +64,17 @@ jobs:
         run: .github/scripts/native/graalvm-alpine.sh
       - name: Build Binary
         shell: bash
-        run: .graalvm/bin/native-image --static --libc=musl -jar /microctl.jar
+        run: .graalvm/bin/native-image --static --libc=musl -jar microctl.jar
+      - name: Test Run
+        shell: bash
+        run: ./microctl version
       - uses: actions/upload-artifact@v2
         with:
           name: microctl-alpine
           path: microctl/microctl
 
   windows:
-    name: "Build Windows"
+    name: "Build Windows Binary"
     needs: build
     runs-on: windows-2016
     steps:
@@ -84,13 +90,16 @@ jobs:
       - name: Build Binary
         shell: bash
         run: .github/scripts/native/native.bat
+      - name: Test Run
+        shell: bash
+        run: ./microctl.exe version
       - uses: actions/upload-artifact@v2
         with:
           name: microctl-windows
           path: microctl.exe
 
   macos:
-    name: "Build MacOS"
+    name: "Build MacOS Binary"
     needs: build
     runs-on: macos-latest
     steps:
@@ -106,6 +115,9 @@ jobs:
       - name: Build Binary
         shell: bash
         run: .graalvm/bin/native-image -jar microctl.jar
+      - name: Test Run
+        shell: bash
+        run: ./microctl version
       - uses: actions/upload-artifact@v2
         with:
           name: microctl-macos
