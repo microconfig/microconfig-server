@@ -1,4 +1,4 @@
-FROM ghcr.io/graalvm/graalvm-ce:21.0.0-java11 AS builder
+FROM ghcr.io/graalvm/graalvm-ce:21.0.0 AS builder
 RUN gu install native-image
 
 # Install musl clib for alpine
