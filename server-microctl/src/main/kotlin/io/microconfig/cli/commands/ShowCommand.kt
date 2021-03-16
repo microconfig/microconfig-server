@@ -18,11 +18,11 @@ class ShowCommand(args: Array<String>) : Command(args) {
 
     private fun helpMessage(): String {
         return """
-            Usage microctl show [component] [flags]
-            Generates configuration for component of specified type and outputs it to console
+            Usage microctl show [service] [flags]
+            Generates configuration of specified type for service and outputs it to console
             Flags: 
-              -e, --env  [name]: config environment
-              -t, --type [name]: config type, 'app' by default
+              -e, --env  [name]: config environment (MC_ENV)
+              -t, --type [name]: config type, 'app' by default (MC_TYPE)
               -s, --set  [foo=bar]: override values for placeholders and vars
             """.trimIndent()
     }

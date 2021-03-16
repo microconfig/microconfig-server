@@ -14,7 +14,7 @@ class SaveCommand(args: Array<String>) : Command(args) {
 
     override fun execute(): Int {
         val component = component(helpMessage())
-        val configs = configs(component)
+        val configs = configs(component, flags.type())
         val outDir = createDir(flags.dir() ?: ".")
 
         configs.forEach { save(it, outDir) }
@@ -52,12 +52,12 @@ class SaveCommand(args: Array<String>) : Command(args) {
 
     private fun helpMessage(): String {
         return """
-            Usage microctl save [component] [flags]
-            Generates configuration for component and saves it to disk
+            Usage microctl save [service] [flags]
+            Generates configuration for service and saves it to disk
             Flags: 
-              -e, --env  [name]: config environment
-              -t, --type [name]: config type, all types by default
-              -d, --dir  [path]: output directory, current dir by default
+              -e, --env  [name]: config environment (MC_ENV)
+              -t, --type [name]: config type, all types by default (MC_TYPE)
+              -d, --dir  [path]: output directory, current dir by default (MC_DIR)
               -s, --set  [foo=bar]: override values for placeholders and vars
             """.trimIndent()
     }

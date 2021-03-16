@@ -11,6 +11,7 @@ import io.microconfig.server.common.HttpException
 import io.microconfig.server.common.ssl.defaultTrust
 import io.microconfig.server.common.ssl.rootCa
 import io.microconfig.server.common.ssl.trustAll
+import java.lang.System.getenv
 import java.time.Duration
 import javax.net.ssl.SSLContext
 
@@ -21,8 +22,8 @@ abstract class Command(val args: Array<String>) {
     abstract fun execute(): Int
 
     fun component(message: String): String {
-        if (args.size < 2) throw CliException(message, 3)
-        return args[1]
+        return if (args.size > 1) args[1]
+        else getenv()["MC_SERVICE"] ?: throw CliException(message, 3)
     }
 
     fun configs(component: String, type: String? = null): List<ServiceConfigRaw> {

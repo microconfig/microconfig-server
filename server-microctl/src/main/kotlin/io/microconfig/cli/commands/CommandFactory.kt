@@ -3,15 +3,16 @@ package io.microconfig.cli.commands
 import io.microconfig.cli.CliException
 
 val errorMessage = """
-    Usage: microctl [command] [component] [flags]
+    Usage: microctl [command] [service] [flags]
     No command provided.
     Supported commands are [show, save, version, help]
     """.trimIndent()
 
 fun command(args: Array<String>): Command {
-    if (args.isEmpty()) throw CliException(errorMessage, 1)
+    val cmd = System.getenv()["MC_CMD"]
+    if (args.isEmpty() && cmd == null) throw CliException(errorMessage, 1)
 
-    return when (val command = args[0]) {
+    return when (val command = args.firstOrNull() ?: cmd) {
         "show" -> ShowCommand(args)
         "save" -> SaveCommand(args)
         "version" -> VersionCommand(args)
