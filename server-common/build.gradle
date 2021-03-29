@@ -6,10 +6,15 @@ jar {
 
 publishing {
     publications {
-        maven(MavenPublication) {
+        nexus(MavenPublication) {
             artifactId = 'server-common'
             version = "$version"
 
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', pomDescription)
+                root.children().last() + pomConfig
+            }
             from components.java
         }
     }

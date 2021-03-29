@@ -21,6 +21,12 @@ data class GitConfig(
     }
 
     fun dir(): File {
-        return workingDir.resolve("repo")
+        return workingDir.resolve("repo").resolve(repoName())
+    }
+
+    private fun repoName(): String {
+        val start = remoteUrl.lastIndexOf('/')
+        val end = remoteUrl.lastIndexOf(".git")
+        return remoteUrl.substring(start + 1, end)
     }
 }

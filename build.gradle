@@ -11,6 +11,8 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.spring' version '1.4.21'
 }
 
+apply from: 'pomSettings.gradle'
+
 repositories {
     mavenCentral()
 }
