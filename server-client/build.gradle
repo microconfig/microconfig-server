@@ -1,7 +1,17 @@
 apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+jar {
+    enabled = true
+}
 
 dependencies {
     api project(":server-common")
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 publishing {
@@ -18,4 +28,18 @@ publishing {
             from components.java
         }
     }
+
+    repositories {
+        maven {
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.nexus
 }
